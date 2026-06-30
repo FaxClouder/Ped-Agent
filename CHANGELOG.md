@@ -13,4 +13,5 @@ The project follows semantic versioning while it matures:
 - Added Phase 1 project scaffold.
 - Added configuration, model, Agent routing, RAG, analysis, experiment, vision, and eval module boundaries.
 - Added initial tests and CI workflow.
-
+- Wired LangSmith runtime environment configuration into the CLI entrypoint.
+- Added the documented environment template and strengthened Phase 1 unit coverage.

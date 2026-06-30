@@ -40,9 +40,13 @@ class LLMFactory:
         except ImportError as exc:
             raise MissingLLMDependencyError("Install langchain-openai.") from exc
 
+        api_key = provider_config.get("api_key")
+        if provider_name == "local" and not api_key:
+            api_key = "local"
+
         kwargs = {
             "model": provider_config["model"],
-            "api_key": provider_config.get("api_key"),
+            "api_key": api_key,
             "temperature": provider_config.get("temperature", 0.1),
             "timeout": provider_config.get("timeout", 60),
             "max_retries": provider_config.get("max_retries", 3),
@@ -56,4 +60,3 @@ class LLMFactory:
 
 def build_chat_model(config: Any, provider: str | None = None):
     return LLMFactory(config).build(provider)
-

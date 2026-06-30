@@ -31,6 +31,14 @@ class PedestrianTrack(BaseModel):
             raise ValueError("timestamps length must match frames length")
         return value
 
+    @field_validator("confidence")
+    @classmethod
+    def confidence_matches_frames(cls, value: list[float] | None, info):
+        frames = info.data.get("frames", [])
+        if value is not None and frames and len(value) != len(frames):
+            raise ValueError("confidence length must match frames length")
+        return value
+
 
 class VideoMetadata(BaseModel):
     source: str
@@ -43,4 +51,3 @@ class VideoMetadata(BaseModel):
 class TrajectoryData(BaseModel):
     video_meta: VideoMetadata
     tracks: list[PedestrianTrack] = Field(default_factory=list)
-

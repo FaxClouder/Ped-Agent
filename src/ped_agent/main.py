@@ -6,6 +6,7 @@ from collections.abc import Sequence
 
 from ped_agent.agent.graph import build_agent_graph
 from ped_agent.utils.config import ConfigManager, validate_config
+from ped_agent.utils.langsmith import configure_langsmith
 from ped_agent.utils.logging import configure_logging, get_logger
 
 logger = get_logger(__name__)
@@ -42,6 +43,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         env_file=args.env_file,
         overrides=args.overrides,
     )
+    configure_langsmith(config)
     configure_logging(config)
 
     validation = validate_config(config, require_secrets=args.strict_secrets)

@@ -3,7 +3,7 @@
 Ped-Agent is an agentic toolkit for pedestrian-flow literature QA, experiment-plan
 evaluation, structured scenario analysis, and optional video-to-trajectory extraction.
 
-This repository currently contains the Phase 1 scaffold:
+This repository contains the Phase 1 foundation:
 
 - Python package layout under `src/ped_agent`
 - YAML configuration system with environment-variable interpolation
@@ -11,6 +11,7 @@ This repository currently contains the Phase 1 scaffold:
 - Pydantic data models for literature, scenario, and trajectory data
 - Module boundaries for RAG, analysis, experiment evaluation, vision plugins, and evals
 - Pytest smoke tests for the scaffold
+- LangSmith runtime configuration wiring for local or traced runs
 
 ## Quick Start
 
@@ -30,4 +31,5 @@ pip install -e ".[vision]"
 ```
 
 Copy `config/.env.example` to `.env` and fill API keys when enabling real model,
-LangSmith, RAG, or vision backends.
+LangSmith, RAG, or vision backends. Set `langsmith.enabled=true` in configuration
+when you want CLI runs to publish traces.
