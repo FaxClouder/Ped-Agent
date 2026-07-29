@@ -1,0 +1,8 @@
+{
+  "question_count": 30,
+  "k": 5,
+  "minimum_recall_at_k": 0.8,
+  "minimum_mrr": 0.7,
+  "minimum_locator_hit_rate": 0.75,
+  "maximum_non_official_leakage": 0.0
+}

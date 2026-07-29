@@ -1,0 +1,63 @@
+version: 1
+pilot:
+  literature:
+    total: 20
+    candidate_pool:
+      minimum: 60
+      maximum: 100
+    import_batch_size: 5
+    topics:
+      flow_fundamentals: 4
+      experiment_measurement: 4
+      facility_scenario_flow: 4
+      evacuation_behavior_modeling: 5
+      safety_risk_intervention: 3
+    minimum_a_tier: 8
+    minimum_a_b_tiers: 18
+    maximum_x_tier: 2
+    minimum_high_impact: 14
+    maximum_recent_excellence: 4
+  regulations:
+    total: 8
+    import_batch_size: 2
+    topics:
+      building_fire_evacuation: 3
+      transport_public_space: 2
+      emergency_large_events: 1
+      accessibility_pedestrian_facilities: 1
+      international_comparison: 1
+core:
+  literature:
+    total: 120
+    cumulative_candidate_pool:
+      minimum: 300
+      maximum: 400
+    import_batch_size: 5
+    topics:
+      flow_fundamentals: 24
+      experiment_measurement: 24
+      facility_scenario_flow: 24
+      evacuation_behavior_modeling: 30
+      safety_risk_intervention: 18
+    minimum_a_tier: 48
+    minimum_a_b_tiers: 108
+    maximum_x_tier: 12
+    minimum_high_impact: 84
+    maximum_recent_excellence: 24
+    year_structure:
+      published_through_2015_maximum: 24
+      published_2016_2021_target: 42
+      published_2022_onward_minimum: 54
+    chinese_language:
+      minimum: 12
+      target: 18
+      maximum: 24
+  regulations:
+    total: 40
+    import_batch_size: 2
+    topics:
+      building_fire_evacuation: 14
+      transport_public_space: 10
+      emergency_large_events: 6
+      accessibility_pedestrian_facilities: 6
+      international_comparison: 4

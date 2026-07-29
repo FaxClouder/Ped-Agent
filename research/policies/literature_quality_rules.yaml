@@ -1,0 +1,44 @@
+version: 1
+formal_publication_statuses:
+  - version_of_record
+  - early_access
+metric_sources:
+  jci: clarivate_jcr
+  cas: cas_journal_partition
+  citation_primary: web_of_science
+  citation_fallback: scopus
+hard_gates:
+  minimum_jci: 1.0
+  maximum_cas_zone: 2
+  minimum_content_quality_score: 80
+  maximum_metric_age_months: 12
+  maximum_citation_snapshot_age_days: 90
+quality_tiers:
+  A:
+    cas_zone: 1
+    minimum_jci: 1.5
+    requires_age_adjusted_high_citations: true
+  B:
+    maximum_cas_zone: 2
+    minimum_jci: 1.0
+    requires_high_citations_or_recent_publication: true
+  X:
+    requires_exception_reason: true
+    requires_approver: true
+corpus_limits:
+  minimum_a_ratio: 0.40
+  minimum_a_b_ratio: 0.90
+  maximum_exception_ratio: 0.10
+  minimum_high_impact_ratio: 0.70
+  maximum_recent_excellence_ratio: 0.20
+  maximum_up_to_18_months_ratio: 0.10
+citation_thresholds:
+  up_to_18_months:
+    minimum_citations: null
+    requires_a_tier: true
+  19_to_36_months:
+    minimum_citations: 20
+  37_to_84_months:
+    minimum_citations: 100
+  over_84_months:
+    minimum_citations: 500
