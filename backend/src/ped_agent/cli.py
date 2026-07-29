@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+import uvicorn
 
+from ped_agent.api import create_app
 from ped_agent.catalog import Catalog
 from ped_agent.evaluation import audit_catalog, evaluate_rankings, load_gold
 from ped_agent.importer import ImportService
@@ -80,3 +82,13 @@ def audit(output: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(report.model_dump_json(indent=2), encoding="utf-8")
     typer.echo(report.model_dump_json())
+
+
+@app.command("serve")
+def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+    paths = repo_paths()
+    uvicorn.run(
+        create_app(catalog_path=paths.catalog_path, index_path=paths.index_path),
+        host=host,
+        port=port,
+    )
