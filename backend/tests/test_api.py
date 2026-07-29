@@ -7,7 +7,7 @@ from ped_agent.api import create_app
 from ped_agent.catalog import Catalog
 from ped_agent.cli import app
 from ped_agent.index import FTSIndex
-from ped_agent.models import ResourceManifest, ResourceType
+from tests.manifest_samples import literature_manifest
 
 
 def create_client(tmp_path: Path, *, fingerprint: str | None = None) -> TestClient:
@@ -32,15 +32,12 @@ def test_api_is_read_only_and_exposes_library_routes(tmp_path: Path) -> None:
 def test_api_returns_resource_detail_and_not_found(tmp_path: Path) -> None:
     catalog = Catalog(tmp_path / "catalog.sqlite3")
     catalog.initialize()
-    record = ResourceManifest(
+    record = literature_manifest(
         resource_id="paper-api-2026",
-        resource_type=ResourceType.LITERATURE,
         title="API paper",
-        language="en",
         source_path=tmp_path / "paper.pdf",
         sha256="a" * 64,
         doi="10.1000/api",
-        include=True,
     )
     catalog.upsert_resource(record, version_id=record.sha256, vault_path="objects/aa/api.pdf")
     FTSIndex(tmp_path / "fts.sqlite3").rebuild(

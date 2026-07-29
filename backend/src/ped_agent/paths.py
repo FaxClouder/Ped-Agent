@@ -9,6 +9,8 @@ class WorkspacePaths:
     repo_root: Path
     library_root: Path
     inbox_dir: Path
+    literature_inbox_dir: Path
+    regulations_inbox_dir: Path
     objects_dir: Path
     derived_dir: Path
     reports_dir: Path
@@ -23,6 +25,8 @@ class WorkspacePaths:
             repo_root=root,
             library_root=library_root,
             inbox_dir=library_root / "inbox",
+            literature_inbox_dir=library_root / "inbox" / "literature",
+            regulations_inbox_dir=library_root / "inbox" / "regulations",
             objects_dir=library_root / "objects",
             derived_dir=library_root / "derived",
             reports_dir=library_root / "reports",
@@ -33,6 +37,8 @@ class WorkspacePaths:
     def ensure_local_dirs(self) -> None:
         for directory in (
             self.inbox_dir,
+            self.literature_inbox_dir,
+            self.regulations_inbox_dir,
             self.objects_dir,
             self.derived_dir,
             self.reports_dir,

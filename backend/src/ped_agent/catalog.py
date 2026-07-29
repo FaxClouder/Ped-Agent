@@ -6,7 +6,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from ped_agent.models import CanonicalChunk, ResourceManifest
+from ped_agent.models import CanonicalChunk, ResourceManifest, normalize_doi
 
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -46,6 +46,13 @@ CREATE TABLE IF NOT EXISTS resource_relations (
     target_ref TEXT NOT NULL,
     PRIMARY KEY (source_resource_id, relation_type, target_ref)
 );
+CREATE TABLE IF NOT EXISTS resource_identifiers (
+    identifier_type TEXT NOT NULL,
+    identifier_value TEXT NOT NULL,
+    resource_id TEXT NOT NULL REFERENCES resources(resource_id),
+    PRIMARY KEY (identifier_type, identifier_value),
+    UNIQUE (resource_id, identifier_type)
+);
 """
 
 
@@ -63,6 +70,7 @@ class Catalog:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.connect() as connection:
             connection.executescript(SCHEMA)
+            self._backfill_doi_identifiers(connection)
 
     def upsert_resource(
         self,
@@ -73,6 +81,8 @@ class Catalog:
     ) -> None:
         metadata = record.model_dump(mode="json")
         with self.connect() as connection:
+            self._reject_identifier_conflict(connection, record)
+            self._reject_hash_conflict(connection, record, version_id)
             connection.execute(
                 """
                 INSERT INTO resources VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -94,6 +104,20 @@ class Catalog:
                     json.dumps(metadata, ensure_ascii=False),
                 ),
             )
+            normalized_doi = normalize_doi(record.doi)
+            connection.execute(
+                "DELETE FROM resource_identifiers WHERE resource_id = ? AND identifier_type = 'doi'",
+                (record.resource_id,),
+            )
+            if normalized_doi:
+                connection.execute(
+                    """
+                    INSERT INTO resource_identifiers
+                        (identifier_type, identifier_value, resource_id)
+                    VALUES ('doi', ?, ?)
+                    """,
+                    (normalized_doi, record.resource_id),
+                )
             connection.execute(
                 """
                 INSERT OR IGNORE INTO resource_versions
@@ -120,6 +144,54 @@ class Catalog:
                 [(record.resource_id, "supersedes", target) for target in record.supersedes]
                 + [(record.resource_id, "uses_dataset", target) for target in record.datasets],
             )
+
+    def _backfill_doi_identifiers(self, connection: sqlite3.Connection) -> None:
+        rows = connection.execute(
+            "SELECT resource_id, canonical_metadata FROM resources"
+        ).fetchall()
+        for row in rows:
+            metadata = json.loads(row["canonical_metadata"])
+            normalized_doi = normalize_doi(metadata.get("doi"))
+            if normalized_doi:
+                connection.execute(
+                    """
+                    INSERT OR IGNORE INTO resource_identifiers
+                        (identifier_type, identifier_value, resource_id)
+                    VALUES ('doi', ?, ?)
+                    """,
+                    (normalized_doi, row["resource_id"]),
+                )
+
+    def _reject_identifier_conflict(
+        self,
+        connection: sqlite3.Connection,
+        record: ResourceManifest,
+    ) -> None:
+        normalized_doi = normalize_doi(record.doi)
+        if not normalized_doi:
+            return
+        row = connection.execute(
+            """
+            SELECT resource_id FROM resource_identifiers
+            WHERE identifier_type = 'doi' AND identifier_value = ?
+            """,
+            (normalized_doi,),
+        ).fetchone()
+        if row is not None and row["resource_id"] != record.resource_id:
+            raise ValueError(f"DOI already belongs to {row['resource_id']}")
+
+    def _reject_hash_conflict(
+        self,
+        connection: sqlite3.Connection,
+        record: ResourceManifest,
+        version_id: str,
+    ) -> None:
+        row = connection.execute(
+            "SELECT resource_id FROM resource_versions WHERE version_id = ?",
+            (version_id,),
+        ).fetchone()
+        if row is not None and row["resource_id"] != record.resource_id:
+            raise ValueError(f"SHA-256 already belongs to {row['resource_id']}")
 
     def replace_chunks(self, version_id: str, chunks: list[CanonicalChunk]) -> None:
         with self.connect() as connection:

@@ -1,0 +1,28 @@
+version: 1
+literature:
+  flow_fundamentals:
+    name_zh: 行人流基础理论
+    description: 基本图、速度、密度、流量、瓶颈与拥堵
+  experiment_measurement:
+    name_zh: 实验与测量
+    description: 受控实验、现场观测、实验设计与测量方法
+  facility_scenario_flow:
+    name_zh: 设施与场景流动
+    description: 通道、楼梯、出入口、交叉流与对向流
+  evacuation_behavior_modeling:
+    name_zh: 疏散行为与模型
+    description: 疏散行为、路径选择、模型与应急情境
+  safety_risk_intervention:
+    name_zh: 安全风险与干预
+    description: 拥挤风险、踩踏预防、预警与干预措施
+regulations:
+  building_fire_evacuation:
+    name_zh: 建筑消防与疏散
+  transport_public_space:
+    name_zh: 公共交通与公共空间
+  emergency_large_events:
+    name_zh: 应急管理与大型活动
+  accessibility_pedestrian_facilities:
+    name_zh: 无障碍与步行设施
+  international_comparison:
+    name_zh: 国际标准对照

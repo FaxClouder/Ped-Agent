@@ -24,6 +24,23 @@ pip install -e ".[rag]"
 pip install -e ".[vision]"
 ```
 
+The local knowledge backend has its own dependency environment and tests:
+
+```powershell
+cd backend
+uv run --group dev python -m pytest -q --basetemp .pytest-tmp
+uv run --group dev ruff check src tests
+```
+
+## Knowledge Asset Rules
+
+- Commit policies, search logs, screening decisions, metric snapshots, manifests,
+  Gold Questions, and summary evaluation reports under `research/`.
+- Never commit PDFs, parsed full text, SQLite catalogs, retrieval indexes, API keys,
+  cookies, or raw trajectory data.
+- Official literature manifests must pass `ped-agent library validate-manifest`.
+- Do not lower quality thresholds or add X-tier exceptions merely to fill a quota.
+
 ## Commit Style
 
 Use concise imperative commit messages, for example:
@@ -32,4 +49,3 @@ Use concise imperative commit messages, for example:
 scaffold phase 1 project structure
 add analysis pipeline smoke tests
 ```
-

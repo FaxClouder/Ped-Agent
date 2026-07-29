@@ -8,25 +8,15 @@ from ped_agent.cli import app
 from ped_agent.index import FTSIndex
 from ped_agent.models import CanonicalChunk, ResourceManifest, ResourceType
 from ped_agent.retrieval import IndexStaleError, RetrievalService
+from tests.manifest_samples import regulation_manifest
 
 
 def add_regulation(catalog: Catalog, source_path: Path) -> CanonicalChunk:
-    record = ResourceManifest(
+    record = regulation_manifest(
         resource_id="reg-exit-2026",
-        resource_type=ResourceType.REGULATION,
         title="安全出口规范",
-        language="zh-CN",
         source_path=source_path,
         sha256="c" * 64,
-        source_url="https://example.org/reg",
-        document_number="GB-DEMO-2026",
-        jurisdiction="CN",
-        issuing_body="Demo authority",
-        effective_status="current",
-        published_date="2026-01-01",
-        effective_date="2026-07-01",
-        legal_level="national_standard",
-        include=True,
     )
     chunk = CanonicalChunk(
         chunk_id="reg-exit-2026:c:00000",

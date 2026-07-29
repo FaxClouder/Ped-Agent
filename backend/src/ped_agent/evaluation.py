@@ -25,6 +25,25 @@ class EvaluationReport(BaseModel):
     locator_hit_rate: float
 
 
+class EvaluationAcceptanceConfig(BaseModel):
+    question_count: int = Field(ge=1)
+    k: int = Field(ge=1)
+    minimum_recall_at_k: float = Field(ge=0, le=1)
+    minimum_mrr: float = Field(ge=0, le=1)
+    minimum_locator_hit_rate: float = Field(ge=0, le=1)
+    maximum_non_official_leakage: float = Field(ge=0, le=1)
+
+
+class EvaluationAcceptanceReport(BaseModel):
+    evaluation: EvaluationReport
+    non_official_leakage: float = Field(ge=0, le=1)
+    errors: tuple[str, ...]
+
+    @property
+    def is_compliant(self) -> bool:
+        return not self.errors
+
+
 class CatalogAuditReport(BaseModel):
     resource_count: int
     official_resource_count: int
@@ -92,6 +111,37 @@ def evaluate_rankings(
         mrr=sum(reciprocal_ranks) / count,
         ndcg_at_k=sum(ndcgs) / count,
         locator_hit_rate=sum(locator_hits) / count,
+    )
+
+
+def audit_evaluation(
+    report: EvaluationReport,
+    config: EvaluationAcceptanceConfig,
+    *,
+    non_official_leakage: float,
+) -> EvaluationAcceptanceReport:
+    errors: list[str] = []
+    if report.question_count != config.question_count:
+        errors.append(f"Gold Question count must equal {config.question_count}")
+    if report.k != config.k:
+        errors.append(f"evaluation k must equal {config.k}")
+    if report.recall_at_k < config.minimum_recall_at_k:
+        errors.append(f"Recall@{config.k} is below {config.minimum_recall_at_k}")
+    if report.mrr < config.minimum_mrr:
+        errors.append(f"MRR is below {config.minimum_mrr}")
+    if report.locator_hit_rate < config.minimum_locator_hit_rate:
+        errors.append(
+            f"locator hit rate is below {config.minimum_locator_hit_rate}"
+        )
+    if non_official_leakage > config.maximum_non_official_leakage:
+        errors.append(
+            "non-official leakage exceeds "
+            f"{config.maximum_non_official_leakage}"
+        )
+    return EvaluationAcceptanceReport(
+        evaluation=report,
+        non_official_leakage=non_official_leakage,
+        errors=tuple(errors),
     )
 
 
