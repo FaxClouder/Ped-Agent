@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 
 from ped_agent.catalog import Catalog
+from ped_agent.evaluation import audit_catalog, evaluate_rankings, load_gold
 from ped_agent.importer import ImportService
 from ped_agent.index import FTSIndex
 from ped_agent.paths import WorkspacePaths
@@ -54,3 +55,28 @@ def search(query: str, limit: int = 5) -> None:
         query, limit=limit
     )
     typer.echo(json.dumps([hit.model_dump(mode="json") for hit in hits], ensure_ascii=False))
+
+
+@app.command("evaluate")
+def evaluate(gold: Path, output: Path, k: int = 5) -> None:
+    paths = repo_paths()
+    service = RetrievalService(Catalog(paths.catalog_path), FTSIndex(paths.index_path))
+    questions = load_gold(gold)
+    rankings = {
+        item.question_id: [
+            (hit.resource_id, hit.locator) for hit in service.search(item.query, limit=k)
+        ]
+        for item in questions
+    }
+    report = evaluate_rankings(questions, rankings, k=k)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    typer.echo(report.model_dump_json())
+
+
+@app.command("audit")
+def audit(output: Path) -> None:
+    report = audit_catalog(Catalog(repo_paths().catalog_path))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    typer.echo(report.model_dump_json())
