@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router'
 
 const navigation = [
-  { name: '知识库', description: '文献、法规与原文证据', active: true },
-  { name: '智能问答', description: '基于证据的研究问答', active: false },
-  { name: '轨迹分析', description: '轨迹指标与场景诊断', active: false },
-  { name: '安全评估', description: '风险与规范符合性', active: false },
-  { name: '实验支持', description: '方案与指标设计', active: false },
+  { name: '知识库', description: '文献、法规与原文证据', route: '/', routeName: 'knowledge' },
+  { name: '智能问答', description: '基于证据的研究问答', route: '/qa', routeName: 'answer' },
+  { name: '轨迹分析', description: '轨迹指标与场景诊断' },
+  { name: '安全评估', description: '风险与规范符合性' },
+  { name: '实验支持', description: '方案与指标设计' },
 ]
 </script>
 
@@ -20,21 +20,24 @@ const navigation = [
       </header>
 
       <nav class="primary-nav" aria-label="主要功能">
-        <button
+        <RouterLink
           v-for="(item, index) in navigation"
           :key="item.name"
-          type="button"
-          :disabled="!item.active"
-          :data-route="item.active ? 'knowledge' : undefined"
-          :class="['nav-item', { active: item.active }]"
+          :to="item.route || '#'"
+          :data-route="item.routeName"
+          :class="['nav-item', { disabled: !item.route }]"
+          active-class="active"
+          :aria-disabled="!item.route"
+          :tabindex="item.route ? 0 : -1"
+          @click="!item.route && $event.preventDefault()"
         >
           <span class="nav-index">0{{ index + 1 }}</span>
           <span class="nav-copy">
             <strong>{{ item.name }}</strong>
             <small>{{ item.description }}</small>
           </span>
-          <span class="nav-stage">{{ item.active ? '阶段 1' : '后续' }}</span>
-        </button>
+          <span class="nav-stage">{{ item.route ? '可用' : '后续' }}</span>
+        </RouterLink>
       </nav>
 
       <footer class="sidebar-footer">
