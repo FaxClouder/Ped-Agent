@@ -9,22 +9,22 @@ from typing import Annotated
 import typer
 import uvicorn
 
-from ped_agent.api import create_app
-from ped_agent.catalog import Catalog
-from ped_agent.evaluation import (
+from ped_agent_server.api import create_app
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.evaluation import (
     EvaluationAcceptanceConfig,
     audit_catalog,
     audit_evaluation,
     evaluate_rankings,
     load_gold,
 )
-from ped_agent.governance import audit_literature_corpus, audit_regulation_corpus
-from ped_agent.importer import ImportService
-from ped_agent.index import FTSIndex
-from ped_agent.manifest import load_and_preflight
-from ped_agent.models import ResourceType
-from ped_agent.paths import WorkspacePaths
-from ped_agent.retrieval import RetrievalService
+from ped_agent_server.governance import audit_literature_corpus, audit_regulation_corpus
+from ped_agent_server.importer import ImportService
+from ped_agent_server.index import FTSIndex
+from ped_agent_server.manifest import load_and_preflight
+from ped_agent_server.models import ResourceType
+from ped_agent_server.paths import WorkspacePaths
+from ped_agent_server.retrieval import RetrievalService
 
 app = typer.Typer(no_args_is_help=True)
 library = typer.Typer(no_args_is_help=True)

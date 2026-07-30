@@ -6,7 +6,7 @@ from pathlib import Path
 
 import fitz
 
-from ped_agent.models import CanonicalChunk
+from ped_agent_server.models import CanonicalChunk
 
 PARSER_VERSION = "pedestrian-pdf-v1"
 CHUNK_SIZE = 1200

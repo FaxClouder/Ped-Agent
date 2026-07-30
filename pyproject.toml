@@ -3,11 +3,11 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ped-agent"
+name = "ped-agent-core"
 version = "0.1.0"
 description = "Agentic question-answering and analysis toolkit for pedestrian-flow research."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Ped-Agent contributors" }]
 dependencies = [
@@ -48,9 +48,6 @@ dev = [
   "mypy>=1.10",
 ]
 
-[project.scripts]
-ped-agent = "ped_agent.main:main"
-
 [project.entry-points."ped_agent.vision"]
 yolo26_bytetrack = "ped_agent.vision.plugins.yolo26_bytetrack:YOLO26ByteTrackBackend"
 yolo26_deepsort = "ped_agent.vision.plugins.yolo26_deepsort:YOLO26DeepSORTBackend"
@@ -64,7 +61,7 @@ pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
@@ -72,7 +69,7 @@ select = ["E", "F", "I", "UP", "B"]
 ignore = ["B008"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 packages = ["ped_agent"]
 ignore_missing_imports = true
 strict = false

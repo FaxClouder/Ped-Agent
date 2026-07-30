@@ -5,7 +5,7 @@ from contextlib import closing
 from dataclasses import dataclass
 from pathlib import Path
 
-from ped_agent.tokenization import tokenize_for_search
+from ped_agent_server.tokenization import tokenize_for_search
 
 
 @dataclass(frozen=True)

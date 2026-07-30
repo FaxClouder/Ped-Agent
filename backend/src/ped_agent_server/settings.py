@@ -1,0 +1,167 @@
+from __future__ import annotations
+
+import os
+from pathlib import Path
+from typing import Literal
+
+from dotenv import dotenv_values
+from pydantic import BaseModel, Field, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ChatProtocol = Literal["openai_compatible", "anthropic"]
+
+
+class ChatModelSettings(BaseModel):
+    protocol: ChatProtocol = "openai_compatible"
+    model: str
+    api_key: SecretStr | None = None
+    base_url: str | None = None
+    temperature: float = 0.1
+    max_tokens: int = 4096
+    timeout_seconds: float = 60.0
+    max_retries: int = 2
+
+
+class VerifySettings(BaseModel):
+    enabled: bool = True
+    protocol: Literal["inherit", "openai_compatible", "anthropic"] = "inherit"
+    model: str | None = None
+    api_key: SecretStr | None = None
+    base_url: str | None = None
+    temperature: float | None = None
+    max_tokens: int | None = None
+    timeout_seconds: float | None = None
+    max_retries: int | None = None
+
+
+class EmbeddingSettings(BaseModel):
+    protocol: Literal["openai_compatible"] = "openai_compatible"
+    model: str
+    api_key: SecretStr | None = None
+    base_url: str | None = None
+    dimensions: int | None = None
+    timeout_seconds: float = 60.0
+    max_retries: int = 2
+
+
+class SearchSettings(BaseModel):
+    academic_enabled: bool = True
+    parallel_enabled: bool = False
+    parallel_api_key: SecretStr | None = None
+    timeout_seconds: float = 20.0
+    max_candidates_per_source: int = 5
+    max_pages: int = 3
+
+
+class RuntimeSettings(BaseModel):
+    host: str = "127.0.0.1"
+    port: int = Field(default=8000, ge=1, le=65535)
+    max_concurrent_runs: int = Field(default=2, ge=1)
+    agent_db_path: Path = Path("backend/storage/agent/agent.sqlite3")
+    chroma_path: Path = Path("backend/storage/agent/chroma")
+    recent_message_limit: int = Field(default=6, ge=1)
+
+
+class LangSmithSettings(BaseModel):
+    enabled: bool = False
+    api_key: SecretStr | None = None
+    project: str = "ped-agent"
+    endpoint: str | None = None
+
+
+class AgentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="PED_AGENT_",
+        env_nested_delimiter="__",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    answer: ChatModelSettings
+    verify: VerifySettings = Field(default_factory=VerifySettings)
+    embedding: EmbeddingSettings
+    search: SearchSettings = Field(default_factory=SearchSettings)
+    runtime: RuntimeSettings = Field(default_factory=RuntimeSettings)
+    langsmith: LangSmithSettings = Field(default_factory=LangSmithSettings)
+
+    @property
+    def resolved_verify(self) -> ChatModelSettings:
+        if self.verify.protocol == "inherit":
+            overrides = {
+                name: value
+                for name, value in self.verify.model_dump(exclude={"enabled", "protocol"}).items()
+                if value is not None
+            }
+            return self.answer.model_copy(update=overrides)
+
+        return ChatModelSettings(
+            protocol=self.verify.protocol,
+            model=self.verify.model or self.answer.model,
+            api_key=self.verify.api_key,
+            base_url=self.verify.base_url,
+            temperature=self.verify.temperature or self.answer.temperature,
+            max_tokens=self.verify.max_tokens or self.answer.max_tokens,
+            timeout_seconds=self.verify.timeout_seconds or self.answer.timeout_seconds,
+            max_retries=(
+                self.verify.max_retries
+                if self.verify.max_retries is not None
+                else self.answer.max_retries
+            ),
+        )
+
+
+def load_settings(env_file: str | Path | None = ".env") -> AgentSettings:
+    settings = AgentSettings(_env_file=env_file)
+    legacy = _legacy_values(env_file)
+
+    answer_key = settings.answer.api_key or _provider_key(settings.answer.protocol, legacy)
+    embedding_key = settings.embedding.api_key or _secret(legacy.get("OPENAI_API_KEY"))
+    langsmith_key = settings.langsmith.api_key or _secret(legacy.get("LANGSMITH_API_KEY"))
+
+    settings = settings.model_copy(
+        update={
+            "answer": settings.answer.model_copy(update={"api_key": answer_key}),
+            "embedding": settings.embedding.model_copy(update={"api_key": embedding_key}),
+            "langsmith": settings.langsmith.model_copy(update={"api_key": langsmith_key}),
+        }
+    )
+    _validate_credentials(settings)
+    return settings
+
+
+def _legacy_values(env_file: str | Path | None) -> dict[str, str | None]:
+    values: dict[str, str | None] = {
+        "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
+        "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
+        "LANGSMITH_API_KEY": os.getenv("LANGSMITH_API_KEY"),
+    }
+    if env_file is None:
+        return values
+
+    dotenv = dotenv_values(env_file)
+    for name, value in values.items():
+        values[name] = value or dotenv.get(name)
+    return values
+
+
+def _provider_key(protocol: ChatProtocol, values: dict[str, str | None]) -> SecretStr | None:
+    name = "ANTHROPIC_API_KEY" if protocol == "anthropic" else "OPENAI_API_KEY"
+    return _secret(values.get(name))
+
+
+def _secret(value: str | None) -> SecretStr | None:
+    return SecretStr(value) if value else None
+
+
+def _validate_credentials(settings: AgentSettings) -> None:
+    if settings.answer.api_key is None:
+        raise ValueError("answer API key is required")
+    if settings.embedding.api_key is None:
+        raise ValueError("embedding API key is required")
+    if settings.verify.enabled and settings.resolved_verify.api_key is None:
+        raise ValueError("verify API key is required")
+    if settings.search.parallel_enabled and settings.search.parallel_api_key is None:
+        raise ValueError("Parallel Search API key is required when enabled")
+    if settings.langsmith.enabled and settings.langsmith.api_key is None:
+        raise ValueError("LangSmith API key is required when enabled")

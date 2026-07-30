@@ -3,11 +3,11 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from ped_agent.catalog import Catalog
-from ped_agent.cli import app
-from ped_agent.index import FTSIndex
-from ped_agent.models import CanonicalChunk, ResourceManifest, ResourceType
-from ped_agent.retrieval import IndexStaleError, RetrievalService
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.cli import app
+from ped_agent_server.index import FTSIndex
+from ped_agent_server.models import CanonicalChunk, ResourceManifest, ResourceType
+from ped_agent_server.retrieval import IndexStaleError, RetrievalService
 from tests.manifest_samples import regulation_manifest
 
 

@@ -3,10 +3,10 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from typer.testing import CliRunner
 
-from ped_agent.api import create_app
-from ped_agent.catalog import Catalog
-from ped_agent.cli import app
-from ped_agent.index import FTSIndex
+from ped_agent_server.api import create_app
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.cli import app
+from ped_agent_server.index import FTSIndex
 from tests.manifest_samples import literature_manifest
 
 

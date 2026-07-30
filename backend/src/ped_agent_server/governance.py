@@ -4,8 +4,8 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 
-from ped_agent.manifest import age_in_months, is_high_impact
-from ped_agent.models import FORMAL_PUBLICATION_STATUSES, QualityTier, ResourceManifest
+from ped_agent_server.manifest import age_in_months, is_high_impact
+from ped_agent_server.models import FORMAL_PUBLICATION_STATUSES, QualityTier, ResourceManifest
 
 
 @dataclass(frozen=True)

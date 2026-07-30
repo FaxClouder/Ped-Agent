@@ -3,7 +3,7 @@ from pathlib import Path
 import fitz
 import pytest
 
-from ped_agent.parsing import parse_pdf
+from ped_agent_server.parsing import parse_pdf
 
 
 def create_pdf(path: Path) -> None:

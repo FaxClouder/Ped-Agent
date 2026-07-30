@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from ped_agent.catalog import Catalog
-from ped_agent.models import CanonicalChunk, ResourceManifest, ResourceType
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.models import CanonicalChunk, ResourceManifest, ResourceType
 from tests.manifest_samples import literature_manifest
 
 

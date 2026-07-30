@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
-from ped_agent.models import ResourceManifest
+from ped_agent_server.models import ResourceManifest
 
 
 def literature_data(

@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from ped_agent.index import FTSIndex
-from ped_agent.tokenization import tokenize_for_search
+from ped_agent_server.index import FTSIndex
+from ped_agent_server.tokenization import tokenize_for_search
 
 
 def test_tokenizer_preserves_searchable_chinese_and_english_terms() -> None:

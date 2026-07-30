@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from ped_agent.catalog import Catalog
-from ped_agent.cli import app
-from ped_agent.evaluation import (
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.cli import app
+from ped_agent_server.evaluation import (
     EvaluationAcceptanceConfig,
     EvaluationReport,
     GoldQuestion,
@@ -16,7 +16,7 @@ from ped_agent.evaluation import (
     evaluate_rankings,
     load_gold,
 )
-from ped_agent.models import CanonicalChunk, ResourceManifest, ResourceType
+from ped_agent_server.models import CanonicalChunk, ResourceManifest, ResourceType
 from tests.manifest_samples import literature_manifest
 
 

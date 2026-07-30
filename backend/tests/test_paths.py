@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ped_agent.paths import WorkspacePaths
+from ped_agent_server.paths import WorkspacePaths
 
 
 def test_workspace_paths_keep_library_below_backend(tmp_path: Path) -> None:

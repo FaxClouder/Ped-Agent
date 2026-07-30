@@ -4,11 +4,11 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
-from ped_agent.catalog import Catalog
-from ped_agent.manifest import load_and_preflight
-from ped_agent.parsing import parse_pdf
-from ped_agent.paths import WorkspacePaths
-from ped_agent.vault import ContentVault
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.manifest import load_and_preflight
+from ped_agent_server.parsing import parse_pdf
+from ped_agent_server.paths import WorkspacePaths
+from ped_agent_server.vault import ContentVault
 
 
 @dataclass(frozen=True)

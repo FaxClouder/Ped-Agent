@@ -6,7 +6,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from ped_agent.models import CanonicalChunk, ResourceManifest, normalize_doi
+from ped_agent_server.models import CanonicalChunk, ResourceManifest, normalize_doi
 
 SCHEMA = """
 PRAGMA foreign_keys = ON;

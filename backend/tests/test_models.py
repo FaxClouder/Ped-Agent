@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from ped_agent.models import (
+from ped_agent_server.models import (
     AdmissionStatus,
     ResourceManifest,
     ResourceType,

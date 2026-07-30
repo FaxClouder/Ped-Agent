@@ -6,11 +6,11 @@ import fitz
 import pytest
 from typer.testing import CliRunner
 
-from ped_agent.catalog import Catalog
-from ped_agent.cli import app
-from ped_agent.importer import ImportService
-from ped_agent.manifest import ManifestPreflightError
-from ped_agent.paths import WorkspacePaths
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.cli import app
+from ped_agent_server.importer import ImportService
+from ped_agent_server.manifest import ManifestPreflightError
+from ped_agent_server.paths import WorkspacePaths
 from tests.manifest_samples import literature_data
 
 

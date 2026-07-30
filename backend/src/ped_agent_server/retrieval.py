@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ped_agent.catalog import Catalog
-from ped_agent.index import FTSIndex
-from ped_agent.models import EvidenceHit
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.index import FTSIndex
+from ped_agent_server.models import EvidenceHit
 
 
 class IndexStaleError(RuntimeError):

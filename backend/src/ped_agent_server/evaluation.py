@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from ped_agent.catalog import Catalog
+from ped_agent_server.catalog import Catalog
 
 
 class GoldQuestion(BaseModel):

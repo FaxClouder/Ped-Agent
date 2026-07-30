@@ -5,10 +5,10 @@ from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query
 
-from ped_agent.catalog import Catalog
-from ped_agent.index import FTSIndex
-from ped_agent.models import EvidenceHit
-from ped_agent.retrieval import IndexStaleError, RetrievalService
+from ped_agent_server.catalog import Catalog
+from ped_agent_server.index import FTSIndex
+from ped_agent_server.models import EvidenceHit
+from ped_agent_server.retrieval import IndexStaleError, RetrievalService
 
 
 def create_app(*, catalog_path: Path, index_path: Path) -> FastAPI:

@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from ped_agent.manifest import ManifestPreflightError, load_and_preflight
-from ped_agent.vault import ContentVault, sha256_file
+from ped_agent_server.manifest import ManifestPreflightError, load_and_preflight
+from ped_agent_server.vault import ContentVault, sha256_file
 
 
 def write_manifest(path: Path, records: list[dict[str, object]]) -> None:

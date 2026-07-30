@@ -5,9 +5,9 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from ped_agent.cli import app
-from ped_agent.governance import audit_literature_corpus, audit_regulation_corpus
-from ped_agent.models import ResourceManifest, ResourceType
+from ped_agent_server.cli import app
+from ped_agent_server.governance import audit_literature_corpus, audit_regulation_corpus
+from ped_agent_server.models import ResourceManifest, ResourceType
 
 PILOT_TOPICS = {
     "flow_fundamentals": 4,

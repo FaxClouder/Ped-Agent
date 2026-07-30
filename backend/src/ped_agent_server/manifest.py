@@ -6,14 +6,14 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from ped_agent.models import (
+from ped_agent_server.models import (
     CitationSource,
     QualityTier,
     ResourceManifest,
     ResourceType,
     normalize_doi,
 )
-from ped_agent.vault import sha256_file
+from ped_agent_server.vault import sha256_file
 
 
 class ManifestPreflightError(ValueError):
