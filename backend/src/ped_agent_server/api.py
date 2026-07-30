@@ -1,20 +1,130 @@
 from __future__ import annotations
 
+import asyncio
+import json
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query, status
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
 
+from ped_agent_server.agent_repository import TERMINAL_STATUSES, ActiveRunError, AgentRepository
 from ped_agent_server.catalog import Catalog
 from ped_agent_server.index import FTSIndex
 from ped_agent_server.models import EvidenceHit
 from ped_agent_server.retrieval import IndexStaleError, RetrievalService
+from ped_agent_server.run_service import RunService
 
 
-def create_app(*, catalog_path: Path, index_path: Path) -> FastAPI:
-    app = FastAPI(title="Ped-Agent Knowledge API", version="0.1.0")
+class ConversationCreate(BaseModel):
+    title: str | None = None
+
+
+class RunCreate(BaseModel):
+    query: str = Field(min_length=1)
+
+
+def create_app(
+    *,
+    catalog_path: Path,
+    index_path: Path,
+    agent_repository: AgentRepository | None = None,
+    run_service: RunService | None = None,
+) -> FastAPI:
     catalog = Catalog(catalog_path)
     retrieval = RetrievalService(catalog, FTSIndex(index_path))
+    repository = agent_repository or AgentRepository(catalog_path.parent / "agent.sqlite3")
+    repository.initialize()
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        repository.interrupt_active_runs()
+        yield
+        if run_service is not None:
+            await run_service.shutdown()
+
+    app = FastAPI(title="Ped-Agent Knowledge API", version="0.1.0", lifespan=lifespan)
+    app.state.agent_repository = repository
+
+    @app.post("/api/conversations", status_code=status.HTTP_201_CREATED)
+    def create_conversation(payload: ConversationCreate) -> dict[str, object]:
+        return repository.create_conversation(payload.title)
+
+    @app.get("/api/conversations")
+    def list_conversations() -> list[dict[str, object]]:
+        return repository.list_conversations()
+
+    @app.get("/api/conversations/{conversation_id}")
+    def get_conversation(conversation_id: str) -> dict[str, object]:
+        result = repository.get_conversation(conversation_id)
+        if result is None:
+            raise HTTPException(status_code=404, detail="conversation not found")
+        return result
+
+    @app.post(
+        "/api/conversations/{conversation_id}/runs",
+        status_code=status.HTTP_202_ACCEPTED,
+    )
+    async def create_run(conversation_id: str, payload: RunCreate) -> dict[str, str]:
+        try:
+            if run_service is None:
+                run = repository.create_run(conversation_id, query=payload.query)
+                repository.add_message(conversation_id, role="user", content=payload.query)
+            else:
+                run = await run_service.submit(conversation_id, payload.query)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="conversation not found") from exc
+        except ActiveRunError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        return {
+            "run_id": str(run["id"]),
+            "events_url": f"/api/runs/{run['id']}/events",
+        }
+
+    @app.get("/api/runs/{run_id}/events")
+    def stream_run_events(
+        run_id: str,
+        last_event_id: Annotated[str | None, Header(alias="Last-Event-ID")] = None,
+    ) -> StreamingResponse:
+        if repository.get_run(run_id) is None:
+            raise HTTPException(status_code=404, detail="run not found")
+        try:
+            cursor = max(0, int(last_event_id or 0))
+        except ValueError:
+            cursor = 0
+
+        async def event_stream():
+            nonlocal cursor
+            heartbeat_ticks = 0
+            while True:
+                events = repository.list_events(run_id, after_id=cursor)
+                for event in events:
+                    cursor = int(event["id"])
+                    yield _format_sse(event)
+                run = repository.get_run(run_id)
+                if run is None or (run["status"] in TERMINAL_STATUSES and not events):
+                    break
+                heartbeat_ticks += 1
+                if heartbeat_ticks >= 60:
+                    heartbeat_ticks = 0
+                    yield "event: heartbeat\ndata: {}\n\n"
+                await asyncio.sleep(0.25)
+
+        return StreamingResponse(
+            event_stream(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    @app.post("/api/runs/{run_id}/cancel", status_code=status.HTTP_202_ACCEPTED)
+    def cancel_run(run_id: str) -> dict[str, str]:
+        if repository.get_run(run_id) is None:
+            raise HTTPException(status_code=404, detail="run not found")
+        if not repository.request_cancel(run_id):
+            raise HTTPException(status_code=409, detail="run is not active")
+        return {"run_id": run_id, "status": "cancelled"}
 
     @app.get("/api/library/resources")
     def list_resources(
@@ -48,3 +158,8 @@ def create_app(*, catalog_path: Path, index_path: Path) -> FastAPI:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     return app
+
+
+def _format_sse(event: dict[str, object]) -> str:
+    payload = json.dumps(event["payload"], ensure_ascii=False, separators=(",", ":"))
+    return f"id: {event['id']}\nevent: {event['event']}\ndata: {payload}\n\n"
