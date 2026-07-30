@@ -30,6 +30,7 @@ class EvidenceItem(BaseModel):
     locator: str | None = None
     url: str | None = None
     doi: str | None = None
+    document_number: str | None = None
     resource_id: str | None = None
     version_id: str | None = None
     chunk_id: str | None = None
@@ -69,4 +70,3 @@ class AnswerDocument(BaseModel):
 class ModelOutput(BaseModel):
     content: str
     model: str
-
