@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 import pytest
+from pydantic import BaseModel
 
 from ped_agent_server.model_gateway import DirectModelGateway
 
@@ -18,6 +19,20 @@ class FakeChatClient:
 class FakeEmbeddingClient:
     async def aembed_documents(self, texts: list[str]) -> list[list[float]]:
         return [[float(len(text))] for text in texts]
+
+
+class StructuredPayload(BaseModel):
+    value: str
+
+
+class FakeStructuredClient(FakeChatClient):
+    def with_structured_output(self, schema):
+        self.schema = schema
+        return self
+
+    async def ainvoke(self, prompt: str):
+        self.prompts.append(prompt)
+        return {"value": "native"}
 
 
 @pytest.mark.asyncio
@@ -53,3 +68,21 @@ async def test_direct_gateway_reports_disabled_verification() -> None:
     with pytest.raises(RuntimeError, match="verification is disabled"):
         await gateway.verify("draft")
 
+
+@pytest.mark.asyncio
+async def test_direct_gateway_uses_provider_native_structured_output() -> None:
+    answer = FakeStructuredClient("unused")
+    verifier = FakeStructuredClient("unused")
+    gateway = DirectModelGateway(
+        answer_client=answer,
+        verify_client=verifier,
+        embedding_client=FakeEmbeddingClient(),
+    )
+
+    generated, answer_model = await gateway.generate_structured("prompt", StructuredPayload)
+    checked, verify_model = await gateway.verify_structured("prompt", StructuredPayload)
+
+    assert generated == StructuredPayload(value="native")
+    assert checked == StructuredPayload(value="native")
+    assert answer_model == "unknown"
+    assert verify_model == "unknown"

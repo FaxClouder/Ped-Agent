@@ -4,17 +4,17 @@ Ped-Agent uses a small, conventional Git workflow:
 
 1. Create a branch from `main`.
 2. Keep changes focused on one feature or fix.
-3. Run `pytest -q` before opening a pull request.
+3. Run the core, backend and frontend verification commands before opening a pull request.
 4. Include tests for new behavior where practical.
 5. Use the pull request template to summarize the change and validation.
 
 ## Development Setup
 
-```bash
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -e ".[dev]"
-pytest -q
+```powershell
+py -3.12 -m venv .venv
+uv sync --project backend
+$env:PYTHONPATH='src'
+.\.venv\Scripts\python.exe -m pytest tests -q
 ```
 
 Optional module dependencies are installed separately:
@@ -30,6 +30,11 @@ The local knowledge backend has its own dependency environment and tests:
 cd backend
 uv run --group dev python -m pytest -q --basetemp .pytest-tmp
 uv run --group dev ruff check src tests
+
+cd ..\frontend
+npm ci
+npm test
+npm run build
 ```
 
 ## Knowledge Asset Rules

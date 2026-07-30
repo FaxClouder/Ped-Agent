@@ -6,6 +6,7 @@ from typing import Any
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from ped_agent.agent.contracts import ModelOutput
+from pydantic import BaseModel
 
 from ped_agent_server.settings import AgentSettings, ChatModelSettings, EmbeddingSettings
 
@@ -47,6 +48,22 @@ class DirectModelGateway:
 
     async def embed(self, texts: list[str]) -> list[list[float]]:
         return await self._embedding_client.aembed_documents(texts)
+
+    async def generate_structured(
+        self,
+        prompt: str,
+        schema: type[BaseModel],
+    ) -> tuple[BaseModel, str]:
+        return await _invoke_structured(self._answer_client, prompt, schema)
+
+    async def verify_structured(
+        self,
+        prompt: str,
+        schema: type[BaseModel],
+    ) -> tuple[BaseModel, str]:
+        if self._verify_client is None:
+            raise RuntimeError("verification is disabled")
+        return await _invoke_structured(self._verify_client, prompt, schema)
 
 
 def _build_chat_client(settings: ChatModelSettings) -> Any:
@@ -93,3 +110,15 @@ def _to_model_output(message: Any) -> ModelOutput:
     metadata = getattr(message, "response_metadata", {}) or {}
     model = metadata.get("model_name") or metadata.get("model") or "unknown"
     return ModelOutput(content=str(content), model=str(model))
+
+
+async def _invoke_structured(
+    client: Any,
+    prompt: str,
+    schema: type[BaseModel],
+) -> tuple[BaseModel, str]:
+    structured_client = client.with_structured_output(schema)
+    value = await structured_client.ainvoke(prompt)
+    parsed = value if isinstance(value, schema) else schema.model_validate(value)
+    model = getattr(client, "model_name", None) or getattr(client, "model", None) or "unknown"
+    return parsed, str(model)

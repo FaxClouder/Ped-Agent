@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from dataclasses import asdict
 from datetime import UTC, date, datetime
@@ -9,6 +10,7 @@ from typing import Annotated
 import typer
 import uvicorn
 
+from ped_agent_server.agent_runtime import build_agent_runtime
 from ped_agent_server.api import create_app
 from ped_agent_server.catalog import Catalog
 from ped_agent_server.evaluation import (
@@ -22,13 +24,18 @@ from ped_agent_server.governance import audit_literature_corpus, audit_regulatio
 from ped_agent_server.importer import ImportService
 from ped_agent_server.index import FTSIndex
 from ped_agent_server.manifest import load_and_preflight
+from ped_agent_server.model_gateway import DirectModelGateway
 from ped_agent_server.models import ResourceType
 from ped_agent_server.paths import WorkspacePaths
 from ped_agent_server.retrieval import RetrievalService
+from ped_agent_server.settings import load_settings
+from ped_agent_server.vector_index import embedding_fingerprint
 
 app = typer.Typer(no_args_is_help=True)
 library = typer.Typer(no_args_is_help=True)
+agent = typer.Typer(no_args_is_help=True)
 app.add_typer(library, name="library")
+app.add_typer(agent, name="agent")
 
 
 def repo_paths() -> WorkspacePaths:
@@ -150,11 +157,94 @@ def audit(output: Path) -> None:
     typer.echo(report.model_dump_json())
 
 
-@app.command("serve")
-def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+@agent.command("doctor")
+def agent_doctor() -> None:
+    try:
+        settings = load_settings()
+        DirectModelGateway.from_settings(settings)
+        paths = repo_paths()
+        report = {
+            "configuration": "ok",
+            "answer": {
+                "protocol": settings.answer.protocol,
+                "model": settings.answer.model,
+            },
+            "verify": {
+                "enabled": settings.verify.enabled,
+                "protocol": settings.resolved_verify.protocol
+                if settings.verify.enabled
+                else "disabled",
+                "model": settings.resolved_verify.model if settings.verify.enabled else None,
+            },
+            "embedding": {
+                "model": settings.embedding.model,
+                "fingerprint": embedding_fingerprint(
+                    model=settings.embedding.model,
+                    base_url=settings.embedding.base_url,
+                    dimensions=settings.embedding.dimensions,
+                ),
+            },
+            "storage": {
+                "catalog_exists": paths.catalog_path.exists(),
+                "fts_exists": paths.index_path.exists(),
+                "agent_db": str(settings.runtime.agent_db_path),
+                "chroma": str(settings.runtime.chroma_path),
+            },
+        }
+        typer.echo(json.dumps(report, ensure_ascii=False, indent=2))
+    except Exception as exc:  # noqa: BLE001 - doctor must redact all configuration failures.
+        typer.echo(
+            json.dumps(
+                {"configuration": "invalid", "error": type(exc).__name__},
+                ensure_ascii=False,
+            ),
+            err=True,
+        )
+        raise typer.Exit(code=1) from None
+
+
+@agent.command("rebuild-vector-index")
+def rebuild_vector_index() -> None:
+    settings = load_settings()
     paths = repo_paths()
+    runtime = build_agent_runtime(settings, paths)
+
+    async def rebuild() -> None:
+        try:
+            catalog = Catalog(paths.catalog_path)
+            chunks = catalog.list_official_chunks()
+            await runtime.vector_index.rebuild(
+                chunks,
+                catalog_fingerprint=catalog.official_fingerprint(),
+                embedding_fingerprint=embedding_fingerprint(
+                    model=settings.embedding.model,
+                    base_url=settings.embedding.base_url,
+                    dimensions=settings.embedding.dimensions,
+                ),
+            )
+            typer.echo(json.dumps({"indexed_chunks": len(chunks)}, ensure_ascii=False))
+        finally:
+            await runtime.close()
+
+    asyncio.run(rebuild())
+
+
+@app.command("serve")
+def serve(
+    host: Annotated[str | None, typer.Option()] = None,
+    port: Annotated[int | None, typer.Option()] = None,
+) -> None:
+    paths = repo_paths()
+    settings = load_settings()
+    runtime = build_agent_runtime(settings, paths)
     uvicorn.run(
-        create_app(catalog_path=paths.catalog_path, index_path=paths.index_path),
-        host=host,
-        port=port,
+        create_app(
+            catalog_path=paths.catalog_path,
+            index_path=paths.index_path,
+            agent_repository=runtime.repository,
+            run_service=runtime.run_service,
+            shutdown_callback=runtime.close,
+        ),
+        host=host or settings.runtime.host,
+        port=port or settings.runtime.port,
     )

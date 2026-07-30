@@ -1,13 +1,15 @@
 # Ped-Agent
 
-Ped-Agent is an agentic toolkit for pedestrian-flow literature QA, experiment-plan
-evaluation, structured scenario analysis, and optional video-to-trajectory extraction.
+Ped-Agent is a local-first, evidence-bound research agent for pedestrian-flow literature,
+regulations, experiments, scenario analysis, and optional video-to-trajectory extraction.
 
-This repository contains the Phase 1 foundation:
+The repository now contains two Python distributions:
 
-- Python package layout under `src/ped_agent`
-- YAML configuration system with environment-variable interpolation
-- Lightweight LLM factory and LangGraph-compatible routing graph
+- `ped-agent-core` / `ped_agent`: graph, schemas, policies and protocols
+- `ped-agent-server` / `ped_agent_server`: FastAPI, SQLite, retrieval, model and search adapters
+- Vue 3 knowledge-library and verified evidence-QA workspaces
+- Deterministic LangGraph with FTS5 + Chroma retrieval, conditional external search,
+  citation rules, semantic verification and one revision
 - Pydantic data models for literature, scenario, and trajectory data
 - Module boundaries for RAG, analysis, experiment evaluation, vision plugins, and evals
 - Pytest smoke tests for the scaffold
@@ -15,12 +17,11 @@ This repository contains the Phase 1 foundation:
 
 ## Quick Start
 
-```bash
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -e ".[dev]"
-pytest
-ped-agent "How should I evaluate a pedestrian evacuation experiment?"
+```powershell
+Copy-Item .env.example .env
+uv sync --project backend
+uv run --project backend ped-agent agent doctor
+uv run --project backend ped-agent serve
 ```
 
 Optional extras:
@@ -30,9 +31,10 @@ pip install -e ".[rag]"
 pip install -e ".[vision]"
 ```
 
-Copy `config/.env.example` to `.env` and fill API keys when enabling real model,
-LangSmith, RAG, or vision backends. Set `langsmith.enabled=true` in configuration
-when you want CLI runs to publish traces.
+The Agent runtime reads only `.env` / process environment. Configuration changes require a
+restart, and embedding changes require `ped-agent agent rebuild-vector-index`. LangSmith is
+off unless `PED_AGENT_LANGSMITH__ENABLED=true`. See
+[`docs/agent-architecture.md`](docs/agent-architecture.md) for the full API, SSE and answer chain.
 
 ## Quality-Governed Knowledge Corpus
 

@@ -24,19 +24,21 @@ class ExternalSearchCoordinator:
         self,
         client: httpx.AsyncClient,
         *,
+        academic_enabled: bool = True,
         parallel_api_key: str | None = None,
         max_candidates_per_source: int = 5,
         max_pages: int = 3,
     ) -> None:
         self.client = client
+        self.academic_enabled = academic_enabled
         self.parallel_api_key = parallel_api_key
         self.max_candidates_per_source = max_candidates_per_source
         self.max_pages = max_pages
 
     async def search(self, query: str) -> list[EvidenceItem]:
         semantic, openalex, web = await asyncio.gather(
-            self._semantic_scholar(query),
-            self._openalex(query),
+            self._semantic_scholar(query) if self.academic_enabled else _empty_candidates(),
+            self._openalex(query) if self.academic_enabled else _empty_candidates(),
             self._parallel(query),
         )
         academic = self._deduplicate([*semantic, *openalex])
@@ -172,6 +174,10 @@ def _restore_abstract(index: dict[str, list[int]] | None) -> str | None:
         return None
     positioned = sorted((position, word) for word, positions in index.items() for position in positions)
     return " ".join(word for _, word in positioned)
+
+
+async def _empty_candidates() -> list[SearchCandidate]:
+    return []
 
 
 def _normalize_doi(value: str | None) -> str | None:

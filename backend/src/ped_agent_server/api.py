@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Awaitable, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
@@ -32,6 +33,7 @@ def create_app(
     index_path: Path,
     agent_repository: AgentRepository | None = None,
     run_service: RunService | None = None,
+    shutdown_callback: Callable[[], Awaitable[None]] | None = None,
 ) -> FastAPI:
     catalog = Catalog(catalog_path)
     retrieval = RetrievalService(catalog, FTSIndex(index_path))
@@ -42,7 +44,9 @@ def create_app(
     async def lifespan(_: FastAPI):
         repository.interrupt_active_runs()
         yield
-        if run_service is not None:
+        if shutdown_callback is not None:
+            await shutdown_callback()
+        elif run_service is not None:
             await run_service.shutdown()
 
     app = FastAPI(title="Ped-Agent Knowledge API", version="0.1.0", lifespan=lifespan)

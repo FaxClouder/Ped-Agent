@@ -104,19 +104,32 @@ async def test_graph_uses_local_evidence_and_emits_deterministic_stages() -> Non
     searcher = FakeExternalSearcher()
     gateway = FakeGateway(["standalone query", draft_json()], [review("supported")])
     executor = LangGraphRunExecutor(EvidenceGraph(gateway, FakeLocalRetriever(sufficient=True), searcher))
-    events: list[str] = []
+    events: list[tuple[str, dict[str, object]]] = []
 
     result = await executor.execute(
         context(),
-        lambda event, payload: _record(events, event),
+        lambda event, payload: _record(events, event, payload),
         lambda: False,
     )
 
     assert result.answer.answer_markdown == "Answer [L1]"
     assert result.answer.verification.semantic_passed is True
     assert searcher.calls == 0
-    assert events[0] == "stage.started"
-    assert "evidence.summary" in events
+    assert events[0][0] == "stage.started"
+    assert "evidence.summary" in [event for event, _ in events]
+    rewrite_trace = next(
+        payload
+        for event, payload in events
+        if event == "stage.completed" and payload["stage"] == "rewrite_query"
+    )
+    verify_trace = next(
+        payload
+        for event, payload in events
+        if event == "stage.completed" and payload["stage"] == "semantic_verify"
+    )
+    assert rewrite_trace["duration_ms"] >= 0
+    assert rewrite_trace["model"] == "fake-answer"
+    assert verify_trace["model"] == "fake-verify"
 
 
 @pytest.mark.asyncio
@@ -153,8 +166,12 @@ async def test_graph_revises_once_then_fails_closed_if_still_unsupported() -> No
     assert gateway.verified == []
 
 
-async def _record(events: list[str], event: str) -> None:
-    events.append(event)
+async def _record(
+    events: list[tuple[str, dict[str, object]]],
+    event: str,
+    payload: dict[str, object],
+) -> None:
+    events.append((event, payload))
 
 
 async def _noop() -> None:

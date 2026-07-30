@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
+from time import perf_counter
 from typing import Any, TypedDict, TypeVar
 
 from langgraph.graph import END, START, StateGraph
@@ -138,7 +139,10 @@ class EvidenceGraph:
                 f"Latest query: {state['original_query']}"
             )
             output = await self.gateway.generate(prompt)
-            return {"standalone_query": output.content.strip() or state["original_query"]}
+            return {
+                "standalone_query": output.content.strip() or state["original_query"],
+                "__trace__": {"model": output.model},
+            }
 
         return await self._stage(state, "rewrite_query", action)
 
@@ -181,24 +185,31 @@ class EvidenceGraph:
                 "web": sum(item.origin is EvidenceOrigin.EXTERNAL_WEB for item in evidence),
             }
             await state["emit"]("evidence.summary", {"total": len(evidence), **counts})
-            return {"evidence": evidence, "evidence_pack": pack}
+            return {
+                "evidence": evidence,
+                "evidence_pack": pack,
+                "__trace__": {"evidence_ids": [item.evidence_id for item in evidence]},
+            }
 
         return await self._stage(state, "normalize_evidence", action)
 
     async def _generate_draft(self, state: EvidenceState) -> dict[str, object]:
         async def action() -> dict[str, object]:
             prompt = _draft_prompt(state["original_query"], state["evidence_pack"])
-            draft = await self._structured_generate(prompt, AnswerDraft)
-            return {"draft": draft}
+            draft, model = await self._structured_generate(prompt, AnswerDraft)
+            return {"draft": draft, "__trace__": {"model": model}}
 
         return await self._stage(state, "generate_draft", action)
 
     async def _validate_rules(self, state: EvidenceState) -> dict[str, object]:
-        return await self._stage(
-            state,
-            "validate_rules",
-            lambda: {"rules": validate_draft(state["draft"], state["evidence"])},
-        )
+        def action() -> dict[str, object]:
+            rules = validate_draft(state["draft"], state["evidence"])
+            return {
+                "rules": rules,
+                "__trace__": {"rules_passed": rules.passed, "errors": rules.errors},
+            }
+
+        return await self._stage(state, "validate_rules", action)
 
     async def _semantic_verify(self, state: EvidenceState) -> dict[str, object]:
         async def action() -> dict[str, object]:
@@ -209,12 +220,16 @@ class EvidenceGraph:
             if not state["draft"].claims:
                 return {"semantic_passed": True, "review": SemanticReview()}
             prompt = _verify_prompt(state["draft"], state["evidence_pack"])
-            review = await self._structured_verify(prompt, SemanticReview)
+            review, model = await self._structured_verify(prompt, SemanticReview)
             statuses = {item.claim_id: item.status for item in review.claims}
             passed = bool(state["draft"].claims) and all(
                 statuses.get(claim.claim_id) == "supported" for claim in state["draft"].claims
             )
-            return {"semantic_passed": passed, "review": review}
+            return {
+                "semantic_passed": passed,
+                "review": review,
+                "__trace__": {"model": model, "semantic_passed": passed},
+            }
 
         return await self._stage(state, "semantic_verify", action)
 
@@ -226,8 +241,12 @@ class EvidenceGraph:
                 state.get("review"),
                 state["evidence_pack"],
             )
-            draft = await self._structured_generate(prompt, AnswerDraft)
-            return {"draft": draft, "revision_count": state["revision_count"] + 1}
+            draft, model = await self._structured_generate(prompt, AnswerDraft)
+            return {
+                "draft": draft,
+                "revision_count": state["revision_count"] + 1,
+                "__trace__": {"model": model, "revision": state["revision_count"] + 1},
+            }
 
         return await self._stage(state, "revise_once", action)
 
@@ -251,7 +270,10 @@ class EvidenceGraph:
                     repaired=state["revision_count"] > 0,
                 ),
             )
-            return {"final_answer": answer}
+            return {
+                "final_answer": answer,
+                "__trace__": {"verification": answer.verification.status},
+            }
 
         return await self._stage(state, "final_persist", action)
 
@@ -274,41 +296,64 @@ class EvidenceGraph:
         if state["is_cancelled"]():
             raise RunCancelled("run was cancelled")
         await state["emit"]("stage.started", {"stage": name})
+        started = perf_counter()
         result = action()
         if hasattr(result, "__await__"):
             result = await result  # type: ignore[misc]
-        await state["emit"]("stage.completed", {"stage": name})
+        trace = result.pop("__trace__", {})
+        await state["emit"](
+            "stage.completed",
+            {
+                "stage": name,
+                "duration_ms": round((perf_counter() - started) * 1000, 3),
+                **trace,
+            },
+        )
         return result
 
     async def _structured_generate(
         self,
         prompt: str,
         model: type[StructuredModel],
-    ) -> StructuredModel:
+    ) -> tuple[StructuredModel, str]:
+        native = getattr(self.gateway, "generate_structured", None)
+        if callable(native):
+            try:
+                value, model_name = await native(prompt, model)
+                return model.model_validate(value), model_name
+            except (AttributeError, NotImplementedError, TypeError):
+                pass
         output = await self.gateway.generate(prompt)
         try:
-            return _parse_structured(output.content, model)
+            return _parse_structured(output.content, model), output.model
         except (ValidationError, ValueError, json.JSONDecodeError):
             repaired = await self.gateway.generate(
                 f"Repair the following output into valid JSON for {model.__name__}. "
                 f"Return JSON only.\n{output.content}"
             )
-            return _parse_structured(repaired.content, model)
+            return _parse_structured(repaired.content, model), repaired.model
 
     async def _structured_verify(
         self,
         prompt: str,
         model: type[StructuredModel],
-    ) -> StructuredModel:
+    ) -> tuple[StructuredModel, str]:
+        native = getattr(self.gateway, "verify_structured", None)
+        if callable(native):
+            try:
+                value, model_name = await native(prompt, model)
+                return model.model_validate(value), model_name
+            except (AttributeError, NotImplementedError, TypeError):
+                pass
         output = await self.gateway.verify(prompt)
         try:
-            return _parse_structured(output.content, model)
+            return _parse_structured(output.content, model), output.model
         except (ValidationError, ValueError, json.JSONDecodeError):
             repaired = await self.gateway.verify(
                 f"Repair the following verification into valid JSON. Return JSON only.\n"
                 f"{output.content}"
             )
-            return _parse_structured(repaired.content, model)
+            return _parse_structured(repaired.content, model), repaired.model
 
 
 def _parse_structured(  # noqa: UP047 - shared TypeVar also binds async model helpers.
