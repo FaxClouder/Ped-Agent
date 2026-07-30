@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from ped_agent.agent.contracts import ModelOutput
+from ped_agent.agent.contracts import EvidenceItem, ModelOutput, RetrievalBatch
 
 
 class ModelGateway(Protocol):
@@ -15,3 +15,10 @@ class ModelGateway(Protocol):
 
     async def embed(self, texts: list[str]) -> list[list[float]]: ...
 
+
+class LocalEvidenceRetriever(Protocol):
+    async def retrieve(self, query: str) -> RetrievalBatch: ...
+
+
+class ExternalEvidenceSearcher(Protocol):
+    async def search(self, query: str) -> list[EvidenceItem]: ...

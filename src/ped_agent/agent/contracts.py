@@ -47,6 +47,12 @@ class CitationRef(BaseModel):
     claim_ids: list[str] = Field(default_factory=list)
 
 
+class AnswerClaim(BaseModel):
+    claim_id: str
+    text: str
+    citation_labels: list[str] = Field(default_factory=list)
+
+
 class InferenceItem(BaseModel):
     text: str
     basis_evidence_ids: list[str] = Field(default_factory=list)
@@ -65,6 +71,36 @@ class AnswerDocument(BaseModel):
     inferences: list[InferenceItem] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
     verification: VerificationSummary
+
+
+class AnswerDraft(BaseModel):
+    answer_markdown: str
+    claims: list[AnswerClaim] = Field(default_factory=list)
+    citations: list[CitationRef] = Field(default_factory=list)
+    inferences: list[InferenceItem] = Field(default_factory=list)
+    limitations: list[str] = Field(default_factory=list)
+
+
+class RuleValidation(BaseModel):
+    passed: bool
+    errors: list[str] = Field(default_factory=list)
+
+
+class ClaimReview(BaseModel):
+    claim_id: str
+    status: Literal["supported", "partial", "unsupported"]
+    revised_text: str | None = None
+
+
+class SemanticReview(BaseModel):
+    claims: list[ClaimReview] = Field(default_factory=list)
+
+
+class RetrievalBatch(BaseModel):
+    items: list[EvidenceItem] = Field(default_factory=list)
+    sufficient: bool = False
+    degraded: bool = False
+    degradation_reason: str | None = None
 
 
 class ModelOutput(BaseModel):

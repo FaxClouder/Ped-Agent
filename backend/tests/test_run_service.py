@@ -8,6 +8,7 @@ from ped_agent.agent.contracts import (
     EvidenceOrigin,
     VerificationSummary,
 )
+from ped_agent.agent.evidence_graph import RunCancelled
 
 from ped_agent_server.agent_repository import AgentRepository
 from ped_agent_server.run_service import RunExecutionResult, RunService
@@ -88,3 +89,29 @@ async def test_run_service_fails_closed_without_persisting_draft_or_secret(tmp_p
     assert [message["role"] for message in detail["messages"]] == ["user"]
     assert terminal["event"] == "run.failed"
     assert "sk-secret" not in str(terminal)
+
+
+class CancellingExecutor:
+    def __init__(self, repository: AgentRepository) -> None:
+        self.repository = repository
+
+    async def execute(self, context, emit, is_cancelled) -> RunExecutionResult:
+        self.repository.request_cancel(context.run_id)
+        raise RunCancelled("cancelled")
+
+
+@pytest.mark.asyncio
+async def test_run_service_does_not_overwrite_cancelled_status_with_failure(tmp_path: Path) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    service = RunService(repository, CancellingExecutor(repository))
+
+    run = await service.submit(conversation["id"], "Question")
+    await service.wait(run["id"])
+
+    assert repository.get_run(run["id"])["status"] == "cancelled"
+    assert [event["event"] for event in repository.list_events(run["id"])] == [
+        "run.started",
+        "run.cancelled",
+    ]

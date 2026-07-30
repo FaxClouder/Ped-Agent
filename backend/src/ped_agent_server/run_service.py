@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from ped_agent.agent.contracts import AnswerDocument, EvidenceItem, RunStatus
+from ped_agent.agent.evidence_graph import RunCancelled
 
 from ped_agent_server.agent_repository import AgentRepository
 
@@ -113,6 +114,9 @@ class RunService:
                         error="service shutdown",
                     )
                 raise
+            except RunCancelled:
+                if not self.repository.is_cancel_requested(run_id):
+                    self.repository.request_cancel(run_id)
             # The run boundary must translate every provider/graph failure into a
             # terminal, redacted event so background task exceptions never leak.
             except Exception as exc:  # noqa: BLE001

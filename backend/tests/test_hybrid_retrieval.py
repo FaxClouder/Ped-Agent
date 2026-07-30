@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from ped_agent_server.catalog import Catalog
+from ped_agent_server.evidence_executor import HybridLocalEvidenceRetriever
 from ped_agent_server.hybrid_retrieval import HybridRetriever, retrieval_is_sufficient
 from ped_agent_server.index import IndexHit
 from ped_agent_server.models import CanonicalChunk
@@ -127,3 +128,22 @@ def test_retrieval_sufficiency_requires_two_resources_or_exact_identifier() -> N
     assert retrieval_is_sufficient("general question", [one, two]) is True
     assert retrieval_is_sufficient("10.1000/exact", [one]) is True
     assert retrieval_is_sufficient("Bottleneck dynamics", [one]) is True
+
+
+@pytest.mark.asyncio
+async def test_graph_adapter_marks_hybrid_batch_sufficient(tmp_path: Path) -> None:
+    catalog = Catalog(tmp_path / "catalog.sqlite3")
+    catalog.initialize()
+    first = add_resource(catalog, tmp_path, "reg-d", 1)
+    second = add_resource(catalog, tmp_path, "reg-e", 1)
+    hybrid = HybridRetriever(
+        catalog,
+        FakeFTS([IndexHit(first[0], 1.0), IndexHit(second[0], 0.9)]),
+        None,
+        embedding_fingerprint="embed-v1",
+    )
+
+    batch = await HybridLocalEvidenceRetriever(hybrid).retrieve("general question")
+
+    assert batch.sufficient is True
+    assert batch.degraded is True
