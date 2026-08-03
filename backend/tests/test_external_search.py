@@ -1,7 +1,9 @@
 import httpx
 import pytest
+from langsmith.run_helpers import is_traceable_function
 from ped_agent.agent.contracts import EvidenceOrigin
 
+from ped_agent_server.evidence_executor import HybridLocalEvidenceRetriever
 from ped_agent_server.external_search import ExternalSearchCoordinator
 
 
@@ -42,8 +44,19 @@ def mock_response(request: httpx.Request) -> httpx.Response:
             json={"results": [{"title": "Web result", "url": "https://site.test/page"}]},
         )
     if request.url.host == "site.test":
-        return httpx.Response(200, text="<html><body><h1>Verified page</h1><p>Body text.</p></body></html>")
+        return httpx.Response(
+            200, text="<html><body><h1>Verified page</h1><p>Body text.</p></body></html>"
+        )
     return httpx.Response(404)
+
+
+def test_external_search_boundaries_are_traceable() -> None:
+    assert is_traceable_function(HybridLocalEvidenceRetriever.retrieve)
+    assert is_traceable_function(ExternalSearchCoordinator.search)
+    assert is_traceable_function(ExternalSearchCoordinator._semantic_scholar)
+    assert is_traceable_function(ExternalSearchCoordinator._openalex)
+    assert is_traceable_function(ExternalSearchCoordinator._parallel)
+    assert is_traceable_function(ExternalSearchCoordinator._fetch_web)
 
 
 @pytest.mark.asyncio
@@ -59,9 +72,9 @@ async def test_external_search_normalizes_academic_and_fetched_web_evidence() ->
         EvidenceOrigin.EXTERNAL_WEB,
     }
     assert sum(item.origin is EvidenceOrigin.EXTERNAL_ACADEMIC for item in result) == 2
-    assert next(item for item in result if item.origin is EvidenceOrigin.EXTERNAL_WEB).quote.startswith(
-        "Verified page"
-    )
+    assert next(
+        item for item in result if item.origin is EvidenceOrigin.EXTERNAL_WEB
+    ).quote.startswith("Verified page")
 
 
 def failing_web_response(request: httpx.Request) -> httpx.Response:

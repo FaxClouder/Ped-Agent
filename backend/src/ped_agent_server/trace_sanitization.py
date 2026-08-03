@@ -94,6 +94,63 @@ def _is_private_key(key: str) -> bool:
     )
 
 
+def safe_query_inputs(inputs: dict[str, Any]) -> dict[str, str]:
+    return {"query": str(inputs.get("query", ""))}
+
+
+def safe_candidate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
+    candidate = inputs.get("candidate")
+    if candidate is None:
+        return {"candidate": None}
+    return {"candidate": safe_candidate_outputs([candidate])["candidates"][0]}
+
+
+def _evidence_summary(item: Any) -> dict[str, Any]:
+    value = item.model_dump(mode="json") if hasattr(item, "model_dump") else dict(item)
+    return {
+        "evidence_id": value.get("evidence_id"),
+        "origin": value.get("origin"),
+        "title": value.get("title"),
+        "locator": value.get("locator"),
+        "content_hash": value.get("content_hash"),
+    }
+
+
+def safe_evidence_outputs(items: list[Any]) -> dict[str, Any]:
+    return {
+        "count": len(items),
+        "evidence": [_evidence_summary(item) for item in items],
+    }
+
+
+def safe_optional_evidence_output(item: Any | None) -> dict[str, Any]:
+    return safe_evidence_outputs([] if item is None else [item])
+
+
+def safe_retrieval_outputs(batch: Any) -> dict[str, Any]:
+    return {
+        **safe_evidence_outputs(list(batch.items)),
+        "sufficient": bool(batch.sufficient),
+        "degraded": bool(batch.degraded),
+        "degradation_reason": batch.degradation_reason,
+    }
+
+
+def safe_candidate_outputs(items: list[Any]) -> dict[str, Any]:
+    return {
+        "count": len(items),
+        "candidates": [
+            {
+                "source": item.source,
+                "title": item.title,
+                "url": item.url,
+                "doi": item.doi,
+            }
+            for item in items
+        ],
+    }
+
+
 def redact_trace_payload(value: Any, *, key: str | None = None) -> Any:
     return _redact_trace_payload(value, key=key, path=())
 

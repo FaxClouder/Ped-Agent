@@ -7,7 +7,16 @@ from datetime import UTC, datetime
 from html.parser import HTMLParser
 
 import httpx
+from langsmith import traceable
 from ped_agent.agent.contracts import EvidenceItem, EvidenceOrigin
+
+from ped_agent_server.trace_sanitization import (
+    safe_candidate_inputs,
+    safe_candidate_outputs,
+    safe_evidence_outputs,
+    safe_optional_evidence_output,
+    safe_query_inputs,
+)
 
 
 @dataclass(frozen=True)
@@ -35,6 +44,12 @@ class ExternalSearchCoordinator:
         self.max_candidates_per_source = max_candidates_per_source
         self.max_pages = max_pages
 
+    @traceable(
+        name="external_search",
+        run_type="tool",
+        process_inputs=safe_query_inputs,
+        process_outputs=safe_evidence_outputs,
+    )
     async def search(self, query: str) -> list[EvidenceItem]:
         semantic, openalex, web = await asyncio.gather(
             self._semantic_scholar(query) if self.academic_enabled else _empty_candidates(),
@@ -49,6 +64,12 @@ class ExternalSearchCoordinator:
         evidence.extend(item for item in pages if item is not None)
         return evidence
 
+    @traceable(
+        name="semantic_scholar",
+        run_type="tool",
+        process_inputs=safe_query_inputs,
+        process_outputs=safe_candidate_outputs,
+    )
     async def _semantic_scholar(self, query: str) -> list[SearchCandidate]:
         try:
             response = await self.client.get(
@@ -73,6 +94,12 @@ class ExternalSearchCoordinator:
             for item in response.json().get("data", [])[: self.max_candidates_per_source]
         ]
 
+    @traceable(
+        name="openalex",
+        run_type="tool",
+        process_inputs=safe_query_inputs,
+        process_outputs=safe_candidate_outputs,
+    )
     async def _openalex(self, query: str) -> list[SearchCandidate]:
         try:
             response = await self.client.get(
@@ -93,6 +120,12 @@ class ExternalSearchCoordinator:
             for item in response.json().get("results", [])[: self.max_candidates_per_source]
         ]
 
+    @traceable(
+        name="parallel_search",
+        run_type="tool",
+        process_inputs=safe_query_inputs,
+        process_outputs=safe_candidate_outputs,
+    )
     async def _parallel(self, query: str) -> list[SearchCandidate]:
         if not self.parallel_api_key:
             return []
@@ -115,6 +148,12 @@ class ExternalSearchCoordinator:
             if item.get("url")
         ]
 
+    @traceable(
+        name="external_web_fetch",
+        run_type="tool",
+        process_inputs=safe_candidate_inputs,
+        process_outputs=safe_optional_evidence_output,
+    )
     async def _fetch_web(self, candidate: SearchCandidate) -> EvidenceItem | None:
         if candidate.url is None:
             return None
@@ -172,7 +211,9 @@ class _VisibleTextParser(HTMLParser):
 def _restore_abstract(index: dict[str, list[int]] | None) -> str | None:
     if not index:
         return None
-    positioned = sorted((position, word) for word, positions in index.items() for position in positions)
+    positioned = sorted(
+        (position, word) for word, positions in index.items() for position in positions
+    )
     return " ".join(word for _, word in positioned)
 
 

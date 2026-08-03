@@ -1,11 +1,25 @@
+from datetime import UTC, datetime
+
 from ped_agent.agent.contracts import (
     AnswerDocument,
     CitationRef,
+    EvidenceItem,
+    EvidenceOrigin,
     InferenceItem,
+    RetrievalBatch,
     VerificationSummary,
 )
 
-from ped_agent_server.trace_sanitization import redact_trace_payload
+from ped_agent_server.external_search import SearchCandidate
+from ped_agent_server.trace_sanitization import (
+    redact_trace_payload,
+    safe_candidate_inputs,
+    safe_candidate_outputs,
+    safe_evidence_outputs,
+    safe_optional_evidence_output,
+    safe_query_inputs,
+    safe_retrieval_outputs,
+)
 
 
 def answer_document_payload() -> dict[str, object]:
@@ -40,6 +54,88 @@ def answer_document_payload() -> dict[str, object]:
         }
     ]
     return payload
+
+
+def test_safe_query_input_keeps_only_query() -> None:
+    assert safe_query_inputs(
+        {"self": object(), "query": "bottleneck", "history": "private history"}
+    ) == {"query": "bottleneck"}
+
+
+def test_safe_retrieval_output_keeps_identity_but_not_quotes() -> None:
+    item = EvidenceItem(
+        evidence_id="local:chunk-1",
+        origin=EvidenceOrigin.LOCAL_OFFICIAL,
+        title="Paper",
+        quote="private evidence text",
+        locator="p. 4",
+        retrieved_at=datetime.now(UTC),
+        content_hash="a" * 64,
+    )
+
+    output = safe_retrieval_outputs(RetrievalBatch(items=[item], sufficient=True, degraded=False))
+
+    assert output["evidence"][0] == {
+        "evidence_id": "local:chunk-1",
+        "origin": "local_official",
+        "title": "Paper",
+        "locator": "p. 4",
+        "content_hash": "a" * 64,
+    }
+    assert "private evidence text" not in str(output)
+
+
+def test_safe_evidence_outputs_handle_optional_evidence_without_quotes() -> None:
+    item = EvidenceItem(
+        evidence_id="external:item-1",
+        origin=EvidenceOrigin.EXTERNAL_WEB,
+        title="Web page",
+        quote="private page text",
+        retrieved_at=datetime.now(UTC),
+        content_hash="b" * 64,
+    )
+
+    assert safe_evidence_outputs([item]) == {
+        "count": 1,
+        "evidence": [
+            {
+                "evidence_id": "external:item-1",
+                "origin": "external_web",
+                "title": "Web page",
+                "locator": None,
+                "content_hash": "b" * 64,
+            }
+        ],
+    }
+    assert safe_optional_evidence_output(None) == {"count": 0, "evidence": []}
+
+
+def test_safe_candidate_output_removes_abstract() -> None:
+    candidate = SearchCandidate(
+        source="openalex",
+        title="Paper",
+        url="https://example.org",
+        abstract="private abstract",
+    )
+
+    output = safe_candidate_outputs([candidate])
+
+    assert output == {
+        "count": 1,
+        "candidates": [
+            {
+                "source": "openalex",
+                "title": "Paper",
+                "url": "https://example.org",
+                "doi": None,
+            }
+        ],
+    }
+    assert safe_candidate_inputs({"self": object(), "candidate": candidate}) == {
+        "candidate": output["candidates"][0]
+    }
+    assert safe_candidate_inputs({"candidate": None}) == {"candidate": None}
+    assert "private abstract" not in str(output)
 
 
 def test_redaction_keeps_question_and_final_answer_but_removes_private_content() -> None:
