@@ -117,15 +117,24 @@ class LangSmithObserver:
         metrics: Mapping[str, bool | int | float | str | None],
     ) -> None:
         try:
-            feedback_run_id = UUID(run_id)
-        except (AttributeError, TypeError, ValueError) as error:
+            items = list(metrics.items())
+        except Exception as error:  # noqa: BLE001 - observability must not break runs
             logger.warning(
-                "LangSmith feedback skipped for invalid run_id: %s",
+                "LangSmith feedback failed during metrics: %s",
                 type(error).__name__,
             )
             return
 
-        for key, value in metrics.items():
+        try:
+            feedback_run_id = UUID(run_id)
+        except (AttributeError, TypeError, ValueError) as error:
+            logger.warning(
+                "LangSmith feedback failed during run_id: %s",
+                type(error).__name__,
+            )
+            return
+
+        for key, value in items:
             if value is None:
                 continue
             kwargs = {"score": value} if isinstance(value, (bool, float)) else {"value": value}

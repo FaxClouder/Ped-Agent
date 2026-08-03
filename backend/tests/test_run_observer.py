@@ -1,5 +1,6 @@
 import asyncio
 import threading
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 
@@ -78,6 +79,20 @@ class HangingFlushLangSmithClient(FakeLangSmithClient):
     def flush(self, timeout: float | None = None) -> None:
         self.flush_timeout = timeout
         self.release_flush.wait()
+
+
+class FailingItemsMapping(Mapping[str, bool | int | float | str | None]):
+    def __getitem__(self, key: str) -> bool | int | float | str | None:
+        raise KeyError(key)
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(())
+
+    def __len__(self) -> int:
+        return 0
+
+    def items(self):
+        raise RuntimeError("PRIVATE metrics iteration failure")
 
 
 def observer_settings() -> LangSmithSettings:
@@ -195,6 +210,35 @@ async def test_langsmith_feedback_failure_does_not_skip_later_metrics(caplog) ->
     assert "first_metric" in caplog.text
     assert "RuntimeError" in caplog.text
     assert "PRIVATE feedback failure" not in caplog.text
+    assert "Traceback" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_langsmith_invalid_run_id_preserves_feedback_failure_log_contract(caplog) -> None:
+    observer = build_observer(FakeLangSmithClient())
+
+    await observer.record_feedback("not-a-uuid", {"run_success": True})
+
+    assert "LangSmith feedback failed" in caplog.text
+    assert "run_id" in caplog.text
+    assert "ValueError" in caplog.text
+    assert "not-a-uuid" not in caplog.text
+    assert "Traceback" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_langsmith_metrics_iteration_failure_is_swallowed(caplog) -> None:
+    observer = build_observer(FakeLangSmithClient())
+
+    await observer.record_feedback(
+        "11111111-1111-1111-1111-111111111111",
+        FailingItemsMapping(),
+    )
+
+    assert "LangSmith feedback failed" in caplog.text
+    assert "metrics" in caplog.text
+    assert "RuntimeError" in caplog.text
+    assert "PRIVATE metrics iteration failure" not in caplog.text
     assert "Traceback" not in caplog.text
 
 
