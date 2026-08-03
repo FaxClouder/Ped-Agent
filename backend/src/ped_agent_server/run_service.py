@@ -81,6 +81,7 @@ class RunService:
         run_id = str(run["id"])
         async with self._semaphore:
             if self.repository.is_cancel_requested(run_id):
+                await self._record_cancelled_feedback(run_id)
                 return
             self.repository.set_run_status(run_id, RunStatus.RUNNING)
             self.repository.append_event(
@@ -102,18 +103,14 @@ class RunService:
                     await self._record_cancelled_feedback(run_id)
                     return
                 self._ensure_displayable(result.answer)
-                message_id = self._persist_result(run, result)
-                self.repository.append_event(
+                message_id = self.repository.complete_run(
                     run_id,
-                    "answer.delta",
-                    {"delta": result.answer.answer_markdown, "verified": True},
+                    answer_document=result.answer.model_dump(mode="json"),
+                    evidence_items=[item.model_dump(mode="json") for item in result.evidence],
                 )
-                self.repository.set_run_status(run_id, RunStatus.COMPLETED)
-                self.repository.append_event(
-                    run_id,
-                    "run.completed",
-                    {"run_id": run_id, "message_id": message_id},
-                )
+                if message_id is None:
+                    await self._record_cancelled_feedback(run_id)
+                    return
                 await self.observer.record_feedback(
                     run_id,
                     {
@@ -137,20 +134,13 @@ class RunService:
             # The run boundary must translate every provider/graph failure into a
             # terminal, redacted event so background task exceptions never leak.
             except Exception as exc:  # noqa: BLE001
-                self.repository.set_run_status(
-                    run_id,
-                    RunStatus.FAILED,
-                    error=type(exc).__name__,
-                )
-                self.repository.append_event(
-                    run_id,
-                    "run.failed",
-                    {"run_id": run_id, "error": "run execution failed"},
-                )
-                await self.observer.record_feedback(
-                    run_id,
-                    {"run_success": False, "answer_displayed": False},
-                )
+                if self.repository.fail_run(run_id, error=type(exc).__name__):
+                    await self.observer.record_feedback(
+                        run_id,
+                        {"run_success": False, "answer_displayed": False},
+                    )
+                else:
+                    await self._record_cancelled_feedback(run_id)
 
     def _build_context(self, run: dict[str, object]) -> RunExecutionContext:
         conversation_id = str(run["conversation_id"])
@@ -182,27 +172,6 @@ class RunService:
                 "cancelled": True,
             },
         )
-
-    def _persist_result(self, run: dict[str, object], result: RunExecutionResult) -> str:
-        run_id = str(run["id"])
-        self.repository.save_evidence(
-            run_id,
-            [item.model_dump(mode="json") for item in result.evidence],
-        )
-        message = self.repository.add_message(
-            str(run["conversation_id"]),
-            role="assistant",
-            content=result.answer.answer_markdown,
-            answer_document=result.answer.model_dump(mode="json"),
-        )
-        for citation in result.answer.citations:
-            self.repository.link_citation(
-                str(message["id"]),
-                citation.label,
-                citation.evidence_id,
-                citation.claim_ids,
-            )
-        return str(message["id"])
 
     @staticmethod
     def _ensure_displayable(answer: AnswerDocument) -> None:

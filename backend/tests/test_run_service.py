@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 
 import pytest
@@ -29,6 +30,12 @@ class RecordingObserver:
 
     async def close(self) -> None:
         return None
+
+
+class CancelBeforeCompletionRepository(AgentRepository):
+    def complete_run(self, run_id: str, **kwargs) -> str | None:
+        assert self.request_cancel(run_id) is True
+        return super().complete_run(run_id, **kwargs)
 
 
 class FakeExecutor:
@@ -108,6 +115,15 @@ class FailingExecutor:
         raise RuntimeError("provider failed with key sk-secret")
 
 
+class CancellingThenFailingExecutor:
+    def __init__(self, repository: AgentRepository) -> None:
+        self.repository = repository
+
+    async def execute(self, context, emit, is_cancelled) -> RunExecutionResult:
+        self.repository.request_cancel(context.run_id)
+        raise RuntimeError("provider failed after cancellation")
+
+
 @pytest.mark.asyncio
 async def test_run_service_fails_closed_without_persisting_draft_or_secret(tmp_path: Path) -> None:
     repository = AgentRepository(tmp_path / "agent.sqlite3")
@@ -146,6 +162,17 @@ class LateCancellingExecutor(FakeExecutor):
         result = await super().execute(context, emit, is_cancelled)
         self.repository.request_cancel(context.run_id)
         return result
+
+
+class BlockingExecutor(FakeExecutor):
+    def __init__(self) -> None:
+        self.started = asyncio.Event()
+        self.release = asyncio.Event()
+
+    async def execute(self, context, emit, is_cancelled) -> RunExecutionResult:
+        self.started.set()
+        await self.release.wait()
+        return await super().execute(context, emit, is_cancelled)
 
 
 @pytest.mark.asyncio
@@ -208,3 +235,112 @@ async def test_run_service_records_feedback_for_late_cancellation(tmp_path: Path
         "answer_displayed": False,
         "cancelled": True,
     }
+
+
+@pytest.mark.asyncio
+async def test_run_service_cancel_before_atomic_completion_wins_without_answer(
+    tmp_path: Path,
+) -> None:
+    repository = CancelBeforeCompletionRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    observer = RecordingObserver()
+    service = RunService(repository, FakeExecutor(), observer=observer)
+
+    run = await service.submit(conversation["id"], "Question")
+    await service.wait(run["id"])
+
+    detail = repository.get_conversation(conversation["id"])
+    assert repository.get_run(run["id"])["status"] == "cancelled"
+    assert [event["event"] for event in repository.list_events(run["id"])] == [
+        "run.started",
+        "stage.started",
+        "stage.completed",
+        "evidence.summary",
+        "run.cancelled",
+    ]
+    assert detail is not None
+    assert [message["role"] for message in detail["messages"]] == ["user"]
+    assert observer.feedback == [
+        {
+            "run_id": run["id"],
+            "run_success": False,
+            "answer_displayed": False,
+            "cancelled": True,
+        }
+    ]
+
+
+@pytest.mark.asyncio
+async def test_run_service_keeps_cancelled_when_executor_raises_generic_error(
+    tmp_path: Path,
+) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    observer = RecordingObserver()
+    service = RunService(
+        repository,
+        CancellingThenFailingExecutor(repository),
+        observer=observer,
+    )
+
+    run = await service.submit(conversation["id"], "Question")
+    await service.wait(run["id"])
+
+    assert repository.get_run(run["id"])["status"] == "cancelled"
+    assert [event["event"] for event in repository.list_events(run["id"])] == [
+        "run.started",
+        "run.cancelled",
+    ]
+    assert observer.feedback == [
+        {
+            "run_id": run["id"],
+            "run_success": False,
+            "answer_displayed": False,
+            "cancelled": True,
+        }
+    ]
+
+
+@pytest.mark.asyncio
+async def test_run_service_records_feedback_for_queued_cancellation(tmp_path: Path) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    first_conversation = repository.create_conversation()
+    second_conversation = repository.create_conversation()
+    observer = RecordingObserver()
+    executor = BlockingExecutor()
+    service = RunService(
+        repository,
+        executor,
+        observer=observer,
+        max_concurrent_runs=1,
+    )
+
+    first_run = await service.submit(first_conversation["id"], "First question")
+    await executor.started.wait()
+    second_run = await service.submit(second_conversation["id"], "Second question")
+    assert repository.request_cancel(second_run["id"]) is True
+    executor.release.set()
+    await service.wait(first_run["id"])
+    await service.wait(second_run["id"])
+
+    second_detail = repository.get_conversation(second_conversation["id"])
+    assert repository.get_run(second_run["id"])["status"] == "cancelled"
+    assert [event["event"] for event in repository.list_events(second_run["id"])] == [
+        "run.cancelled"
+    ]
+    assert second_detail is not None
+    assert [message["role"] for message in second_detail["messages"]] == ["user"]
+    assert [
+        feedback for feedback in observer.feedback if feedback["run_id"] == second_run["id"]
+    ] == [
+        {
+            "run_id": second_run["id"],
+            "run_success": False,
+            "answer_displayed": False,
+            "cancelled": True,
+        }
+    ]
+    assert observer.observed_run_ids == [first_run["id"]]

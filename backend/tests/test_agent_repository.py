@@ -1,9 +1,24 @@
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
 from ped_agent.agent.contracts import RunStatus
 
 from ped_agent_server.agent_repository import ActiveRunError, AgentRepository
+
+
+class SynchronizedCancelRepository(AgentRepository):
+    def __init__(self, path: Path) -> None:
+        super().__init__(path)
+        self.synchronize_cancels = False
+        self.cancel_barrier = threading.Barrier(2)
+
+    def get_run(self, run_id: str) -> dict[str, object] | None:
+        run = super().get_run(run_id)
+        if self.synchronize_cancels and run is not None and run["status"] == "running":
+            self.cancel_barrier.wait(timeout=5)
+        return run
 
 
 def test_repository_migrates_wal_and_enforces_one_active_run(tmp_path: Path) -> None:
@@ -76,3 +91,47 @@ def test_repository_returns_conversation_messages_and_citations(tmp_path: Path) 
     assert detail is not None
     assert [item["role"] for item in detail["messages"]] == ["user", "assistant"]
     assert detail["messages"][1]["citations"][0]["evidence"]["locator"] == "page 4"
+
+
+def test_request_cancel_has_one_atomic_winner(tmp_path: Path) -> None:
+    repository = SynchronizedCancelRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    run = repository.create_run(conversation["id"], query="Question")
+    repository.set_run_status(run["id"], RunStatus.RUNNING)
+    repository.synchronize_cancels = True
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [pool.submit(repository.request_cancel, run["id"]) for _ in range(2)]
+        results = [future.result(timeout=10) for future in futures]
+
+    assert sorted(results) == [False, True]
+    assert repository.get_run(run["id"])["status"] == RunStatus.CANCELLED.value
+    assert [event["event"] for event in repository.list_events(run["id"])] == ["run.cancelled"]
+
+
+@pytest.mark.parametrize("status", [RunStatus.COMPLETED, RunStatus.FAILED])
+def test_request_cancel_rejects_finished_run_without_event(
+    tmp_path: Path,
+    status: RunStatus,
+) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    run = repository.create_run(conversation["id"], query="Question")
+    repository.set_run_status(run["id"], RunStatus.RUNNING)
+    repository.set_run_status(run["id"], status)
+
+    assert repository.request_cancel(run["id"]) is False
+    assert repository.list_events(run["id"]) == []
+
+
+def test_request_cancel_is_idempotent_for_cancelled_run(tmp_path: Path) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    run = repository.create_run(conversation["id"], query="Question")
+
+    assert repository.request_cancel(run["id"]) is True
+    assert repository.request_cancel(run["id"]) is False
+    assert [event["event"] for event in repository.list_events(run["id"])] == ["run.cancelled"]

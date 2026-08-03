@@ -154,7 +154,9 @@ class AgentRepository:
                 "UPDATE conversations SET updated_at = ? WHERE id = ?",
                 (timestamp, conversation_id),
             )
-            row = connection.execute("SELECT * FROM messages WHERE id = ?", (message_id,)).fetchone()
+            row = connection.execute(
+                "SELECT * FROM messages WHERE id = ?", (message_id,)
+            ).fetchone()
         return self._hydrate_message_without_citations(row)
 
     def create_run(self, conversation_id: str, *, query: str) -> dict[str, Any]:
@@ -162,9 +164,12 @@ class AgentRepository:
         timestamp = _now()
         with self.connect() as connection:
             connection.execute("BEGIN IMMEDIATE")
-            if connection.execute(
-                "SELECT 1 FROM conversations WHERE id = ?", (conversation_id,)
-            ).fetchone() is None:
+            if (
+                connection.execute(
+                    "SELECT 1 FROM conversations WHERE id = ?", (conversation_id,)
+                ).fetchone()
+                is None
+            ):
                 raise KeyError(conversation_id)
             active = connection.execute(
                 "SELECT id FROM runs WHERE conversation_id = ? AND status IN ('queued', 'running')",
@@ -211,12 +216,10 @@ class AgentRepository:
             )
 
     def request_cancel(self, run_id: str) -> bool:
-        run = self.get_run(run_id)
-        if run is None or run["status"] not in ACTIVE_STATUSES:
-            return False
         timestamp = _now()
         with self.connect() as connection:
-            connection.execute(
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
                 """
                 UPDATE runs SET status = ?, cancel_requested = 1,
                     completed_at = ?, updated_at = ?
@@ -224,7 +227,121 @@ class AgentRepository:
                 """,
                 (RunStatus.CANCELLED.value, timestamp, timestamp, run_id),
             )
-        self.append_event(run_id, "run.cancelled", {"run_id": run_id})
+            if cursor.rowcount != 1:
+                return False
+            connection.execute(
+                "INSERT INTO run_events(run_id, event, payload, created_at) VALUES (?, ?, ?, ?)",
+                (run_id, "run.cancelled", _dump({"run_id": run_id}), timestamp),
+            )
+        return True
+
+    def complete_run(
+        self,
+        run_id: str,
+        *,
+        answer_document: dict[str, Any],
+        evidence_items: list[dict[str, Any]],
+    ) -> str | None:
+        timestamp = _now()
+        message_id = str(uuid4())
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                """
+                UPDATE runs SET status = ?, error = NULL,
+                    completed_at = ?, updated_at = ?
+                WHERE id = ? AND status = 'running' AND cancel_requested = 0
+                """,
+                (RunStatus.COMPLETED.value, timestamp, timestamp, run_id),
+            )
+            if cursor.rowcount != 1:
+                return None
+            run = connection.execute(
+                "SELECT conversation_id FROM runs WHERE id = ?",
+                (run_id,),
+            ).fetchone()
+            conversation_id = str(run["conversation_id"])
+            self._save_evidence(connection, run_id, evidence_items)
+            connection.execute(
+                """
+                INSERT INTO messages(
+                    id, conversation_id, role, content, answer_document, created_at
+                ) VALUES (?, ?, 'assistant', ?, ?, ?)
+                """,
+                (
+                    message_id,
+                    conversation_id,
+                    str(answer_document["answer_markdown"]),
+                    _dump(answer_document),
+                    timestamp,
+                ),
+            )
+            for citation in answer_document.get("citations", []):
+                connection.execute(
+                    """
+                    INSERT OR REPLACE INTO message_citations(
+                        message_id, label, evidence_id, claim_ids
+                    ) VALUES (?, ?, ?, ?)
+                    """,
+                    (
+                        message_id,
+                        citation["label"],
+                        citation["evidence_id"],
+                        _dump(citation.get("claim_ids", [])),
+                    ),
+                )
+            connection.execute(
+                "UPDATE conversations SET updated_at = ? WHERE id = ?",
+                (timestamp, conversation_id),
+            )
+            connection.execute(
+                "INSERT INTO run_events(run_id, event, payload, created_at) VALUES (?, ?, ?, ?)",
+                (
+                    run_id,
+                    "answer.delta",
+                    _dump(
+                        {
+                            "delta": answer_document["answer_markdown"],
+                            "verified": True,
+                        }
+                    ),
+                    timestamp,
+                ),
+            )
+            connection.execute(
+                "INSERT INTO run_events(run_id, event, payload, created_at) VALUES (?, ?, ?, ?)",
+                (
+                    run_id,
+                    "run.completed",
+                    _dump({"run_id": run_id, "message_id": message_id}),
+                    timestamp,
+                ),
+            )
+        return message_id
+
+    def fail_run(self, run_id: str, *, error: str) -> bool:
+        timestamp = _now()
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                """
+                UPDATE runs SET status = ?, error = ?,
+                    completed_at = ?, updated_at = ?
+                WHERE id = ? AND status = 'running' AND cancel_requested = 0
+                """,
+                (RunStatus.FAILED.value, error, timestamp, timestamp, run_id),
+            )
+            if cursor.rowcount != 1:
+                return False
+            connection.execute(
+                "INSERT INTO run_events(run_id, event, payload, created_at) VALUES (?, ?, ?, ?)",
+                (
+                    run_id,
+                    "run.failed",
+                    _dump({"run_id": run_id, "error": "run execution failed"}),
+                    timestamp,
+                ),
+            )
         return True
 
     def is_cancel_requested(self, run_id: str) -> bool:
@@ -272,37 +389,7 @@ class AgentRepository:
 
     def save_evidence(self, run_id: str | None, items: list[dict[str, Any]]) -> None:
         with self.connect() as connection:
-            connection.executemany(
-                """
-                INSERT OR REPLACE INTO evidence_items(
-                    evidence_id, run_id, origin, title, quote, locator, url, doi,
-                    resource_id, version_id, chunk_id, publisher, authority,
-                    retrieved_at, content_hash, score, payload
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                [
-                    (
-                        item["evidence_id"],
-                        run_id,
-                        item["origin"],
-                        item["title"],
-                        item["quote"],
-                        item.get("locator"),
-                        item.get("url"),
-                        item.get("doi"),
-                        item.get("resource_id"),
-                        item.get("version_id"),
-                        item.get("chunk_id"),
-                        item.get("publisher"),
-                        item.get("authority", "primary"),
-                        str(item["retrieved_at"]),
-                        item["content_hash"],
-                        float(item.get("score", 0.0)),
-                        _dump(item),
-                    )
-                    for item in items
-                ],
-            )
+            self._save_evidence(connection, run_id, items)
 
     def link_citation(
         self,
@@ -319,6 +406,44 @@ class AgentRepository:
                 """,
                 (message_id, label, evidence_id, _dump(claim_ids)),
             )
+
+    @staticmethod
+    def _save_evidence(
+        connection: sqlite3.Connection,
+        run_id: str | None,
+        items: list[dict[str, Any]],
+    ) -> None:
+        connection.executemany(
+            """
+            INSERT OR REPLACE INTO evidence_items(
+                evidence_id, run_id, origin, title, quote, locator, url, doi,
+                resource_id, version_id, chunk_id, publisher, authority,
+                retrieved_at, content_hash, score, payload
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    item["evidence_id"],
+                    run_id,
+                    item["origin"],
+                    item["title"],
+                    item["quote"],
+                    item.get("locator"),
+                    item.get("url"),
+                    item.get("doi"),
+                    item.get("resource_id"),
+                    item.get("version_id"),
+                    item.get("chunk_id"),
+                    item.get("publisher"),
+                    item.get("authority", "primary"),
+                    str(item["retrieved_at"]),
+                    item["content_hash"],
+                    float(item.get("score", 0.0)),
+                    _dump(item),
+                )
+                for item in items
+            ],
+        )
 
     def _hydrate_message(
         self,
