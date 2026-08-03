@@ -9,6 +9,7 @@ from ped_agent.agent.contracts import AnswerDocument, EvidenceItem, EvidenceRunM
 from ped_agent.agent.evidence_graph import RunCancelled
 
 from ped_agent_server.agent_repository import AgentRepository
+from ped_agent_server.run_observer import NoOpRunObserver, RunObserver
 
 EventEmitter = Callable[[str, dict[str, object]], Awaitable[None]]
 CancellationCheck = Callable[[], bool]
@@ -45,11 +46,13 @@ class RunService:
         repository: AgentRepository,
         executor: RunExecutor,
         *,
+        observer: RunObserver | None = None,
         max_concurrent_runs: int = 2,
         recent_message_limit: int = 6,
     ) -> None:
         self.repository = repository
         self.executor = executor
+        self.observer = observer or NoOpRunObserver()
         self._semaphore = asyncio.Semaphore(max_concurrent_runs)
         self._recent_message_limit = recent_message_limit
         self._tasks: dict[str, asyncio.Task[None]] = {}
@@ -87,10 +90,13 @@ class RunService:
             )
             try:
                 context = self._build_context(run)
-                result = await self.executor.execute(
+                result = await self.observer.observe_run(
                     context,
-                    lambda event, payload: self._emit(run_id, event, payload),
-                    lambda: self.repository.is_cancel_requested(run_id),
+                    lambda: self.executor.execute(
+                        context,
+                        lambda event, payload: self._emit(run_id, event, payload),
+                        lambda: self.repository.is_cancel_requested(run_id),
+                    ),
                 )
                 if self.repository.is_cancel_requested(run_id):
                     return
@@ -107,6 +113,14 @@ class RunService:
                     "run.completed",
                     {"run_id": run_id, "message_id": message_id},
                 )
+                await self.observer.record_feedback(
+                    run_id,
+                    {
+                        **result.metrics.model_dump(),
+                        "run_success": True,
+                        "answer_displayed": True,
+                    },
+                )
             except asyncio.CancelledError:
                 if not self.repository.is_cancel_requested(run_id):
                     self.repository.set_run_status(
@@ -118,6 +132,14 @@ class RunService:
             except RunCancelled:
                 if not self.repository.is_cancel_requested(run_id):
                     self.repository.request_cancel(run_id)
+                await self.observer.record_feedback(
+                    run_id,
+                    {
+                        "run_success": False,
+                        "answer_displayed": False,
+                        "cancelled": True,
+                    },
+                )
             # The run boundary must translate every provider/graph failure into a
             # terminal, redacted event so background task exceptions never leak.
             except Exception as exc:  # noqa: BLE001
@@ -130,6 +152,10 @@ class RunService:
                     run_id,
                     "run.failed",
                     {"run_id": run_id, "error": "run execution failed"},
+                )
+                await self.observer.record_feedback(
+                    run_id,
+                    {"run_success": False, "answer_displayed": False},
                 )
 
     def _build_context(self, run: dict[str, object]) -> RunExecutionContext:

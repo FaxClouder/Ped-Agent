@@ -1,8 +1,10 @@
 import json
 from datetime import UTC, datetime
+from uuid import UUID
 
 import pytest
 from ped_agent.agent.contracts import (
+    AnswerDocument,
     AnswerDraft,
     EvidenceItem,
     EvidenceOrigin,
@@ -10,6 +12,7 @@ from ped_agent.agent.contracts import (
     RetrievalBatch,
     RuleValidation,
     SemanticReview,
+    VerificationSummary,
 )
 from ped_agent.agent.evidence_graph import (
     EvidenceGraph,
@@ -65,9 +68,7 @@ def draft_json(*, label: str = "L1", evidence_id: str = "local-1", text: str = "
         {
             "answer_markdown": f"{text} [{label}]",
             "claims": [{"claim_id": "c1", "text": text, "citation_labels": [label]}],
-            "citations": [
-                {"label": label, "evidence_id": evidence_id, "claim_ids": ["c1"]}
-            ],
+            "citations": [{"label": label, "evidence_id": evidence_id, "claim_ids": ["c1"]}],
             "inferences": [],
             "limitations": [],
         }
@@ -132,6 +133,21 @@ class EmptyExternalSearcher:
     async def search(self, query: str) -> list[EvidenceItem]:
         self.queries.append(query)
         return []
+
+
+class CapturingCompiledGraph:
+    def __init__(self, final_answer: AnswerDocument) -> None:
+        self.final_answer = final_answer
+        self.config = None
+
+    async def ainvoke(self, state, config=None):
+        self.config = config
+        return {
+            **state,
+            "evidence": [],
+            "insufficient_evidence": True,
+            "final_answer": self.final_answer,
+        }
 
 
 class FakeGateway:
@@ -301,7 +317,7 @@ def review(status: str) -> str:
 
 def context() -> RunExecutionContext:
     return RunExecutionContext(
-        run_id="run-1",
+        run_id="11111111-1111-1111-1111-111111111111",
         conversation_id="conversation-1",
         query="Follow-up question",
         recent_messages=[{"role": "user", "content": "Previous question"}],
@@ -309,12 +325,39 @@ def context() -> RunExecutionContext:
     )
 
 
+@pytest.mark.asyncio
+async def test_graph_uses_local_run_uuid_as_root_trace_id() -> None:
+    answer = AnswerDocument(
+        answer_markdown="No evidence",
+        citations=[],
+        inferences=[],
+        limitations=["No evidence"],
+        verification=VerificationSummary(
+            status="insufficient_evidence",
+            rules_passed=True,
+            semantic_passed=None,
+        ),
+    )
+    graph = EvidenceGraph(
+        CountingGateway(),
+        EmptyLocalRetriever(),
+        EmptyExternalSearcher(),
+    )
+    compiled = CapturingCompiledGraph(answer)
+    graph.compiled = compiled
+    run_context = context()
+
+    await graph.execute(run_context, lambda *_: _noop(), lambda: False)
+
+    assert compiled.config["run_id"] == UUID("11111111-1111-1111-1111-111111111111")
+    assert compiled.config["run_name"] == "ped-agent.evidence-qa"
+
+
 def test_preflight_query_keeps_current_query_as_final_unique_term() -> None:
     state = {
         "original_query": "TARGET",
         "recent_messages": [
-            {"role": "user", "content": query}
-            for query in ["TARGET", "A", "B", "C", "TARGET"]
+            {"role": "user", "content": query} for query in ["TARGET", "A", "B", "C", "TARGET"]
         ],
     }
 
@@ -462,7 +505,9 @@ def test_draft_and_revision_examples_use_real_evidence_binding(label, evidence_i
 async def test_graph_uses_local_evidence_and_emits_deterministic_stages() -> None:
     searcher = FakeExternalSearcher()
     gateway = FakeGateway(["standalone query", draft_json()], [review("supported")])
-    executor = LangGraphRunExecutor(EvidenceGraph(gateway, FakeLocalRetriever(sufficient=True), searcher))
+    executor = LangGraphRunExecutor(
+        EvidenceGraph(gateway, FakeLocalRetriever(sufficient=True), searcher)
+    )
     events: list[tuple[str, dict[str, object]]] = []
 
     result = await executor.execute(
@@ -558,7 +603,9 @@ async def test_graph_searches_once_when_local_evidence_is_insufficient() -> None
 
 
 @pytest.mark.asyncio
-async def test_graph_prioritizes_refined_local_evidence_without_dropping_external_evidence() -> None:
+async def test_graph_prioritizes_refined_local_evidence_without_dropping_external_evidence() -> (
+    None
+):
     preflight_items = [local_evidence_with_id(f"preflight-{index}") for index in range(8)]
     retriever = SequencedLocalRetriever(
         [
@@ -578,9 +625,7 @@ async def test_graph_prioritizes_refined_local_evidence_without_dropping_externa
     result = await graph.execute(context(), lambda *_: _noop(), lambda: False)
 
     evidence_ids = {item.evidence_id for item in result.evidence}
-    local_items = [
-        item for item in result.evidence if item.origin is EvidenceOrigin.LOCAL_OFFICIAL
-    ]
+    local_items = [item for item in result.evidence if item.origin is EvidenceOrigin.LOCAL_OFFICIAL]
     assert "refined-best" in evidence_ids
     assert "preflight-7" not in evidence_ids
     assert "academic-1" in evidence_ids

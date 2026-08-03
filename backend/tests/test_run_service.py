@@ -6,12 +6,29 @@ from ped_agent.agent.contracts import (
     CitationRef,
     EvidenceItem,
     EvidenceOrigin,
+    EvidenceRunMetrics,
     VerificationSummary,
 )
 from ped_agent.agent.evidence_graph import RunCancelled
 
 from ped_agent_server.agent_repository import AgentRepository
 from ped_agent_server.run_service import RunExecutionResult, RunService
+
+
+class RecordingObserver:
+    def __init__(self) -> None:
+        self.observed_run_ids: list[str] = []
+        self.feedback: list[dict[str, object]] = []
+
+    async def observe_run(self, context, operation):
+        self.observed_run_ids.append(context.run_id)
+        return await operation()
+
+    async def record_feedback(self, run_id, metrics) -> None:
+        self.feedback.append({"run_id": run_id, **dict(metrics)})
+
+    async def close(self) -> None:
+        return None
 
 
 class FakeExecutor:
@@ -39,7 +56,15 @@ class FakeExecutor:
                 semantic_passed=True,
             ),
         )
-        return RunExecutionResult(answer=answer, evidence=[evidence])
+        return RunExecutionResult(
+            answer=answer,
+            evidence=[evidence],
+            metrics=EvidenceRunMetrics(
+                local_evidence_count=1,
+                citation_rules_passed=True,
+                semantic_verification_passed=True,
+            ),
+        )
 
 
 @pytest.mark.asyncio
@@ -47,7 +72,13 @@ async def test_run_service_persists_only_verified_final_answer(tmp_path: Path) -
     repository = AgentRepository(tmp_path / "agent.sqlite3")
     repository.initialize()
     conversation = repository.create_conversation()
-    service = RunService(repository, FakeExecutor(), max_concurrent_runs=2)
+    observer = RecordingObserver()
+    service = RunService(
+        repository,
+        FakeExecutor(),
+        observer=observer,
+        max_concurrent_runs=2,
+    )
 
     run = await service.submit(conversation["id"], "Question")
     await service.wait(run["id"])
@@ -66,6 +97,10 @@ async def test_run_service_persists_only_verified_final_answer(tmp_path: Path) -
     assert detail["messages"][-1]["content"] == "Verified answer [L1]"
     assert detail["messages"][-1]["citations"][0]["evidence"]["origin"] == "local_official"
     assert repository.get_run(run["id"])["status"] == "completed"
+    assert observer.observed_run_ids == [run["id"]]
+    assert observer.feedback[0]["run_success"] is True
+    assert observer.feedback[0]["answer_displayed"] is True
+    assert observer.feedback[0]["local_evidence_count"] == 1
 
 
 class FailingExecutor:
@@ -78,7 +113,8 @@ async def test_run_service_fails_closed_without_persisting_draft_or_secret(tmp_p
     repository = AgentRepository(tmp_path / "agent.sqlite3")
     repository.initialize()
     conversation = repository.create_conversation()
-    service = RunService(repository, FailingExecutor())
+    observer = RecordingObserver()
+    service = RunService(repository, FailingExecutor(), observer=observer)
 
     run = await service.submit(conversation["id"], "Question")
     await service.wait(run["id"])
@@ -88,7 +124,9 @@ async def test_run_service_fails_closed_without_persisting_draft_or_secret(tmp_p
     assert detail is not None
     assert [message["role"] for message in detail["messages"]] == ["user"]
     assert terminal["event"] == "run.failed"
-    assert "sk-secret" not in str(terminal)
+    assert observer.feedback[-1]["run_success"] is False
+    assert observer.feedback[-1]["answer_displayed"] is False
+    assert "sk-secret" not in str(repository.list_events(run["id"])[-1])
 
 
 class CancellingExecutor:
@@ -105,7 +143,12 @@ async def test_run_service_does_not_overwrite_cancelled_status_with_failure(tmp_
     repository = AgentRepository(tmp_path / "agent.sqlite3")
     repository.initialize()
     conversation = repository.create_conversation()
-    service = RunService(repository, CancellingExecutor(repository))
+    observer = RecordingObserver()
+    service = RunService(
+        repository,
+        CancellingExecutor(repository),
+        observer=observer,
+    )
 
     run = await service.submit(conversation["id"], "Question")
     await service.wait(run["id"])
@@ -115,3 +158,9 @@ async def test_run_service_does_not_overwrite_cancelled_status_with_failure(tmp_
         "run.started",
         "run.cancelled",
     ]
+    assert observer.feedback[-1] == {
+        "run_id": run["id"],
+        "run_success": False,
+        "answer_displayed": False,
+        "cancelled": True,
+    }

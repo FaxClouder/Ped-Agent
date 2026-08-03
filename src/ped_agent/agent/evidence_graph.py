@@ -5,6 +5,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from time import perf_counter
 from typing import Any, TypedDict, TypeVar
+from uuid import UUID
 
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, ValidationError
@@ -32,9 +33,7 @@ from ped_agent.agent.ports import (
 EventEmitter = Callable[[str, dict[str, object]], Awaitable[None]]
 CancellationCheck = Callable[[], bool]
 StructuredModel = TypeVar("StructuredModel", bound=BaseModel)
-INSUFFICIENT_EVIDENCE_MESSAGE = (
-    "当前知识库与外部检索未找到足够的可核验证据，暂时无法给出可靠回答。"
-)
+INSUFFICIENT_EVIDENCE_MESSAGE = "当前知识库与外部检索未找到足够的可核验证据，暂时无法给出可靠回答。"
 
 
 class VerificationFailed(RuntimeError):
@@ -82,9 +81,7 @@ def _preflight_query(state: EvidenceState) -> str:
         for message in state.get("recent_messages", [])
         if message.get("role") == "user" and str(message.get("content", "")).strip()
     ]
-    unique = list(
-        dict.fromkeys(query for query in historical_queries if query != current_query)
-    )
+    unique = list(dict.fromkeys(query for query in historical_queries if query != current_query))
     if current_query:
         unique.append(current_query)
     return " ".join(unique[-3:]) or state["original_query"]
@@ -95,23 +92,17 @@ def _metrics(state: EvidenceState) -> EvidenceRunMetrics:
     preflight_batch = state.get("preflight_local_batch")
     refined_batch = state.get("local_batch")
     return EvidenceRunMetrics(
-        local_evidence_count=sum(
-            item.origin is EvidenceOrigin.LOCAL_OFFICIAL for item in evidence
-        ),
+        local_evidence_count=sum(item.origin is EvidenceOrigin.LOCAL_OFFICIAL for item in evidence),
         academic_evidence_count=sum(
             item.origin is EvidenceOrigin.EXTERNAL_ACADEMIC for item in evidence
         ),
-        web_evidence_count=sum(
-            item.origin is EvidenceOrigin.EXTERNAL_WEB for item in evidence
-        ),
+        web_evidence_count=sum(item.origin is EvidenceOrigin.EXTERNAL_WEB for item in evidence),
         external_search_used=bool(state.get("needs_external")),
         retrieval_degraded=bool(
             (preflight_batch and preflight_batch.degraded)
             or (refined_batch and refined_batch.degraded)
         ),
-        citation_rules_passed=(
-            state["rules"].passed if state.get("rules") is not None else None
-        ),
+        citation_rules_passed=(state["rules"].passed if state.get("rules") is not None else None),
         semantic_verification_passed=state["final_answer"].verification.semantic_passed,
         revision_count=state.get("revision_count", 0),
         insufficient_evidence=bool(state.get("insufficient_evidence")),
@@ -147,7 +138,11 @@ class EvidenceGraph:
                 "revision_count": 0,
                 "emit": emit,
                 "is_cancelled": is_cancelled,
-            }
+            },
+            config={
+                "run_id": UUID(context.run_id),
+                "run_name": "ped-agent.evidence-qa",
+            },
         )
         return EvidenceGraphResult(
             answer=state["final_answer"],
