@@ -19,6 +19,7 @@ BLOCKED_KEYS = {
     "headers",
     "history",
     "messages",
+    "preflight_query",
     "recent_messages",
     "request_header",
     "request_headers",
@@ -165,6 +166,10 @@ def safe_query_inputs(inputs: Any) -> dict[str, str]:
         return {"query": _safe_query(_safe_field(inputs, "query"))}
     except BaseException:  # noqa: BLE001 - trace processors must always fail closed.
         return {"query": ""}
+
+
+def safe_local_query_inputs(inputs: Any) -> dict[str, str]:
+    return {"query": REDACTED}
 
 
 def safe_candidate_inputs(inputs: Any) -> dict[str, Any]:

@@ -5,6 +5,7 @@ from ped_agent.agent.contracts import EvidenceOrigin
 
 from ped_agent_server.evidence_executor import HybridLocalEvidenceRetriever
 from ped_agent_server.external_search import ExternalSearchCoordinator, SearchCandidate
+from ped_agent_server.hybrid_retrieval import HybridRetrievalResult
 
 
 class FakeTraceClient:
@@ -118,6 +119,50 @@ async def test_enabled_trace_updates_failed_source_span_without_processor_error(
     assert trace_client.updated[0]["outputs"] == {"count": 0, "candidates": []}
     assert trace_client.updated[0]["error"] is not None
     assert trace_client.updated[0]["end_time"] is not None
+
+
+@pytest.mark.asyncio
+async def test_enabled_local_retrieval_trace_redacts_query_without_changing_business_input() -> (
+    None
+):
+    class RecordingHybrid:
+        def __init__(self) -> None:
+            self.queries: list[str] = []
+
+        async def retrieve(self, query: str) -> HybridRetrievalResult:
+            self.queries.append(query)
+            return HybridRetrievalResult(items=[])
+
+    combined_query = "private history current question"
+    hybrid = RecordingHybrid()
+    trace_client = FakeTraceClient()
+
+    with tracing_context(enabled=True, client=trace_client):  # type: ignore[arg-type]
+        batch = await HybridLocalEvidenceRetriever(hybrid).retrieve(combined_query)  # type: ignore[arg-type]
+
+    assert hybrid.queries == [combined_query]
+    assert batch.items == []
+    assert trace_client.created[0]["inputs"] == {"query": "[REDACTED]"}
+    rendered = str(trace_client.created)
+    assert "private history" not in rendered
+    assert "current question" not in rendered
+
+
+@pytest.mark.asyncio
+async def test_enabled_external_search_trace_keeps_only_current_query() -> None:
+    current_query = "current question"
+    trace_client = FakeTraceClient()
+    async with httpx.AsyncClient(transport=httpx.MockTransport(mock_response)) as client:
+        coordinator = ExternalSearchCoordinator(client, academic_enabled=False)
+        with tracing_context(enabled=True, client=trace_client):  # type: ignore[arg-type]
+            result = await coordinator.search(current_query)
+
+    assert result == []
+    assert trace_client.created
+    assert all(item["inputs"] == {"query": current_query} for item in trace_client.created)
+    rendered = str(trace_client.created)
+    assert "self" not in rendered
+    assert "private history" not in rendered
 
 
 @pytest.mark.asyncio

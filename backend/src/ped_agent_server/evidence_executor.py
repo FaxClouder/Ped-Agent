@@ -11,7 +11,10 @@ from ped_agent_server.run_service import (
     RunExecutionContext,
     RunExecutionResult,
 )
-from ped_agent_server.trace_sanitization import safe_query_inputs, safe_retrieval_outputs
+from ped_agent_server.trace_sanitization import (
+    safe_local_query_inputs,
+    safe_retrieval_outputs,
+)
 
 
 class HybridLocalEvidenceRetriever:
@@ -21,7 +24,7 @@ class HybridLocalEvidenceRetriever:
     @traceable(
         name="hybrid_retrieval",
         run_type="retriever",
-        process_inputs=safe_query_inputs,
+        process_inputs=safe_local_query_inputs,
         process_outputs=safe_retrieval_outputs,
     )
     async def retrieve(self, query: str) -> RetrievalBatch:

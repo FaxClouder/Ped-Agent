@@ -16,6 +16,7 @@ from ped_agent_server.trace_sanitization import (
     safe_candidate_inputs,
     safe_candidate_outputs,
     safe_evidence_outputs,
+    safe_local_query_inputs,
     safe_optional_evidence_output,
     safe_query_inputs,
     safe_retrieval_outputs,
@@ -73,6 +74,32 @@ def test_safe_query_input_fails_closed_for_unknown_or_unstringifiable_values() -
     assert safe_query_inputs(None) == {"query": ""}  # type: ignore[arg-type]
     assert safe_query_inputs(QueryObject()) == {"query": ""}  # type: ignore[arg-type]
     assert safe_query_inputs({"query": Unstringifiable()}) == {"query": ""}
+
+
+def test_safe_local_query_input_redacts_combined_history_and_current_query() -> None:
+    output = safe_local_query_inputs(
+        {
+            "self": object(),
+            "query": "private history current question",
+        }
+    )
+
+    assert output == {"query": "[REDACTED]"}
+    assert "private history" not in str(output)
+    assert "current question" not in str(output)
+
+
+def test_safe_local_query_input_is_total_for_unknown_and_malicious_values() -> None:
+    class ExplodingQuery:
+        @property
+        def query(self) -> str:
+            raise ValueError("private property failure")
+
+        def __str__(self) -> str:
+            raise ValueError("private conversion failure")
+
+    for value in (None, object(), ExplodingQuery()):
+        assert safe_local_query_inputs(value) == {"query": "[REDACTED]"}
 
 
 def test_safe_retrieval_output_keeps_identity_but_not_quotes() -> None:
@@ -244,6 +271,7 @@ def test_safe_candidate_processors_fail_closed_for_unknown_items() -> None:
 def test_redaction_keeps_question_and_final_answer_but_removes_private_content() -> None:
     payload = {
         "original_query": "What happens near a bottleneck?",
+        "preflight_query": "private history current question",
         "recent_messages": [{"role": "user", "content": "private history"}],
         "evidence": [
             {
@@ -269,6 +297,7 @@ def test_redaction_keeps_question_and_final_answer_but_removes_private_content()
     redacted = redact_trace_payload(payload)
 
     assert redacted["original_query"] == "What happens near a bottleneck?"
+    assert redacted["preflight_query"] == "[REDACTED]"
     assert redacted["final_answer"]["answer_markdown"] == "Verified answer [L1]"
     assert redacted["recent_messages"] == "[REDACTED]"
     assert redacted["evidence"][0]["quote"] == "[REDACTED]"
