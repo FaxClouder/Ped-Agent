@@ -109,10 +109,19 @@ def test_settings_resolve_deepseek_json_mode_and_redacted_langsmith(
 
     settings = load_settings(env_file=None)
 
+    assert settings.answer.model == "deepseek-v4-flash"
+    assert settings.answer.api_key.get_secret_value() == "deepseek-secret"
+    assert settings.answer.base_url == "https://api.deepseek.com"
     assert settings.answer.structured_output_method == "json_mode"
+    assert settings.verify.enabled is True
+    assert settings.resolved_verify.protocol == "openai_compatible"
     assert settings.resolved_verify.model == "deepseek-v4-pro"
     assert settings.resolved_verify.api_key.get_secret_value() == "deepseek-secret"
     assert settings.resolved_verify.structured_output_method == "json_mode"
+    assert settings.embedding.model == "embed-test"
+    assert settings.embedding.api_key.get_secret_value() == "embedding-secret"
+    assert settings.langsmith.enabled is True
+    assert settings.langsmith.api_key.get_secret_value() == "langsmith-secret"
     assert settings.langsmith.project == "ped-agent-local"
     assert settings.langsmith.sampling_rate == 1.0
     assert settings.langsmith.content_policy == "redacted"
