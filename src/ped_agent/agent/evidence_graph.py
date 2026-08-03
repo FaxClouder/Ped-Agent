@@ -112,11 +112,7 @@ def _metrics(state: EvidenceState) -> EvidenceRunMetrics:
         citation_rules_passed=(
             state["rules"].passed if state.get("rules") is not None else None
         ),
-        semantic_verification_passed=(
-            state.get("semantic_passed")
-            if not state.get("insufficient_evidence")
-            else None
-        ),
+        semantic_verification_passed=state["final_answer"].verification.semantic_passed,
         revision_count=state.get("revision_count", 0),
         insufficient_evidence=bool(state.get("insufficient_evidence")),
     )

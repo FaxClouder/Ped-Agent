@@ -153,6 +153,12 @@ class FakeGateway:
         return []
 
 
+class RulesOnlyGateway(FakeGateway):
+    @property
+    def verification_enabled(self) -> bool:
+        return False
+
+
 class NativeRepairGateway:
     def __init__(self) -> None:
         self.native_generate_calls = 0
@@ -514,6 +520,26 @@ async def test_graph_metrics_record_one_successful_revision() -> None:
     assert result.answer.answer_markdown == "Revised [L1]"
     assert result.metrics.revision_count == 1
     assert result.metrics.semantic_verification_passed is True
+
+
+@pytest.mark.asyncio
+async def test_graph_metrics_match_rules_only_final_verification() -> None:
+    gateway = RulesOnlyGateway(["standalone query", draft_json()], [])
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+        allow_rules_only=True,
+    )
+
+    result = await graph.execute(context(), lambda *_: _noop(), lambda: False)
+
+    assert result.answer.verification.status == "rules_only"
+    assert result.answer.verification.semantic_passed is None
+    assert result.metrics.semantic_verification_passed is None
+    assert result.metrics.citation_rules_passed is True
+    assert result.metrics.revision_count == 0
+    assert result.metrics.insufficient_evidence is False
 
 
 @pytest.mark.asyncio
