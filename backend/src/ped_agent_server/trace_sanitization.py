@@ -5,40 +5,57 @@ from typing import Any
 
 REDACTED = "[REDACTED]"
 BLOCKED_KEYS = {
-    "api_key",
-    "authorization",
     "content",
+    "credentials",
     "draft",
     "evidence_pack",
     "errors",
     "generations",
+    "header",
+    "headers",
+    "history",
+    "messages",
     "recent_messages",
+    "request_header",
+    "request_headers",
+    "response_header",
+    "response_headers",
     "review",
     "revised_text",
+    "secrets",
+    "text",
 }
 SECRET_KEYS = {
     "access_token",
     "api_key",
     "authorization",
     "client_secret",
+    "password",
+    "private_key",
     "refresh_token",
     "secret",
+    "token",
 }
-EVIDENCE_BLOCK = re.compile(r"<evidence>.*?</evidence>", re.DOTALL | re.IGNORECASE)
+CAMEL_CASE_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+KEY_SEPARATOR = re.compile(r"[^A-Za-z0-9]+")
+EVIDENCE_BLOCK = re.compile(
+    r"<evidence>(?:(?=.*</evidence>).*</evidence>|.*\Z)",
+    re.DOTALL | re.IGNORECASE,
+)
 HISTORY_BLOCK = re.compile(
-    r"Recent messages:.*?(?=\nLatest query:)",
+    r"Recent messages:.*(?=\nLatest query:)",
     re.DOTALL | re.IGNORECASE,
 )
 DRAFT_BLOCK = re.compile(
-    r"Draft:.*?(?=\n(?:Rules:|Review:|<evidence>))",
+    r"Draft:.*(?=\n(?:Rules:|Review:|<evidence>))",
     re.DOTALL | re.IGNORECASE,
 )
 RULES_BLOCK = re.compile(
-    r"Rules:.*?(?=\n(?:Review:|<evidence>))",
+    r"Rules:.*(?=\n(?:Review:|<evidence>))",
     re.DOTALL | re.IGNORECASE,
 )
 REVIEW_BLOCK = re.compile(
-    r"Review:.*?(?=\n<evidence>)",
+    r"Review:.*(?=\n<evidence>)",
     re.DOTALL | re.IGNORECASE,
 )
 INVALID_RESPONSE_BLOCK = re.compile(
@@ -47,11 +64,32 @@ INVALID_RESPONSE_BLOCK = re.compile(
 )
 
 
+def _normalize_key(key: str) -> str:
+    separated = CAMEL_CASE_BOUNDARY.sub("_", key)
+    return KEY_SEPARATOR.sub("_", separated).strip("_").casefold()
+
+
+def _is_private_key(key: str) -> bool:
+    if key in BLOCKED_KEYS or key in SECRET_KEYS or key == "quote":
+        return True
+    return key.endswith(
+        (
+            "_api_key",
+            "_authorization",
+            "_credentials",
+            "_header",
+            "_headers",
+            "_password",
+            "_private_key",
+            "_secret",
+            "_token",
+        )
+    )
+
+
 def redact_trace_payload(value: Any, *, key: str | None = None) -> Any:
-    normalized_key = (key or "").casefold()
-    if normalized_key in BLOCKED_KEYS or normalized_key in SECRET_KEYS:
-        return REDACTED
-    if normalized_key == "quote":
+    normalized_key = _normalize_key(key or "")
+    if _is_private_key(normalized_key):
         return REDACTED
     if isinstance(value, dict):
         return {

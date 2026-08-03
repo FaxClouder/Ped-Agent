@@ -1,3 +1,5 @@
+import asyncio
+import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
 
@@ -25,14 +27,18 @@ class FakeLangSmithClient:
         self.feedback: list[dict[str, object]] = []
         self.flushed = False
         self.closed = False
+        self.flush_timeout: float | None = None
+        self.close_timeout: float | None = None
 
     def create_feedback(self, **kwargs) -> None:
         self.feedback.append(kwargs)
 
-    def flush(self) -> None:
+    def flush(self, timeout: float | None = None) -> None:
+        self.flush_timeout = timeout
         self.flushed = True
 
-    def close(self) -> None:
+    def close(self, timeout: float | None = None) -> None:
+        self.close_timeout = timeout
         self.closed = True
 
 
@@ -41,13 +47,37 @@ class FailingLangSmithClient(FakeLangSmithClient):
         raise RuntimeError("offline")
 
 
-class FailingCloseLangSmithClient(FakeLangSmithClient):
-    def flush(self) -> None:
-        raise RuntimeError("flush offline")
+class FirstFeedbackFailsLangSmithClient(FakeLangSmithClient):
+    def create_feedback(self, **kwargs) -> None:
+        if kwargs["key"] == "first_metric":
+            raise RuntimeError("PRIVATE feedback failure")
+        super().create_feedback(**kwargs)
 
-    def close(self) -> None:
+
+class FalseyLangSmithClient(FakeLangSmithClient):
+    def __bool__(self) -> bool:
+        return False
+
+
+class FailingCloseLangSmithClient(FakeLangSmithClient):
+    def flush(self, timeout: float | None = None) -> None:
+        self.flush_timeout = timeout
+        raise RuntimeError("PRIVATE flush offline")
+
+    def close(self, timeout: float | None = None) -> None:
+        self.close_timeout = timeout
         self.closed = True
-        raise RuntimeError("close offline")
+        raise RuntimeError("PRIVATE close offline")
+
+
+class HangingFlushLangSmithClient(FakeLangSmithClient):
+    def __init__(self) -> None:
+        super().__init__()
+        self.release_flush = threading.Event()
+
+    def flush(self, timeout: float | None = None) -> None:
+        self.flush_timeout = timeout
+        self.release_flush.wait()
 
 
 def observer_settings() -> LangSmithSettings:
@@ -147,6 +177,33 @@ async def test_langsmith_feedback_failure_is_swallowed(caplog) -> None:
     observer = build_observer(FailingLangSmithClient())
     await observer.record_feedback("11111111-1111-1111-1111-111111111111", {"run_success": True})
     assert "LangSmith feedback failed" in caplog.text
+    assert "offline" not in caplog.text
+    assert "Traceback" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_langsmith_feedback_failure_does_not_skip_later_metrics(caplog) -> None:
+    client = FirstFeedbackFailsLangSmithClient()
+    observer = build_observer(client)
+
+    await observer.record_feedback(
+        "11111111-1111-1111-1111-111111111111",
+        {"first_metric": True, "second_metric": 2},
+    )
+
+    assert [item["key"] for item in client.feedback] == ["second_metric"]
+    assert "first_metric" in caplog.text
+    assert "RuntimeError" in caplog.text
+    assert "PRIVATE feedback failure" not in caplog.text
+    assert "Traceback" not in caplog.text
+
+
+def test_langsmith_observer_keeps_explicit_falsey_client() -> None:
+    client = FalseyLangSmithClient()
+
+    observer = build_observer(client)
+
+    assert observer.client is client
 
 
 @pytest.mark.asyncio
@@ -156,3 +213,36 @@ async def test_langsmith_close_failures_are_swallowed_and_both_steps_run(caplog)
     await observer.close()
     assert client.closed is True
     assert caplog.text.count("LangSmith shutdown failed") == 2
+    assert "RuntimeError" in caplog.text
+    assert "PRIVATE" not in caplog.text
+    assert "Traceback" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_langsmith_close_has_deadline_and_attempts_close_after_flush_timeout(
+    monkeypatch, caplog
+) -> None:
+    shutdown_timeout = 0.05
+    monkeypatch.setattr(
+        run_observer_module,
+        "LANGSMITH_SHUTDOWN_TIMEOUT_SECONDS",
+        shutdown_timeout,
+    )
+    client = HangingFlushLangSmithClient()
+    observer = build_observer(client)
+    loop = asyncio.get_running_loop()
+
+    started_at = loop.time()
+    try:
+        await observer.close()
+    finally:
+        client.release_flush.set()
+    elapsed = loop.time() - started_at
+
+    assert elapsed < 0.5
+    assert client.closed is True
+    assert client.flush_timeout == shutdown_timeout
+    assert client.close_timeout == shutdown_timeout
+    assert "flush" in caplog.text
+    assert "TimeoutError" in caplog.text
+    assert "Traceback" not in caplog.text

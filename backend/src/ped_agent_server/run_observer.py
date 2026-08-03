@@ -16,6 +16,7 @@ from ped_agent_server.trace_sanitization import redact_trace_payload
 
 T = TypeVar("T")
 logger = logging.getLogger(__name__)
+LANGSMITH_SHUTDOWN_TIMEOUT_SECONDS = 5.0
 
 
 class ObservableRunContext(Protocol):
@@ -77,7 +78,7 @@ class LangSmithObserver:
         self.embedding_model = embedding_model
         self.external_search_enabled = external_search_enabled
         self.verification_required = verification_required
-        self.client = client or _build_client(settings)
+        self.client = client if client is not None else _build_client(settings)
 
     async def observe_run(
         self,
@@ -116,28 +117,49 @@ class LangSmithObserver:
         metrics: Mapping[str, bool | int | float | str | None],
     ) -> None:
         try:
-            for key, value in metrics.items():
-                if value is None:
-                    continue
-                kwargs = {"score": value} if isinstance(value, (bool, float)) else {"value": value}
+            feedback_run_id = UUID(run_id)
+        except (AttributeError, TypeError, ValueError) as error:
+            logger.warning(
+                "LangSmith feedback skipped for invalid run_id: %s",
+                type(error).__name__,
+            )
+            return
+
+        for key, value in metrics.items():
+            if value is None:
+                continue
+            kwargs = {"score": value} if isinstance(value, (bool, float)) else {"value": value}
+            try:
                 await asyncio.to_thread(
                     self.client.create_feedback,
-                    run_id=UUID(run_id),
+                    run_id=feedback_run_id,
                     key=key,
                     **kwargs,
                 )
-        except Exception:
-            logger.warning("LangSmith feedback failed", exc_info=True)
+            except Exception as error:  # noqa: BLE001 - observability must not break runs
+                logger.warning(
+                    "LangSmith feedback failed for key %s: %s",
+                    key,
+                    type(error).__name__,
+                )
 
     async def close(self) -> None:
+        timeout = LANGSMITH_SHUTDOWN_TIMEOUT_SECONDS
         for name, operation in (
             ("flush", self.client.flush),
             ("close", self.client.close),
         ):
             try:
-                await asyncio.to_thread(operation)
-            except Exception:
-                logger.warning("LangSmith shutdown failed during %s", name, exc_info=True)
+                await asyncio.wait_for(
+                    asyncio.to_thread(operation, timeout=timeout),
+                    timeout=timeout,
+                )
+            except Exception as error:  # noqa: BLE001 - shutdown must attempt both steps
+                logger.warning(
+                    "LangSmith shutdown failed during %s: %s",
+                    name,
+                    type(error).__name__,
+                )
 
 
 def _build_client(settings: LangSmithSettings) -> Client:
