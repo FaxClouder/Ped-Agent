@@ -138,6 +138,16 @@ class CancellingExecutor:
         raise RunCancelled("cancelled")
 
 
+class LateCancellingExecutor(FakeExecutor):
+    def __init__(self, repository: AgentRepository) -> None:
+        self.repository = repository
+
+    async def execute(self, context, emit, is_cancelled) -> RunExecutionResult:
+        result = await super().execute(context, emit, is_cancelled)
+        self.repository.request_cancel(context.run_id)
+        return result
+
+
 @pytest.mark.asyncio
 async def test_run_service_does_not_overwrite_cancelled_status_with_failure(tmp_path: Path) -> None:
     repository = AgentRepository(tmp_path / "agent.sqlite3")
@@ -158,6 +168,40 @@ async def test_run_service_does_not_overwrite_cancelled_status_with_failure(tmp_
         "run.started",
         "run.cancelled",
     ]
+    assert observer.feedback[-1] == {
+        "run_id": run["id"],
+        "run_success": False,
+        "answer_displayed": False,
+        "cancelled": True,
+    }
+
+
+@pytest.mark.asyncio
+async def test_run_service_records_feedback_for_late_cancellation(tmp_path: Path) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    observer = RecordingObserver()
+    service = RunService(
+        repository,
+        LateCancellingExecutor(repository),
+        observer=observer,
+    )
+
+    run = await service.submit(conversation["id"], "Question")
+    await service.wait(run["id"])
+
+    detail = repository.get_conversation(conversation["id"])
+    assert repository.get_run(run["id"])["status"] == "cancelled"
+    assert [event["event"] for event in repository.list_events(run["id"])] == [
+        "run.started",
+        "stage.started",
+        "stage.completed",
+        "evidence.summary",
+        "run.cancelled",
+    ]
+    assert detail is not None
+    assert [message["role"] for message in detail["messages"]] == ["user"]
     assert observer.feedback[-1] == {
         "run_id": run["id"],
         "run_success": False,

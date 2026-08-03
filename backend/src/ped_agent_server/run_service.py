@@ -99,6 +99,7 @@ class RunService:
                     ),
                 )
                 if self.repository.is_cancel_requested(run_id):
+                    await self._record_cancelled_feedback(run_id)
                     return
                 self._ensure_displayable(result.answer)
                 message_id = self._persist_result(run, result)
@@ -132,14 +133,7 @@ class RunService:
             except RunCancelled:
                 if not self.repository.is_cancel_requested(run_id):
                     self.repository.request_cancel(run_id)
-                await self.observer.record_feedback(
-                    run_id,
-                    {
-                        "run_success": False,
-                        "answer_displayed": False,
-                        "cancelled": True,
-                    },
-                )
+                await self._record_cancelled_feedback(run_id)
             # The run boundary must translate every provider/graph failure into a
             # terminal, redacted event so background task exceptions never leak.
             except Exception as exc:  # noqa: BLE001
@@ -178,6 +172,16 @@ class RunService:
 
     async def _emit(self, run_id: str, event: str, payload: dict[str, object]) -> None:
         self.repository.append_event(run_id, event, payload)
+
+    async def _record_cancelled_feedback(self, run_id: str) -> None:
+        await self.observer.record_feedback(
+            run_id,
+            {
+                "run_success": False,
+                "answer_displayed": False,
+                "cancelled": True,
+            },
+        )
 
     def _persist_result(self, run: dict[str, object], result: RunExecutionResult) -> str:
         run_id = str(run["id"])
