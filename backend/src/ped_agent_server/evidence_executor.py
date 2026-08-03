@@ -37,4 +37,8 @@ class LangGraphRunExecutor:
         is_cancelled: CancellationCheck,
     ) -> RunExecutionResult:
         result = await self.graph.execute(context, emit, is_cancelled)
-        return RunExecutionResult(answer=result.answer, evidence=result.evidence)
+        return RunExecutionResult(
+            answer=result.answer,
+            evidence=result.evidence,
+            metrics=result.metrics,
+        )

@@ -467,6 +467,14 @@ async def test_graph_uses_local_evidence_and_emits_deterministic_stages() -> Non
 
     assert result.answer.answer_markdown == "Answer [L1]"
     assert result.answer.verification.semantic_passed is True
+    assert result.metrics.local_evidence_count == 1
+    assert result.metrics.academic_evidence_count == 0
+    assert result.metrics.external_search_used is False
+    assert result.metrics.retrieval_degraded is False
+    assert result.metrics.citation_rules_passed is True
+    assert result.metrics.semantic_verification_passed is True
+    assert result.metrics.revision_count == 0
+    assert result.metrics.insufficient_evidence is False
     assert searcher.calls == 0
     assert events[0][0] == "stage.started"
     assert "evidence.summary" in [event for event, _ in events]
@@ -483,6 +491,29 @@ async def test_graph_uses_local_evidence_and_emits_deterministic_stages() -> Non
     assert rewrite_trace["duration_ms"] >= 0
     assert rewrite_trace["model"] == "fake-answer"
     assert verify_trace["model"] == "fake-verify"
+
+
+@pytest.mark.asyncio
+async def test_graph_metrics_record_one_successful_revision() -> None:
+    gateway = FakeGateway(
+        [
+            "standalone query",
+            draft_json(text="Original"),
+            draft_json(text="Revised"),
+        ],
+        [review("unsupported"), review("supported")],
+    )
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+    )
+
+    result = await graph.execute(context(), lambda *_: _noop(), lambda: False)
+
+    assert result.answer.answer_markdown == "Revised [L1]"
+    assert result.metrics.revision_count == 1
+    assert result.metrics.semantic_verification_passed is True
 
 
 @pytest.mark.asyncio
@@ -546,6 +577,8 @@ async def test_graph_returns_deterministic_insufficient_evidence_without_model_g
     assert result.answer.citations == []
     assert result.answer.inferences == []
     assert "未找到足够的可核验证据" in result.answer.answer_markdown
+    assert result.metrics.insufficient_evidence is True
+    assert result.metrics.semantic_verification_passed is None
 
 
 @pytest.mark.asyncio

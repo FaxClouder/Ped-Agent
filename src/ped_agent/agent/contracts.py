@@ -22,6 +22,18 @@ class EvidenceOrigin(StrEnum):
     EXTERNAL_WEB = "external_web"
 
 
+class EvidenceRunMetrics(BaseModel):
+    local_evidence_count: int = 0
+    academic_evidence_count: int = 0
+    web_evidence_count: int = 0
+    external_search_used: bool = False
+    retrieval_degraded: bool = False
+    citation_rules_passed: bool | None = None
+    semantic_verification_passed: bool | None = None
+    revision_count: int = 0
+    insufficient_evidence: bool = False
+
+
 class EvidenceItem(BaseModel):
     evidence_id: str
     origin: EvidenceOrigin

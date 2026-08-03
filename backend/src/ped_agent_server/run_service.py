@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
-from ped_agent.agent.contracts import AnswerDocument, EvidenceItem, RunStatus
+from ped_agent.agent.contracts import AnswerDocument, EvidenceItem, EvidenceRunMetrics, RunStatus
 from ped_agent.agent.evidence_graph import RunCancelled
 
 from ped_agent_server.agent_repository import AgentRepository
@@ -27,6 +27,7 @@ class RunExecutionContext:
 class RunExecutionResult:
     answer: AnswerDocument
     evidence: list[EvidenceItem]
+    metrics: EvidenceRunMetrics = field(default_factory=EvidenceRunMetrics)
 
 
 class RunExecutor(Protocol):

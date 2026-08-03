@@ -14,6 +14,7 @@ from ped_agent.agent.contracts import (
     AnswerDraft,
     EvidenceItem,
     EvidenceOrigin,
+    EvidenceRunMetrics,
     ModelOutput,
     RetrievalBatch,
     RuleValidation,
@@ -48,6 +49,7 @@ class RunCancelled(RuntimeError):
 class EvidenceGraphResult:
     answer: AnswerDocument
     evidence: list[EvidenceItem]
+    metrics: EvidenceRunMetrics
 
 
 class EvidenceState(TypedDict, total=False):
@@ -88,6 +90,38 @@ def _preflight_query(state: EvidenceState) -> str:
     return " ".join(unique[-3:]) or state["original_query"]
 
 
+def _metrics(state: EvidenceState) -> EvidenceRunMetrics:
+    evidence = state.get("evidence", [])
+    preflight_batch = state.get("preflight_local_batch")
+    refined_batch = state.get("local_batch")
+    return EvidenceRunMetrics(
+        local_evidence_count=sum(
+            item.origin is EvidenceOrigin.LOCAL_OFFICIAL for item in evidence
+        ),
+        academic_evidence_count=sum(
+            item.origin is EvidenceOrigin.EXTERNAL_ACADEMIC for item in evidence
+        ),
+        web_evidence_count=sum(
+            item.origin is EvidenceOrigin.EXTERNAL_WEB for item in evidence
+        ),
+        external_search_used=bool(state.get("needs_external")),
+        retrieval_degraded=bool(
+            (preflight_batch and preflight_batch.degraded)
+            or (refined_batch and refined_batch.degraded)
+        ),
+        citation_rules_passed=(
+            state["rules"].passed if state.get("rules") is not None else None
+        ),
+        semantic_verification_passed=(
+            state.get("semantic_passed")
+            if not state.get("insufficient_evidence")
+            else None
+        ),
+        revision_count=state.get("revision_count", 0),
+        insufficient_evidence=bool(state.get("insufficient_evidence")),
+    )
+
+
 class EvidenceGraph:
     def __init__(
         self,
@@ -119,7 +153,11 @@ class EvidenceGraph:
                 "is_cancelled": is_cancelled,
             }
         )
-        return EvidenceGraphResult(answer=state["final_answer"], evidence=state["evidence"])
+        return EvidenceGraphResult(
+            answer=state["final_answer"],
+            evidence=state["evidence"],
+            metrics=_metrics(state),
+        )
 
     def _build(self):
         builder = StateGraph(EvidenceState)
