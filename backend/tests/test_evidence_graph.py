@@ -2,7 +2,14 @@ import json
 from datetime import UTC, datetime
 
 import pytest
-from ped_agent.agent.contracts import EvidenceItem, EvidenceOrigin, ModelOutput, RetrievalBatch
+from ped_agent.agent.contracts import (
+    AnswerDraft,
+    EvidenceItem,
+    EvidenceOrigin,
+    ModelOutput,
+    RetrievalBatch,
+    SemanticReview,
+)
 from ped_agent.agent.evidence_graph import EvidenceGraph, VerificationFailed
 
 from ped_agent_server.evidence_executor import LangGraphRunExecutor
@@ -85,6 +92,60 @@ class FakeGateway:
         return []
 
 
+class NativeRepairGateway:
+    def __init__(self) -> None:
+        self.native_generate_calls = 0
+        self.generate_calls = 0
+
+    @property
+    def verification_enabled(self) -> bool:
+        return True
+
+    async def generate_structured(self, prompt: str, schema):
+        self.native_generate_calls += 1
+        return None, ModelOutput(content="", model="deepseek-v4-flash")
+
+    async def generate(self, prompt: str) -> ModelOutput:
+        self.generate_calls += 1
+        return ModelOutput(
+            content=draft_json(text="Repaired answer"),
+            model="deepseek-v4-flash",
+        )
+
+    async def verify(self, prompt: str) -> ModelOutput:
+        raise AssertionError("verification is not used by this focused test")
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        return []
+
+
+class NativeVerifyRepairGateway:
+    def __init__(self) -> None:
+        self.native_verify_calls = 0
+        self.verify_calls = 0
+
+    @property
+    def verification_enabled(self) -> bool:
+        return True
+
+    async def verify_structured(self, prompt: str, schema):
+        self.native_verify_calls += 1
+        return None, ModelOutput(content="", model="deepseek-v4-pro")
+
+    async def verify(self, prompt: str) -> ModelOutput:
+        self.verify_calls += 1
+        return ModelOutput(
+            content=review("supported"),
+            model="deepseek-v4-pro",
+        )
+
+    async def generate(self, prompt: str) -> ModelOutput:
+        raise AssertionError("Flash must not repair Pro verification output")
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        return []
+
+
 def review(status: str) -> str:
     return json.dumps({"claims": [{"claim_id": "c1", "status": status}]})
 
@@ -97,6 +158,43 @@ def context() -> RunExecutionContext:
         recent_messages=[{"role": "user", "content": "Previous question"}],
         previous_evidence_ids=["local-1"],
     )
+
+
+@pytest.mark.asyncio
+async def test_structured_generation_repairs_native_parse_failure_exactly_once() -> None:
+    gateway = NativeRepairGateway()
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+    )
+
+    draft, model = await graph._structured_generate("Create JSON AnswerDraft", AnswerDraft)
+
+    assert gateway.native_generate_calls == 1
+    assert gateway.generate_calls == 1
+    assert draft.answer_markdown == "Repaired answer [L1]"
+    assert model == "deepseek-v4-flash"
+
+
+@pytest.mark.asyncio
+async def test_structured_verification_repairs_with_pro_exactly_once() -> None:
+    gateway = NativeVerifyRepairGateway()
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+    )
+
+    semantic_review, model = await graph._structured_verify(
+        "Create JSON SemanticReview",
+        SemanticReview,
+    )
+
+    assert gateway.native_verify_calls == 1
+    assert gateway.verify_calls == 1
+    assert semantic_review.claims[0].status == "supported"
+    assert model == "deepseek-v4-pro"
 
 
 @pytest.mark.asyncio

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from pydantic import BaseModel
+
 from ped_agent.agent.contracts import EvidenceItem, ModelOutput, RetrievalBatch
 
 
@@ -12,6 +14,18 @@ class ModelGateway(Protocol):
     async def generate(self, prompt: str) -> ModelOutput: ...
 
     async def verify(self, prompt: str) -> ModelOutput: ...
+
+    async def generate_structured(
+        self,
+        prompt: str,
+        schema: type[BaseModel],
+    ) -> tuple[BaseModel | None, ModelOutput]: ...
+
+    async def verify_structured(
+        self,
+        prompt: str,
+        schema: type[BaseModel],
+    ) -> tuple[BaseModel | None, ModelOutput]: ...
 
     async def embed(self, texts: list[str]) -> list[list[float]]: ...
 

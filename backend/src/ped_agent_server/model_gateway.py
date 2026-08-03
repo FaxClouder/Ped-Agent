@@ -18,20 +18,36 @@ class DirectModelGateway:
         answer_client: Any,
         verify_client: Any | None,
         embedding_client: Any,
+        answer_structured_method: str | None = None,
+        verify_structured_method: str | None = None,
     ) -> None:
         self._answer_client = answer_client
         self._verify_client = verify_client
         self._embedding_client = embedding_client
+        self._answer_structured_method = answer_structured_method
+        self._verify_structured_method = verify_structured_method
 
     @classmethod
     def from_settings(cls, settings: AgentSettings) -> DirectModelGateway:
+        verify_settings = settings.resolved_verify
         verify_client = (
-            _build_chat_client(settings.resolved_verify) if settings.verify.enabled else None
+            _build_chat_client(verify_settings) if settings.verify.enabled else None
         )
         return cls(
             answer_client=_build_chat_client(settings.answer),
             verify_client=verify_client,
             embedding_client=_build_embedding_client(settings.embedding),
+            answer_structured_method=(
+                settings.answer.structured_output_method
+                if settings.answer.protocol == "openai_compatible"
+                else None
+            ),
+            verify_structured_method=(
+                verify_settings.structured_output_method
+                if settings.verify.enabled
+                and verify_settings.protocol == "openai_compatible"
+                else None
+            ),
         )
 
     @property
@@ -53,17 +69,27 @@ class DirectModelGateway:
         self,
         prompt: str,
         schema: type[BaseModel],
-    ) -> tuple[BaseModel, str]:
-        return await _invoke_structured(self._answer_client, prompt, schema)
+    ) -> tuple[BaseModel | None, ModelOutput]:
+        return await _invoke_structured(
+            self._answer_client,
+            prompt,
+            schema,
+            method=self._answer_structured_method,
+        )
 
     async def verify_structured(
         self,
         prompt: str,
         schema: type[BaseModel],
-    ) -> tuple[BaseModel, str]:
+    ) -> tuple[BaseModel | None, ModelOutput]:
         if self._verify_client is None:
             raise RuntimeError("verification is disabled")
-        return await _invoke_structured(self._verify_client, prompt, schema)
+        return await _invoke_structured(
+            self._verify_client,
+            prompt,
+            schema,
+            method=self._verify_structured_method,
+        )
 
 
 def _build_chat_client(settings: ChatModelSettings) -> Any:
@@ -116,9 +142,27 @@ async def _invoke_structured(
     client: Any,
     prompt: str,
     schema: type[BaseModel],
-) -> tuple[BaseModel, str]:
-    structured_client = client.with_structured_output(schema)
-    value = await structured_client.ainvoke(prompt)
-    parsed = value if isinstance(value, schema) else schema.model_validate(value)
-    model = getattr(client, "model_name", None) or getattr(client, "model", None) or "unknown"
-    return parsed, str(model)
+    *,
+    method: str | None,
+) -> tuple[BaseModel | None, ModelOutput]:
+    kwargs: dict[str, Any] = {"include_raw": True}
+    if method is not None:
+        kwargs["method"] = method
+    structured_client = client.with_structured_output(schema, **kwargs)
+    result = await structured_client.ainvoke(prompt)
+    if not isinstance(result, dict) or "raw" not in result:
+        parsed = result if isinstance(result, schema) else schema.model_validate(result)
+        model = getattr(client, "model_name", None) or getattr(client, "model", None) or "unknown"
+        return parsed, ModelOutput(
+            content=parsed.model_dump_json(),
+            model=str(model),
+        )
+
+    raw = _to_model_output(result["raw"])
+    parsed = result.get("parsed")
+    if parsed is None:
+        return None, raw
+    try:
+        return schema.model_validate(parsed), raw
+    except (TypeError, ValueError):
+        return None, raw
