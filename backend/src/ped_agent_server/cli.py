@@ -63,9 +63,7 @@ def validate_manifest(
     as_of: Annotated[str | None, typer.Option("--as-of")] = None,
 ) -> None:
     try:
-        reference_date = (
-            date.fromisoformat(as_of) if as_of else datetime.now(UTC).date()
-        )
+        reference_date = date.fromisoformat(as_of) if as_of else datetime.now(UTC).date()
     except ValueError as exc:
         raise typer.BadParameter("--as-of must use YYYY-MM-DD") from exc
     records = load_and_preflight(path, as_of=reference_date)
@@ -130,8 +128,7 @@ def evaluate(
     effective_k = acceptance_config.k if acceptance_config is not None else k
     rankings = {
         item.question_id: [
-            (hit.resource_id, hit.locator)
-            for hit in service.search(item.query, limit=effective_k)
+            (hit.resource_id, hit.locator) for hit in service.search(item.query, limit=effective_k)
         ]
         for item in questions
     }
@@ -168,6 +165,7 @@ def agent_doctor() -> None:
             "answer": {
                 "protocol": settings.answer.protocol,
                 "model": settings.answer.model,
+                "structured_output_method": settings.answer.structured_output_method,
             },
             "verify": {
                 "enabled": settings.verify.enabled,
@@ -175,6 +173,17 @@ def agent_doctor() -> None:
                 if settings.verify.enabled
                 else "disabled",
                 "model": settings.resolved_verify.model if settings.verify.enabled else None,
+                "structured_output_method": (
+                    settings.resolved_verify.structured_output_method
+                    if settings.verify.enabled
+                    else None
+                ),
+            },
+            "langsmith": {
+                "enabled": settings.langsmith.enabled,
+                "project": settings.langsmith.project,
+                "sampling_rate": settings.langsmith.sampling_rate,
+                "content_policy": settings.langsmith.content_policy,
             },
             "embedding": {
                 "model": settings.embedding.model,

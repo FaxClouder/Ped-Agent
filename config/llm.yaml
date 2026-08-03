@@ -1,3 +1,4 @@
+# Legacy scaffold configuration. The running ped_agent_server reads .env / process environment.
 llm:
   default_provider: "claude"
   fallback_provider: "deepseek"

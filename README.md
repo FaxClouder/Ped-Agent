@@ -13,7 +13,7 @@ The repository now contains two Python distributions:
 - Pydantic data models for literature, scenario, and trajectory data
 - Module boundaries for RAG, analysis, experiment evaluation, vision plugins, and evals
 - Pytest smoke tests for the scaffold
-- LangSmith runtime configuration wiring for local or traced runs
+- Optional redacted LangSmith tracing for local runs
 
 ## Quick Start
 
@@ -21,6 +21,8 @@ The repository now contains two Python distributions:
 Copy-Item .env.example .env
 uv sync --project backend
 uv run --project backend ped-agent agent doctor
+uv run --project backend ped-agent library build-index
+uv run --project backend ped-agent agent rebuild-vector-index
 uv run --project backend ped-agent serve
 ```
 
@@ -31,10 +33,27 @@ pip install -e ".[rag]"
 pip install -e ".[vision]"
 ```
 
-The Agent runtime reads only `.env` / process environment. Configuration changes require a
-restart, and embedding changes require `ped-agent agent rebuild-vector-index`. LangSmith is
-off unless `PED_AGENT_LANGSMITH__ENABLED=true`. See
-[`docs/agent-architecture.md`](docs/agent-architecture.md) for the full API, SSE and answer chain.
+The running `ped_agent_server` treats the repository-root `.env` file and process environment
+as its only authoritative configuration sources. Configuration changes require a restart, and
+embedding changes require `ped-agent agent rebuild-vector-index`; the legacy YAML files under
+`config/` are not server runtime inputs.
+
+The first-version answer runtime uses `deepseek-v4-flash`, with `deepseek-v4-pro` for semantic
+verification. DeepSeek structured output is requested through LangChain `json_mode`. Every run
+performs deterministic local-evidence preflight before any DeepSeek chat call and, only when
+needed, at most one external-search pass. Once usable evidence exists, Flash rewrites the query
+for refined local retrieval before drafting. Zero usable evidence produces a deterministic
+`insufficient_evidence` answer without calling Flash or Pro, although vector retrieval may still
+call the configured Embedding service.
+
+LangSmith is optional, off by default, restricted to the `redacted` content policy, and
+non-blocking after startup configuration succeeds: tracing or feedback delivery failures do not
+change the local Run result. The local Run UUID is also the LangSmith root Trace UUID. When
+enabled, traces may contain the current query, verified final answer, evidence identity,
+candidate metadata, and metrics. They exclude conversation history, evidence quotes, abstracts,
+drafts, raw model payloads, and secrets; traced URLs have credentials, query strings, and
+fragments removed. See [`docs/agent-architecture.md`](docs/agent-architecture.md) for the full
+API, SSE, privacy boundary, and answer chain.
 
 ## Quality-Governed Knowledge Corpus
 

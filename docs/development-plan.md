@@ -1,5 +1,9 @@
 # 行人流方向问答智能体 (Ped-Agent) — 开发计划
 
+> Historical scaffold: the current answer runtime is documented in
+> `docs/agent-architecture.md` and the approved DeepSeek/LangSmith specification.
+> `ped_agent_server`, `.env`, and `EvidenceGraph` are authoritative for the first version.
+
 ## Context
 
 需要从零构建一个行人流方向的问答智能体系统。该系统需具备：自主检索补充学术文献的能力、实验方案评估、真实场景数据结构化分析与建议生成，以及预留视觉模块（目标检测 + 轨迹提取）。项目目录当前为空，属于全新开发。
