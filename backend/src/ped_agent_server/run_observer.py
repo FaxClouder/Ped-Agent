@@ -17,6 +17,7 @@ from ped_agent_server.trace_sanitization import redact_trace_payload
 T = TypeVar("T")
 logger = logging.getLogger(__name__)
 LANGSMITH_SHUTDOWN_TIMEOUT_SECONDS = 5.0
+LANGSMITH_SHUTDOWN_GRACE_SECONDS = 0.5
 
 
 class ObservableRunContext(Protocol):
@@ -154,6 +155,7 @@ class LangSmithObserver:
 
     async def close(self) -> None:
         timeout = LANGSMITH_SHUTDOWN_TIMEOUT_SECONDS
+        deadline = timeout + LANGSMITH_SHUTDOWN_GRACE_SECONDS
         for name, operation in (
             ("flush", self.client.flush),
             ("close", self.client.close),
@@ -161,7 +163,7 @@ class LangSmithObserver:
             try:
                 await asyncio.wait_for(
                     asyncio.to_thread(operation, timeout=timeout),
-                    timeout=timeout,
+                    timeout=deadline,
                 )
             except Exception as error:  # noqa: BLE001 - shutdown must attempt both steps
                 logger.warning(

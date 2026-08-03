@@ -1,4 +1,45 @@
+from ped_agent.agent.contracts import (
+    AnswerDocument,
+    CitationRef,
+    InferenceItem,
+    VerificationSummary,
+)
+
 from ped_agent_server.trace_sanitization import redact_trace_payload
+
+
+def answer_document_payload() -> dict[str, object]:
+    answer = AnswerDocument(
+        answer_markdown="Verified answer [L1]",
+        citations=[
+            CitationRef(
+                label="L1",
+                evidence_id="local:chunk-1",
+                claim_ids=["claim-1"],
+            )
+        ],
+        inferences=[
+            InferenceItem(
+                text="Preserved inference text",
+                basis_evidence_ids=["local:chunk-1"],
+            )
+        ],
+        limitations=["Preserved limitation text"],
+        verification=VerificationSummary(
+            status="verified",
+            rules_passed=True,
+            semantic_passed=True,
+        ),
+    )
+    payload = answer.model_dump(mode="json")
+    payload["claims"] = [
+        {
+            "claim_id": "claim-1",
+            "text": "Preserved claim text",
+            "citation_labels": ["L1"],
+        }
+    ]
+    return payload
 
 
 def test_redaction_keeps_question_and_final_answer_but_removes_private_content() -> None:
@@ -209,3 +250,71 @@ def test_redaction_blocks_common_private_containers_and_normalized_secret_keys()
         "content_hash": "a" * 64,
         "quote": "[REDACTED]",
     }
+
+
+def test_redaction_preserves_complete_final_answer_subtree_but_not_its_secrets() -> None:
+    final_answer = answer_document_payload()
+    final_answer["provider_api_key"] = "PRIVATE final answer secret"
+    payload = {
+        "final_answer": final_answer,
+        "raw": {"text": "PRIVATE raw text"},
+        "history": [{"text": "PRIVATE history text"}],
+        "evidence": [
+            {
+                "evidence_id": "local:chunk-1",
+                "title": "Paper",
+                "locator": "p. 4",
+                "content_hash": "a" * 64,
+                "quote": "PRIVATE evidence quote",
+            }
+        ],
+    }
+
+    redacted = redact_trace_payload(payload)
+
+    assert redacted["final_answer"]["answer_markdown"] == "Verified answer [L1]"
+    assert redacted["final_answer"]["inferences"][0]["text"] == ("Preserved inference text")
+    assert redacted["final_answer"]["claims"][0]["text"] == "Preserved claim text"
+    assert redacted["final_answer"]["limitations"] == ["Preserved limitation text"]
+    assert redacted["final_answer"]["citations"] == final_answer["citations"]
+    assert redacted["final_answer"]["verification"] == final_answer["verification"]
+    assert redacted["final_answer"]["provider_api_key"] == "[REDACTED]"
+    assert redacted["raw"]["text"] == "[REDACTED]"
+    assert redacted["history"] == "[REDACTED]"
+    assert redacted["evidence"][0]["quote"] == "[REDACTED]"
+    assert payload["raw"]["text"] == "PRIVATE raw text"
+
+
+def test_redaction_blocks_auth_and_cookie_keys_without_matching_similar_words() -> None:
+    payload = {
+        "auth": "Basic PRIVATE_AUTH",
+        "tuple_auth": ("username", "password"),
+        "cookie": "PRIVATE_COOKIE",
+        "cookies": {"session": "PRIVATE_COOKIE"},
+        "set-cookie": "PRIVATE_SET_COOKIE",
+        "set_cookie": "PRIVATE_SET_COOKIE_UNDERSCORE",
+        "request_auth": "PRIVATE_REQUEST_AUTH",
+        "proxyAuth": "PRIVATE_PROXY_AUTH",
+        "session_cookie": "PRIVATE_SESSION_COOKIE",
+        "browserCookies": ["PRIVATE_BROWSER_COOKIE"],
+        "author": "Preserved author",
+        "authenticated": True,
+    }
+
+    redacted = redact_trace_payload(payload)
+
+    for key in (
+        "auth",
+        "tuple_auth",
+        "cookie",
+        "cookies",
+        "set-cookie",
+        "set_cookie",
+        "request_auth",
+        "proxyAuth",
+        "session_cookie",
+        "browserCookies",
+    ):
+        assert redacted[key] == "[REDACTED]"
+    assert redacted["author"] == "Preserved author"
+    assert redacted["authenticated"] is True

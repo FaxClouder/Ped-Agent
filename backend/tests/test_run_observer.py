@@ -6,6 +6,12 @@ from dataclasses import dataclass
 
 import pytest
 from ped_agent import __version__ as application_version
+from ped_agent.agent.contracts import (
+    AnswerDocument,
+    CitationRef,
+    InferenceItem,
+    VerificationSummary,
+)
 from pydantic import SecretStr
 
 import ped_agent_server.run_observer as run_observer_module
@@ -103,6 +109,34 @@ def observer_settings() -> LangSmithSettings:
         sampling_rate=1.0,
         content_policy="redacted",
     )
+
+
+def answer_document_payload() -> dict[str, object]:
+    answer = AnswerDocument(
+        answer_markdown="Verified answer [L1]",
+        citations=[
+            CitationRef(
+                label="L1",
+                evidence_id="local:chunk-1",
+                claim_ids=["claim-1"],
+            )
+        ],
+        inferences=[
+            InferenceItem(
+                text="Preserved inference text",
+                basis_evidence_ids=["local:chunk-1"],
+            )
+        ],
+        limitations=["Preserved limitation text"],
+        verification=VerificationSummary(
+            status="verified",
+            rules_passed=True,
+            semantic_passed=True,
+        ),
+    )
+    payload = answer.model_dump(mode="json")
+    payload["claims"] = [{"claim_id": "claim-1", "text": "Preserved claim text"}]
+    return payload
 
 
 def build_observer(client) -> LangSmithObserver:
@@ -250,6 +284,36 @@ def test_langsmith_observer_keeps_explicit_falsey_client() -> None:
     assert observer.client is client
 
 
+def test_langsmith_client_anonymizer_preserves_final_answer_and_redacts_private_data(
+    monkeypatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    class CapturingClient:
+        def __init__(self, **kwargs) -> None:
+            captured.update(kwargs)
+
+    monkeypatch.setattr(run_observer_module, "Client", CapturingClient)
+    monkeypatch.setattr(
+        run_observer_module,
+        "create_secret_anonymizer",
+        lambda: lambda payload: payload,
+    )
+    run_observer_module._build_client(observer_settings())
+    final_answer = answer_document_payload()
+    payload = {
+        "final_answer": final_answer,
+        "raw": {"text": "PRIVATE raw output"},
+        "messages": [{"text": "PRIVATE history"}],
+    }
+
+    redacted = captured["anonymizer"](payload)
+
+    assert redacted["final_answer"] == final_answer
+    assert redacted["raw"]["text"] == "[REDACTED]"
+    assert redacted["messages"] == "[REDACTED]"
+
+
 @pytest.mark.asyncio
 async def test_langsmith_close_failures_are_swallowed_and_both_steps_run(caplog) -> None:
     client = FailingCloseLangSmithClient()
@@ -267,10 +331,16 @@ async def test_langsmith_close_has_deadline_and_attempts_close_after_flush_timeo
     monkeypatch, caplog
 ) -> None:
     shutdown_timeout = 0.05
+    shutdown_grace = 0.02
     monkeypatch.setattr(
         run_observer_module,
         "LANGSMITH_SHUTDOWN_TIMEOUT_SECONDS",
         shutdown_timeout,
+    )
+    monkeypatch.setattr(
+        run_observer_module,
+        "LANGSMITH_SHUTDOWN_GRACE_SECONDS",
+        shutdown_grace,
     )
     client = HangingFlushLangSmithClient()
     observer = build_observer(client)
