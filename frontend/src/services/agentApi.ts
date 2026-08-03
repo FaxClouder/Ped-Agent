@@ -23,7 +23,7 @@ export interface AnswerDocument {
   inferences: Array<{ text: string; basis_evidence_ids: string[] }>
   limitations: string[]
   verification: {
-    status: 'verified' | 'rules_only'
+    status: 'verified' | 'rules_only' | 'insufficient_evidence'
     rules_passed: boolean
     semantic_passed: boolean | null
     repaired?: boolean

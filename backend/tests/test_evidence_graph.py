@@ -80,6 +80,41 @@ class FakeExternalSearcher:
         return [external_evidence()]
 
 
+class CountingGateway:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+
+    @property
+    def verification_enabled(self) -> bool:
+        return True
+
+    async def generate(self, prompt: str) -> ModelOutput:
+        self.calls.append("generate")
+        raise AssertionError("zero-evidence flow must not generate")
+
+    async def verify(self, prompt: str) -> ModelOutput:
+        self.calls.append("verify")
+        raise AssertionError("zero-evidence flow must not verify")
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        self.calls.append("embed")
+        raise AssertionError("zero-evidence flow must not embed in the graph")
+
+
+class EmptyLocalRetriever:
+    async def retrieve(self, query: str) -> RetrievalBatch:
+        return RetrievalBatch(items=[], sufficient=False)
+
+
+class EmptyExternalSearcher:
+    def __init__(self) -> None:
+        self.queries: list[str] = []
+
+    async def search(self, query: str) -> list[EvidenceItem]:
+        self.queries.append(query)
+        return []
+
+
 class FakeGateway:
     def __init__(self, generated: list[str], verified: list[str]) -> None:
         self.generated = list(generated)
@@ -429,6 +464,23 @@ async def test_graph_searches_once_when_local_evidence_is_insufficient() -> None
 
     assert searcher.calls == 1
     assert {item.evidence_id for item in result.evidence} == {"local-1", "academic-1"}
+
+
+@pytest.mark.asyncio
+async def test_graph_returns_deterministic_insufficient_evidence_without_model_generation() -> None:
+    gateway = CountingGateway()
+    searcher = EmptyExternalSearcher()
+    graph = EvidenceGraph(gateway, EmptyLocalRetriever(), searcher)
+
+    result = await graph.execute(context(), lambda *_: _noop(), lambda: False)
+
+    assert gateway.calls == []
+    assert searcher.queries == ["Follow-up question"]
+    assert result.evidence == []
+    assert result.answer.verification.status == "insufficient_evidence"
+    assert result.answer.citations == []
+    assert result.answer.inferences == []
+    assert "未找到足够的可核验证据" in result.answer.answer_markdown
 
 
 @pytest.mark.asyncio

@@ -28,11 +28,14 @@ const isRunActive = computed(() => ['queued', 'running', 'reconnecting'].include
 const stageLabel = computed(() => {
   const labels: Record<string, string> = {
     load_conversation: '加载会话上下文',
-    rewrite_query: '改写独立检索问题',
-    local_retrieval: '检索本地正式证据',
+    preflight_local_retrieval: '预检索本地正式证据',
     assess_evidence: '判断证据充分性',
     external_search: '补充外部证据',
     normalize_evidence: '归一化 Evidence Pack',
+    handle_insufficient_evidence: '生成证据不足结果',
+    rewrite_query: '改写独立检索问题',
+    refined_local_retrieval: '按独立问题精检本地证据',
+    merge_refined_evidence: '合并并归一化 Evidence Pack',
     generate_draft: '生成结构化草稿',
     validate_rules: '校验 Claim 与引用',
     semantic_verify: '执行语义复核',

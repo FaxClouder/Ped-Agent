@@ -59,7 +59,7 @@ class InferenceItem(BaseModel):
 
 
 class VerificationSummary(BaseModel):
-    status: Literal["verified", "rules_only"]
+    status: Literal["verified", "rules_only", "insufficient_evidence"]
     rules_passed: bool
     semantic_passed: bool | None = None
     repaired: bool = False

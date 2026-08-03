@@ -31,6 +31,9 @@ from ped_agent.agent.ports import (
 EventEmitter = Callable[[str, dict[str, object]], Awaitable[None]]
 CancellationCheck = Callable[[], bool]
 StructuredModel = TypeVar("StructuredModel", bound=BaseModel)
+INSUFFICIENT_EVIDENCE_MESSAGE = (
+    "当前知识库与外部检索未找到足够的可核验证据，暂时无法给出可靠回答。"
+)
 
 
 class VerificationFailed(RuntimeError):
@@ -50,8 +53,10 @@ class EvidenceGraphResult:
 class EvidenceState(TypedDict, total=False):
     original_query: str
     standalone_query: str
+    preflight_query: str
     recent_messages: list[dict[str, object]]
     previous_evidence_ids: list[str]
+    preflight_local_batch: RetrievalBatch
     local_batch: RetrievalBatch
     external_evidence: list[EvidenceItem]
     evidence: list[EvidenceItem]
@@ -61,10 +66,22 @@ class EvidenceState(TypedDict, total=False):
     rules: RuleValidation
     review: SemanticReview
     semantic_passed: bool
+    insufficient_evidence: bool
     revision_count: int
     final_answer: AnswerDocument
     emit: EventEmitter
     is_cancelled: CancellationCheck
+
+
+def _preflight_query(state: EvidenceState) -> str:
+    user_queries = [
+        str(message.get("content", "")).strip()
+        for message in state.get("recent_messages", [])
+        if message.get("role") == "user" and str(message.get("content", "")).strip()
+    ]
+    user_queries.append(state["original_query"].strip())
+    unique = list(dict.fromkeys(user_queries))
+    return " ".join(unique[-3:]) or state["original_query"]
 
 
 class EvidenceGraph:
@@ -103,11 +120,14 @@ class EvidenceGraph:
     def _build(self):
         builder = StateGraph(EvidenceState)
         builder.add_node("load_conversation", self._load_conversation)
-        builder.add_node("rewrite_query", self._rewrite_query)
-        builder.add_node("local_retrieval", self._local_retrieval)
+        builder.add_node("preflight_local_retrieval", self._preflight_local_retrieval)
         builder.add_node("assess_evidence", self._assess_evidence)
         builder.add_node("external_search", self._external_search)
         builder.add_node("normalize_evidence", self._normalize_evidence)
+        builder.add_node("handle_insufficient_evidence", self._handle_insufficient_evidence)
+        builder.add_node("rewrite_query", self._rewrite_query)
+        builder.add_node("refined_local_retrieval", self._refined_local_retrieval)
+        builder.add_node("merge_refined_evidence", self._merge_refined_evidence)
         builder.add_node("generate_draft", self._generate_draft)
         builder.add_node("validate_rules", self._validate_rules)
         builder.add_node("semantic_verify", self._semantic_verify)
@@ -116,15 +136,23 @@ class EvidenceGraph:
         builder.add_node("final_persist", self._final_persist)
 
         builder.add_edge(START, "load_conversation")
-        builder.add_edge("load_conversation", "rewrite_query")
-        builder.add_edge("rewrite_query", "local_retrieval")
-        builder.add_edge("local_retrieval", "assess_evidence")
+        builder.add_edge("load_conversation", "preflight_local_retrieval")
+        builder.add_edge("preflight_local_retrieval", "assess_evidence")
         builder.add_conditional_edges(
             "assess_evidence",
             lambda state: "external_search" if state["needs_external"] else "normalize_evidence",
         )
         builder.add_edge("external_search", "normalize_evidence")
-        builder.add_edge("normalize_evidence", "generate_draft")
+        builder.add_conditional_edges(
+            "normalize_evidence",
+            lambda state: (
+                "handle_insufficient_evidence" if not state["evidence"] else "rewrite_query"
+            ),
+        )
+        builder.add_edge("handle_insufficient_evidence", END)
+        builder.add_edge("rewrite_query", "refined_local_retrieval")
+        builder.add_edge("refined_local_retrieval", "merge_refined_evidence")
+        builder.add_edge("merge_refined_evidence", "generate_draft")
         builder.add_edge("generate_draft", "validate_rules")
         builder.add_conditional_edges("validate_rules", self._after_rules)
         builder.add_conditional_edges("semantic_verify", self._after_semantic)
@@ -135,6 +163,65 @@ class EvidenceGraph:
 
     async def _load_conversation(self, state: EvidenceState) -> dict[str, object]:
         return await self._stage(state, "load_conversation", lambda: {})
+
+    async def _preflight_local_retrieval(self, state: EvidenceState) -> dict[str, object]:
+        async def action() -> dict[str, object]:
+            query = _preflight_query(state)
+            batch = await self.local_retriever.retrieve(query)
+            if batch.degraded:
+                await state["emit"](
+                    "evidence.summary",
+                    {"degraded": True, "reason": batch.degradation_reason},
+                )
+            return {
+                "preflight_query": query,
+                "preflight_local_batch": batch,
+            }
+
+        return await self._stage(state, "preflight_local_retrieval", action)
+
+    async def _assess_evidence(self, state: EvidenceState) -> dict[str, object]:
+        return await self._stage(
+            state,
+            "assess_evidence",
+            lambda: {"needs_external": not state["preflight_local_batch"].sufficient},
+        )
+
+    async def _external_search(self, state: EvidenceState) -> dict[str, object]:
+        async def action() -> dict[str, object]:
+            items = await self.external_searcher.search(state["original_query"])
+            return {"external_evidence": items}
+
+        return await self._stage(state, "external_search", action)
+
+    async def _normalize_evidence(self, state: EvidenceState) -> dict[str, object]:
+        combined = [
+            *state["preflight_local_batch"].items,
+            *state.get("external_evidence", []),
+        ]
+        return await self._pack_evidence(state, "normalize_evidence", combined)
+
+    async def _handle_insufficient_evidence(
+        self,
+        state: EvidenceState,
+    ) -> dict[str, object]:
+        async def action() -> dict[str, object]:
+            return {
+                "insufficient_evidence": True,
+                "final_answer": AnswerDocument(
+                    answer_markdown=INSUFFICIENT_EVIDENCE_MESSAGE,
+                    citations=[],
+                    inferences=[],
+                    limitations=[INSUFFICIENT_EVIDENCE_MESSAGE],
+                    verification=VerificationSummary(
+                        status="insufficient_evidence",
+                        rules_passed=True,
+                        semantic_passed=None,
+                    ),
+                ),
+            }
+
+        return await self._stage(state, "handle_insufficient_evidence", action)
 
     async def _rewrite_query(self, state: EvidenceState) -> dict[str, object]:
         async def action() -> dict[str, object]:
@@ -152,7 +239,7 @@ class EvidenceGraph:
 
         return await self._stage(state, "rewrite_query", action)
 
-    async def _local_retrieval(self, state: EvidenceState) -> dict[str, object]:
+    async def _refined_local_retrieval(self, state: EvidenceState) -> dict[str, object]:
         async def action() -> dict[str, object]:
             batch = await self.local_retriever.retrieve(state["standalone_query"])
             if batch.degraded:
@@ -162,27 +249,20 @@ class EvidenceGraph:
                 )
             return {"local_batch": batch}
 
-        return await self._stage(state, "local_retrieval", action)
+        return await self._stage(state, "refined_local_retrieval", action)
 
-    async def _assess_evidence(self, state: EvidenceState) -> dict[str, object]:
-        return await self._stage(
-            state,
-            "assess_evidence",
-            lambda: {"needs_external": not state["local_batch"].sufficient},
-        )
+    async def _merge_refined_evidence(self, state: EvidenceState) -> dict[str, object]:
+        combined = [*state["evidence"], *state["local_batch"].items]
+        return await self._pack_evidence(state, "merge_refined_evidence", combined)
 
-    async def _external_search(self, state: EvidenceState) -> dict[str, object]:
+    async def _pack_evidence(
+        self,
+        state: EvidenceState,
+        stage: str,
+        items: list[EvidenceItem],
+    ) -> dict[str, object]:
         async def action() -> dict[str, object]:
-            items = await self.external_searcher.search(state["standalone_query"])
-            return {"external_evidence": items}
-
-        return await self._stage(state, "external_search", action)
-
-    async def _normalize_evidence(self, state: EvidenceState) -> dict[str, object]:
-        async def action() -> dict[str, object]:
-            combined = [*state["local_batch"].items, *state.get("external_evidence", [])]
-            evidence = _normalize(combined)
-            pack = _evidence_pack(evidence)
+            evidence = _normalize(items)
             counts = {
                 "local": sum(item.origin is EvidenceOrigin.LOCAL_OFFICIAL for item in evidence),
                 "academic": sum(
@@ -193,11 +273,11 @@ class EvidenceGraph:
             await state["emit"]("evidence.summary", {"total": len(evidence), **counts})
             return {
                 "evidence": evidence,
-                "evidence_pack": pack,
+                "evidence_pack": _evidence_pack(evidence),
                 "__trace__": {"evidence_ids": [item.evidence_id for item in evidence]},
             }
 
-        return await self._stage(state, "normalize_evidence", action)
+        return await self._stage(state, stage, action)
 
     async def _generate_draft(self, state: EvidenceState) -> dict[str, object]:
         async def action() -> dict[str, object]:

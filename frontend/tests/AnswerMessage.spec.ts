@@ -66,6 +66,36 @@ describe('AnswerMessage', () => {
 
     expect(wrapper.get('[role="alert"]').text()).toContain('仅完成引用规则校验')
   })
+
+  it('shows an informational banner without citations when evidence is insufficient', () => {
+    const wrapper = mount(AnswerMessage, {
+      props: {
+        message: {
+          id: 'message-3',
+          role: 'assistant',
+          content: '当前知识库与外部检索未找到足够的可核验证据，暂时无法给出可靠回答。',
+          answer_document: {
+            answer_markdown:
+              '当前知识库与外部检索未找到足够的可核验证据，暂时无法给出可靠回答。',
+            citations: [],
+            limitations: ['当前知识库与外部检索未找到足够的可核验证据。'],
+            inferences: [],
+            verification: {
+              status: 'insufficient_evidence',
+              rules_passed: true,
+              semantic_passed: null,
+            },
+          },
+          citations: [],
+        },
+      },
+    })
+
+    expect(wrapper.get('[data-verification="insufficient_evidence"]').text()).toContain(
+      '未找到足够的可核验证据',
+    )
+    expect(wrapper.findAll('.citation-card')).toHaveLength(0)
+  })
 })
 
 
