@@ -47,3 +47,19 @@ def test_rule_validation_rejects_uncited_claim_and_unknown_evidence() -> None:
     assert report.passed is False
     assert "claim c1 has no citation" in report.errors
     assert "citation L9 references unknown evidence" in report.errors
+
+
+def test_rule_validation_rejects_citation_without_reciprocal_claim_label() -> None:
+    draft = AnswerDraft(
+        answer_markdown="Verified statement [L1] [L2]",
+        claims=[AnswerClaim(claim_id="c1", text="Verified statement", citation_labels=["L1"])],
+        citations=[
+            CitationRef(label="L1", evidence_id="local-1", claim_ids=["c1"]),
+            CitationRef(label="L2", evidence_id="local-1", claim_ids=["c1"]),
+        ],
+    )
+
+    report = validate_draft(draft, [evidence()])
+
+    assert report.passed is False
+    assert "citation L2 is not declared by claim c1" in report.errors

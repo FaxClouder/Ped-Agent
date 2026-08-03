@@ -588,6 +588,38 @@ async def test_graph_metrics_match_rules_only_final_verification() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("rules_only", [False, True])
+async def test_graph_fails_closed_on_answer_text_without_claims_or_citations(
+    rules_only: bool,
+) -> None:
+    empty_draft = json.dumps(
+        {
+            "answer_markdown": "Unsupported answer text",
+            "claims": [],
+            "citations": [],
+            "inferences": [],
+            "limitations": [],
+        }
+    )
+    gateway_type = RulesOnlyGateway if rules_only else FakeGateway
+    gateway = gateway_type(["standalone query", empty_draft, empty_draft], [])
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+        allow_rules_only=rules_only,
+    )
+
+    with pytest.raises(
+        VerificationFailed,
+        match="citation validation failed after revision",
+    ):
+        await graph.execute(context(), lambda *_: _noop(), lambda: False)
+
+    assert gateway.verified == []
+
+
+@pytest.mark.asyncio
 async def test_graph_searches_once_when_local_evidence_is_insufficient() -> None:
     searcher = FakeExternalSearcher()
     gateway = FakeGateway(

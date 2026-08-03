@@ -15,6 +15,11 @@ def validate_draft(draft: AnswerDraft, evidence: list[EvidenceItem]) -> RuleVali
     claims_by_id = {claim.claim_id: claim for claim in draft.claims}
     citations_by_label = {citation.label: citation for citation in draft.citations}
 
+    if not draft.claims:
+        errors.append("answer draft must contain at least one claim")
+    if not draft.citations:
+        errors.append("answer draft must contain at least one citation")
+
     if len(citations_by_label) != len(draft.citations):
         errors.append("citation labels must be unique")
 
@@ -42,8 +47,11 @@ def validate_draft(draft: AnswerDraft, evidence: list[EvidenceItem]) -> RuleVali
         if f"[{citation.label}]" not in draft.answer_markdown:
             errors.append(f"citation {citation.label} is missing from answer markdown")
         for claim_id in citation.claim_ids:
-            if claim_id not in claims_by_id:
+            claim = claims_by_id.get(claim_id)
+            if claim is None:
                 errors.append(f"citation {citation.label} references unknown claim {claim_id}")
+            elif citation.label not in claim.citation_labels:
+                errors.append(f"citation {citation.label} is not declared by claim {claim_id}")
 
     for inference in draft.inferences:
         for evidence_id in inference.basis_evidence_ids:

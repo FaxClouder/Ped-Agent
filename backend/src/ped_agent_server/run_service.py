@@ -5,7 +5,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from ped_agent.agent.contracts import AnswerDocument, EvidenceItem, EvidenceRunMetrics, RunStatus
+from ped_agent.agent.contracts import AnswerDocument, EvidenceItem, EvidenceRunMetrics
 from ped_agent.agent.evidence_graph import RunCancelled
 
 from ped_agent_server.agent_repository import AgentRepository
@@ -114,12 +114,7 @@ class RunService:
                     },
                 )
             except asyncio.CancelledError:
-                if not self.repository.is_cancel_requested(run_id):
-                    self.repository.set_run_status(
-                        run_id,
-                        RunStatus.INTERRUPTED,
-                        error="service shutdown",
-                    )
+                self.repository.interrupt_run(run_id, error="service shutdown")
                 raise
             except RunCancelled:
                 if not self.repository.is_cancel_requested(run_id):

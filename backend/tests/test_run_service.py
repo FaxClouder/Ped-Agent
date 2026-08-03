@@ -32,6 +32,16 @@ class RecordingObserver:
         return None
 
 
+class BlockingFeedbackObserver(RecordingObserver):
+    def __init__(self) -> None:
+        super().__init__()
+        self.feedback_started = asyncio.Event()
+
+    async def record_feedback(self, run_id, metrics) -> None:
+        self.feedback_started.set()
+        await asyncio.Event().wait()
+
+
 class CancelBeforeCompletionRepository(AgentRepository):
     def complete_run(self, run_id: str, **kwargs) -> str | None:
         assert self.request_cancel(run_id) is True
@@ -123,6 +133,33 @@ async def test_run_service_persists_only_verified_final_answer(tmp_path: Path) -
     assert observer.feedback[0]["run_success"] is True
     assert observer.feedback[0]["answer_displayed"] is True
     assert observer.feedback[0]["local_evidence_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_run_service_shutdown_during_feedback_keeps_committed_completion(
+    tmp_path: Path,
+) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    observer = BlockingFeedbackObserver()
+    service = RunService(repository, FakeExecutor(), observer=observer)
+
+    run = await service.submit(conversation["id"], "Question")
+    await observer.feedback_started.wait()
+    assert repository.get_run(run["id"])["status"] == "completed"
+
+    await service.shutdown()
+
+    assert repository.get_run(run["id"])["status"] == "completed"
+    assert [event["event"] for event in repository.list_events(run["id"])] == [
+        "run.started",
+        "stage.started",
+        "stage.completed",
+        "evidence.summary",
+        "answer.delta",
+        "run.completed",
+    ]
 
 
 class FailingExecutor:

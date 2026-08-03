@@ -211,6 +211,7 @@ class AgentRepository:
                     started_at = COALESCE(started_at, ?),
                     completed_at = COALESCE(?, completed_at)
                 WHERE id = ?
+                  AND status NOT IN ('completed', 'failed', 'cancelled', 'interrupted')
                 """,
                 (status.value, error, timestamp, started_at, completed_at, run_id),
             )
@@ -256,6 +257,37 @@ class AgentRepository:
             connection.execute(
                 "INSERT INTO run_events(run_id, event, payload, created_at) VALUES (?, ?, ?, ?)",
                 (run_id, "run.cancelled", _dump({"run_id": run_id}), timestamp),
+            )
+        return True
+
+    def interrupt_run(self, run_id: str, *, error: str) -> bool:
+        timestamp = _now()
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                """
+                UPDATE runs SET status = ?, error = ?,
+                    completed_at = ?, updated_at = ?
+                WHERE id = ? AND status IN ('queued', 'running')
+                """,
+                (RunStatus.INTERRUPTED.value, error, timestamp, timestamp, run_id),
+            )
+            if cursor.rowcount != 1:
+                return False
+            connection.execute(
+                "INSERT INTO run_events(run_id, event, payload, created_at) VALUES (?, ?, ?, ?)",
+                (
+                    run_id,
+                    "run.failed",
+                    _dump(
+                        {
+                            "run_id": run_id,
+                            "status": RunStatus.INTERRUPTED.value,
+                            "reason": error,
+                        }
+                    ),
+                    timestamp,
+                ),
             )
         return True
 
@@ -401,15 +433,11 @@ class AgentRepository:
             rows = connection.execute(
                 "SELECT id FROM runs WHERE status IN ('queued', 'running') ORDER BY created_at"
             ).fetchall()
-        run_ids = [str(row["id"]) for row in rows]
-        for run_id in run_ids:
-            self.set_run_status(run_id, RunStatus.INTERRUPTED, error="server restarted")
-            self.append_event(
-                run_id,
-                "run.failed",
-                {"run_id": run_id, "status": RunStatus.INTERRUPTED.value, "reason": "restart"},
-            )
-        return run_ids
+        return [
+            run_id
+            for row in rows
+            if self.interrupt_run(run_id := str(row["id"]), error="server restarted")
+        ]
 
     def save_evidence(self, run_id: str | None, items: list[dict[str, Any]]) -> None:
         with self.connect() as connection:

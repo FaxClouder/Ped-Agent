@@ -93,6 +93,33 @@ def test_repository_returns_conversation_messages_and_citations(tmp_path: Path) 
     assert detail["messages"][1]["citations"][0]["evidence"]["locator"] == "page 4"
 
 
+@pytest.mark.parametrize(
+    "terminal_status",
+    [
+        RunStatus.COMPLETED,
+        RunStatus.FAILED,
+        RunStatus.CANCELLED,
+        RunStatus.INTERRUPTED,
+    ],
+)
+def test_set_run_status_does_not_overwrite_terminal_status(
+    tmp_path: Path,
+    terminal_status: RunStatus,
+) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    run = repository.create_run(conversation["id"], query="Question")
+    repository.set_run_status(run["id"], RunStatus.RUNNING)
+    repository.set_run_status(run["id"], terminal_status, error="terminal error")
+
+    repository.set_run_status(run["id"], RunStatus.RUNNING, error="overwritten")
+
+    persisted = repository.get_run(run["id"])
+    assert persisted["status"] == terminal_status.value
+    assert persisted["error"] == "terminal error"
+
+
 def test_request_cancel_has_one_atomic_winner(tmp_path: Path) -> None:
     repository = SynchronizedCancelRepository(tmp_path / "agent.sqlite3")
     repository.initialize()
