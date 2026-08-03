@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ChatProtocol = Literal["openai_compatible", "anthropic"]
+StructuredOutputMethod = Literal["json_mode", "json_schema", "function_calling"]
 
 
 class ChatModelSettings(BaseModel):
@@ -20,6 +21,7 @@ class ChatModelSettings(BaseModel):
     max_tokens: int = 4096
     timeout_seconds: float = 60.0
     max_retries: int = 2
+    structured_output_method: StructuredOutputMethod = "json_schema"
 
 
 class VerifySettings(BaseModel):
@@ -32,6 +34,7 @@ class VerifySettings(BaseModel):
     max_tokens: int | None = None
     timeout_seconds: float | None = None
     max_retries: int | None = None
+    structured_output_method: StructuredOutputMethod | None = None
 
 
 class EmbeddingSettings(BaseModel):
@@ -65,7 +68,9 @@ class RuntimeSettings(BaseModel):
 class LangSmithSettings(BaseModel):
     enabled: bool = False
     api_key: SecretStr | None = None
-    project: str = "ped-agent"
+    project: str = "ped-agent-local"
+    sampling_rate: float = Field(default=1.0, ge=0.0, le=1.0)
+    content_policy: Literal["redacted"] = "redacted"
     endpoint: str | None = None
 
 
@@ -100,13 +105,28 @@ class AgentSettings(BaseSettings):
             model=self.verify.model or self.answer.model,
             api_key=self.verify.api_key,
             base_url=self.verify.base_url,
-            temperature=self.verify.temperature or self.answer.temperature,
-            max_tokens=self.verify.max_tokens or self.answer.max_tokens,
-            timeout_seconds=self.verify.timeout_seconds or self.answer.timeout_seconds,
+            temperature=(
+                self.verify.temperature
+                if self.verify.temperature is not None
+                else self.answer.temperature
+            ),
+            max_tokens=(
+                self.verify.max_tokens
+                if self.verify.max_tokens is not None
+                else self.answer.max_tokens
+            ),
+            timeout_seconds=(
+                self.verify.timeout_seconds
+                if self.verify.timeout_seconds is not None
+                else self.answer.timeout_seconds
+            ),
             max_retries=(
                 self.verify.max_retries
                 if self.verify.max_retries is not None
                 else self.answer.max_retries
+            ),
+            structured_output_method=(
+                self.verify.structured_output_method or self.answer.structured_output_method
             ),
         )
 

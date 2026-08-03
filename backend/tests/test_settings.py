@@ -8,12 +8,32 @@ def clear_agent_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "PED_AGENT_ANSWER__PROTOCOL",
         "PED_AGENT_ANSWER__MODEL",
         "PED_AGENT_ANSWER__API_KEY",
+        "PED_AGENT_ANSWER__BASE_URL",
+        "PED_AGENT_ANSWER__TEMPERATURE",
+        "PED_AGENT_ANSWER__MAX_TOKENS",
+        "PED_AGENT_ANSWER__TIMEOUT_SECONDS",
+        "PED_AGENT_ANSWER__MAX_RETRIES",
+        "PED_AGENT_ANSWER__STRUCTURED_OUTPUT_METHOD",
         "PED_AGENT_VERIFY__ENABLED",
         "PED_AGENT_VERIFY__PROTOCOL",
+        "PED_AGENT_VERIFY__MODEL",
+        "PED_AGENT_VERIFY__API_KEY",
+        "PED_AGENT_VERIFY__BASE_URL",
+        "PED_AGENT_VERIFY__TEMPERATURE",
+        "PED_AGENT_VERIFY__MAX_TOKENS",
+        "PED_AGENT_VERIFY__TIMEOUT_SECONDS",
+        "PED_AGENT_VERIFY__MAX_RETRIES",
+        "PED_AGENT_VERIFY__STRUCTURED_OUTPUT_METHOD",
         "PED_AGENT_EMBEDDING__MODEL",
         "PED_AGENT_EMBEDDING__API_KEY",
+        "PED_AGENT_LANGSMITH__ENABLED",
+        "PED_AGENT_LANGSMITH__API_KEY",
+        "PED_AGENT_LANGSMITH__PROJECT",
+        "PED_AGENT_LANGSMITH__SAMPLING_RATE",
+        "PED_AGENT_LANGSMITH__CONTENT_POLICY",
         "OPENAI_API_KEY",
         "ANTHROPIC_API_KEY",
+        "LANGSMITH_API_KEY",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -67,3 +87,73 @@ def test_settings_reject_missing_required_agent_credentials(
     with pytest.raises(ValueError, match="answer API key"):
         load_settings(env_file=None)
 
+
+def test_settings_resolve_deepseek_json_mode_and_redacted_langsmith(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clear_agent_env(monkeypatch)
+    monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-v4-flash")
+    monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "deepseek-secret")
+    monkeypatch.setenv("PED_AGENT_ANSWER__BASE_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("PED_AGENT_ANSWER__STRUCTURED_OUTPUT_METHOD", "json_mode")
+    monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "true")
+    monkeypatch.setenv("PED_AGENT_VERIFY__PROTOCOL", "inherit")
+    monkeypatch.setenv("PED_AGENT_VERIFY__MODEL", "deepseek-v4-pro")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
+    monkeypatch.setenv("PED_AGENT_LANGSMITH__ENABLED", "true")
+    monkeypatch.setenv("PED_AGENT_LANGSMITH__API_KEY", "langsmith-secret")
+    monkeypatch.setenv("PED_AGENT_LANGSMITH__PROJECT", "ped-agent-local")
+    monkeypatch.setenv("PED_AGENT_LANGSMITH__SAMPLING_RATE", "1.0")
+    monkeypatch.setenv("PED_AGENT_LANGSMITH__CONTENT_POLICY", "redacted")
+
+    settings = load_settings(env_file=None)
+
+    assert settings.answer.structured_output_method == "json_mode"
+    assert settings.resolved_verify.model == "deepseek-v4-pro"
+    assert settings.resolved_verify.api_key.get_secret_value() == "deepseek-secret"
+    assert settings.resolved_verify.structured_output_method == "json_mode"
+    assert settings.langsmith.project == "ped-agent-local"
+    assert settings.langsmith.sampling_rate == 1.0
+    assert settings.langsmith.content_policy == "redacted"
+
+
+def test_settings_reject_non_redacted_langsmith_policy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clear_agent_env(monkeypatch)
+    monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-v4-flash")
+    monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
+    monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
+    monkeypatch.setenv("PED_AGENT_LANGSMITH__CONTENT_POLICY", "full")
+
+    with pytest.raises(ValueError, match="content_policy"):
+        load_settings(env_file=None)
+
+
+def test_settings_resolve_explicit_verify_zero_values_and_inherit_output_method(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clear_agent_env(monkeypatch)
+    monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-v4-flash")
+    monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
+    monkeypatch.setenv("PED_AGENT_ANSWER__STRUCTURED_OUTPUT_METHOD", "json_mode")
+    monkeypatch.setenv("PED_AGENT_VERIFY__PROTOCOL", "anthropic")
+    monkeypatch.setenv("PED_AGENT_VERIFY__MODEL", "verify-test")
+    monkeypatch.setenv("PED_AGENT_VERIFY__API_KEY", "verify-secret")
+    monkeypatch.setenv("PED_AGENT_VERIFY__TEMPERATURE", "0.0")
+    monkeypatch.setenv("PED_AGENT_VERIFY__MAX_TOKENS", "0")
+    monkeypatch.setenv("PED_AGENT_VERIFY__TIMEOUT_SECONDS", "0.0")
+    monkeypatch.setenv("PED_AGENT_VERIFY__MAX_RETRIES", "0")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
+
+    resolved = load_settings(env_file=None).resolved_verify
+
+    assert resolved.temperature == 0.0
+    assert resolved.max_tokens == 0
+    assert resolved.timeout_seconds == 0.0
+    assert resolved.max_retries == 0
+    assert resolved.structured_output_method == "json_mode"

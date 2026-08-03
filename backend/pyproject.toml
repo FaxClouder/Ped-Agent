@@ -10,6 +10,7 @@ dependencies = [
   "jieba>=0.42,<1",
   "langchain-anthropic>=1.0,<2",
   "langchain-openai>=1.0,<2",
+  "langsmith>=0.10,<1",
   "ped-agent-core",
   "pydantic>=2.11,<3",
   "pydantic-settings>=2.10,<3",
