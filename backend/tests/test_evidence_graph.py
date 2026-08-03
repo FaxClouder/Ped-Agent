@@ -15,6 +15,7 @@ from ped_agent.agent.evidence_graph import (
     EvidenceGraph,
     VerificationFailed,
     _draft_prompt,
+    _preflight_query,
     _revision_prompt,
 )
 from ped_agent.agent.ports import StructuredOutputUnsupported
@@ -34,6 +35,16 @@ def local_evidence() -> EvidenceItem:
         retrieved_at=datetime.now(UTC),
         content_hash="a" * 64,
         score=0.9,
+    )
+
+
+def local_evidence_with_id(evidence_id: str) -> EvidenceItem:
+    return local_evidence().model_copy(
+        update={
+            "evidence_id": evidence_id,
+            "title": evidence_id,
+            "resource_id": evidence_id,
+        }
     )
 
 
@@ -69,6 +80,14 @@ class FakeLocalRetriever:
 
     async def retrieve(self, query: str) -> RetrievalBatch:
         return RetrievalBatch(items=[local_evidence()], sufficient=self.sufficient)
+
+
+class SequencedLocalRetriever:
+    def __init__(self, batches: list[RetrievalBatch]) -> None:
+        self.batches = list(batches)
+
+    async def retrieve(self, query: str) -> RetrievalBatch:
+        return self.batches.pop(0)
 
 
 class FakeExternalSearcher:
@@ -284,6 +303,21 @@ def context() -> RunExecutionContext:
     )
 
 
+def test_preflight_query_keeps_current_query_as_final_unique_term() -> None:
+    state = {
+        "original_query": "TARGET",
+        "recent_messages": [
+            {"role": "user", "content": query}
+            for query in ["TARGET", "A", "B", "C", "TARGET"]
+        ],
+    }
+
+    query = _preflight_query(state)
+
+    assert query == "B C TARGET"
+    assert len(query.split()) == len(set(query.split())) <= 3
+
+
 @pytest.mark.asyncio
 async def test_structured_generation_repairs_native_parse_failure_exactly_once() -> None:
     gateway = NativeRepairGateway()
@@ -464,6 +498,37 @@ async def test_graph_searches_once_when_local_evidence_is_insufficient() -> None
 
     assert searcher.calls == 1
     assert {item.evidence_id for item in result.evidence} == {"local-1", "academic-1"}
+
+
+@pytest.mark.asyncio
+async def test_graph_prioritizes_refined_local_evidence_without_dropping_external_evidence() -> None:
+    preflight_items = [local_evidence_with_id(f"preflight-{index}") for index in range(8)]
+    retriever = SequencedLocalRetriever(
+        [
+            RetrievalBatch(items=preflight_items, sufficient=False),
+            RetrievalBatch(
+                items=[local_evidence_with_id("refined-best"), preflight_items[0]],
+                sufficient=True,
+            ),
+        ]
+    )
+    gateway = FakeGateway(
+        ["standalone query", draft_json(label="A1", evidence_id="academic-1")],
+        [review("supported")],
+    )
+    graph = EvidenceGraph(gateway, retriever, FakeExternalSearcher())
+
+    result = await graph.execute(context(), lambda *_: _noop(), lambda: False)
+
+    evidence_ids = {item.evidence_id for item in result.evidence}
+    local_items = [
+        item for item in result.evidence if item.origin is EvidenceOrigin.LOCAL_OFFICIAL
+    ]
+    assert "refined-best" in evidence_ids
+    assert "preflight-7" not in evidence_ids
+    assert "academic-1" in evidence_ids
+    assert len(local_items) == 8
+    assert len(evidence_ids) == len(result.evidence)
 
 
 @pytest.mark.asyncio

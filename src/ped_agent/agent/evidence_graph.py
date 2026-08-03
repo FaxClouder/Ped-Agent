@@ -74,13 +74,17 @@ class EvidenceState(TypedDict, total=False):
 
 
 def _preflight_query(state: EvidenceState) -> str:
-    user_queries = [
+    current_query = state["original_query"].strip()
+    historical_queries = [
         str(message.get("content", "")).strip()
         for message in state.get("recent_messages", [])
         if message.get("role") == "user" and str(message.get("content", "")).strip()
     ]
-    user_queries.append(state["original_query"].strip())
-    unique = list(dict.fromkeys(user_queries))
+    unique = list(
+        dict.fromkeys(query for query in historical_queries if query != current_query)
+    )
+    if current_query:
+        unique.append(current_query)
     return " ".join(unique[-3:]) or state["original_query"]
 
 
@@ -252,7 +256,7 @@ class EvidenceGraph:
         return await self._stage(state, "refined_local_retrieval", action)
 
     async def _merge_refined_evidence(self, state: EvidenceState) -> dict[str, object]:
-        combined = [*state["evidence"], *state["local_batch"].items]
+        combined = [*state["local_batch"].items, *state["evidence"]]
         return await self._pack_evidence(state, "merge_refined_evidence", combined)
 
     async def _pack_evidence(
