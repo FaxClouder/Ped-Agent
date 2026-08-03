@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 import pytest
+from ped_agent.agent.ports import StructuredOutputUnsupported
 from pydantic import BaseModel
 
 from ped_agent_server.model_gateway import DirectModelGateway
@@ -157,3 +158,15 @@ async def test_direct_gateway_returns_raw_output_when_native_parsing_fails() -> 
 
     assert parsed is None
     assert model_output.content == ""
+
+
+@pytest.mark.asyncio
+async def test_direct_gateway_translates_missing_structured_capability() -> None:
+    gateway = DirectModelGateway(
+        answer_client=FakeChatClient("answer"),
+        verify_client=None,
+        embedding_client=FakeEmbeddingClient(),
+    )
+
+    with pytest.raises(StructuredOutputUnsupported):
+        await gateway.generate_structured("Return JSON", StructuredPayload)

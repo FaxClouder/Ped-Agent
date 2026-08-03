@@ -8,9 +8,16 @@ from ped_agent.agent.contracts import (
     EvidenceOrigin,
     ModelOutput,
     RetrievalBatch,
+    RuleValidation,
     SemanticReview,
 )
-from ped_agent.agent.evidence_graph import EvidenceGraph, VerificationFailed
+from ped_agent.agent.evidence_graph import (
+    EvidenceGraph,
+    VerificationFailed,
+    _draft_prompt,
+    _revision_prompt,
+)
+from ped_agent.agent.ports import StructuredOutputUnsupported
 
 from ped_agent_server.evidence_executor import LangGraphRunExecutor
 from ped_agent_server.run_service import RunExecutionContext
@@ -146,6 +153,88 @@ class NativeVerifyRepairGateway:
         return []
 
 
+class RuntimeStructuredErrorGateway:
+    def __init__(self, error_type: type[Exception]) -> None:
+        self.error_type = error_type
+        self.generate_calls = 0
+        self.verify_calls = 0
+
+    @property
+    def verification_enabled(self) -> bool:
+        return True
+
+    async def generate_structured(self, prompt: str, schema):
+        raise self.error_type("provider runtime failure")
+
+    async def verify_structured(self, prompt: str, schema):
+        raise self.error_type("provider runtime failure")
+
+    async def generate(self, prompt: str) -> ModelOutput:
+        self.generate_calls += 1
+        return ModelOutput(content=draft_json(), model="fallback-answer")
+
+    async def verify(self, prompt: str) -> ModelOutput:
+        self.verify_calls += 1
+        return ModelOutput(content=review("supported"), model="fallback-verify")
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        return []
+
+
+class UnsupportedGenerateRepairGateway:
+    def __init__(self) -> None:
+        self.native_generate_calls = 0
+        self.generate_calls = 0
+
+    @property
+    def verification_enabled(self) -> bool:
+        return True
+
+    async def generate_structured(self, prompt: str, schema):
+        self.native_generate_calls += 1
+        raise StructuredOutputUnsupported
+
+    async def generate(self, prompt: str) -> ModelOutput:
+        self.generate_calls += 1
+        return ModelOutput(
+            content="not-json" if self.generate_calls == 1 else draft_json(text="Repaired"),
+            model="fallback-answer",
+        )
+
+    async def verify(self, prompt: str) -> ModelOutput:
+        raise AssertionError("verification is not used by this focused test")
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        return []
+
+
+class UnsupportedVerifyRepairGateway:
+    def __init__(self) -> None:
+        self.native_verify_calls = 0
+        self.verify_calls = 0
+
+    @property
+    def verification_enabled(self) -> bool:
+        return True
+
+    async def verify_structured(self, prompt: str, schema):
+        self.native_verify_calls += 1
+        raise StructuredOutputUnsupported
+
+    async def verify(self, prompt: str) -> ModelOutput:
+        self.verify_calls += 1
+        return ModelOutput(
+            content="not-json" if self.verify_calls == 1 else review("supported"),
+            model="fallback-verify",
+        )
+
+    async def generate(self, prompt: str) -> ModelOutput:
+        raise AssertionError("generation is not used by this focused test")
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        return []
+
+
 def review(status: str) -> str:
     return json.dumps({"claims": [{"claim_id": "c1", "status": status}]})
 
@@ -195,6 +284,103 @@ async def test_structured_verification_repairs_with_pro_exactly_once() -> None:
     assert gateway.verify_calls == 1
     assert semantic_review.claims[0].status == "supported"
     assert model == "deepseek-v4-pro"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("error_type", [TypeError, AttributeError])
+async def test_structured_generation_preserves_runtime_errors(error_type) -> None:
+    gateway = RuntimeStructuredErrorGateway(error_type)
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+    )
+
+    with pytest.raises(error_type, match="provider runtime failure"):
+        await graph._structured_generate("Create JSON AnswerDraft", AnswerDraft)
+
+    assert gateway.generate_calls == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("error_type", [TypeError, AttributeError])
+async def test_structured_verification_preserves_runtime_errors(error_type) -> None:
+    gateway = RuntimeStructuredErrorGateway(error_type)
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+    )
+
+    with pytest.raises(error_type, match="provider runtime failure"):
+        await graph._structured_verify("Create JSON SemanticReview", SemanticReview)
+
+    assert gateway.verify_calls == 0
+
+
+@pytest.mark.asyncio
+async def test_unsupported_structured_generation_repairs_at_most_once() -> None:
+    gateway = UnsupportedGenerateRepairGateway()
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+    )
+
+    draft, model = await graph._structured_generate("Create JSON AnswerDraft", AnswerDraft)
+
+    assert gateway.native_generate_calls == 1
+    assert gateway.generate_calls == 2
+    assert draft.answer_markdown == "Repaired [L1]"
+    assert model == "fallback-answer"
+
+
+@pytest.mark.asyncio
+async def test_unsupported_structured_verification_repairs_at_most_once() -> None:
+    gateway = UnsupportedVerifyRepairGateway()
+    graph = EvidenceGraph(
+        gateway,
+        FakeLocalRetriever(sufficient=True),
+        FakeExternalSearcher(),
+    )
+
+    semantic_review, model = await graph._structured_verify(
+        "Create JSON SemanticReview",
+        SemanticReview,
+    )
+
+    assert gateway.native_verify_calls == 1
+    assert gateway.verify_calls == 2
+    assert semantic_review.claims[0].status == "supported"
+    assert model == "fallback-verify"
+
+
+@pytest.mark.parametrize(
+    ("label", "evidence_id"),
+    [("A1", "academic-1"), ("W1", "web-1")],
+)
+def test_draft_and_revision_examples_use_real_evidence_binding(label, evidence_id) -> None:
+    evidence_pack = json.dumps([{"label": label, "evidence_id": evidence_id}])
+    draft = AnswerDraft.model_validate_json(draft_json(label=label, evidence_id=evidence_id))
+    prompts = (
+        _draft_prompt("Question", evidence_pack),
+        _revision_prompt(
+            draft,
+            RuleValidation(passed=False, errors=["repair"]),
+            None,
+            evidence_pack,
+        ),
+    )
+
+    for prompt in prompts:
+        example_line = next(
+            line for line in prompt.splitlines() if line.startswith("Minimal valid JSON: ")
+        )
+        example = json.loads(example_line.removeprefix("Minimal valid JSON: "))
+        assert example["claims"][0]["citation_labels"] == [label]
+        assert example["citations"][0]["label"] == label
+        assert example["citations"][0]["evidence_id"] == evidence_id
+        assert "L1" not in example_line
 
 
 @pytest.mark.asyncio

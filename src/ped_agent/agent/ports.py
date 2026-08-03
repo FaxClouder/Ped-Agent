@@ -7,6 +7,10 @@ from pydantic import BaseModel
 from ped_agent.agent.contracts import EvidenceItem, ModelOutput, RetrievalBatch
 
 
+class StructuredOutputUnsupported(RuntimeError):
+    pass
+
+
 class ModelGateway(Protocol):
     @property
     def verification_enabled(self) -> bool: ...

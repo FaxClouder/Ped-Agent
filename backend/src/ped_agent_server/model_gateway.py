@@ -6,6 +6,7 @@ from typing import Any
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from ped_agent.agent.contracts import ModelOutput
+from ped_agent.agent.ports import StructuredOutputUnsupported
 from pydantic import BaseModel
 
 from ped_agent_server.settings import AgentSettings, ChatModelSettings, EmbeddingSettings
@@ -148,7 +149,10 @@ async def _invoke_structured(
     kwargs: dict[str, Any] = {"include_raw": True}
     if method is not None:
         kwargs["method"] = method
-    structured_client = client.with_structured_output(schema, **kwargs)
+    try:
+        structured_client = client.with_structured_output(schema, **kwargs)
+    except (AttributeError, NotImplementedError) as exc:
+        raise StructuredOutputUnsupported from exc
     result = await structured_client.ainvoke(prompt)
     if not isinstance(result, dict) or "raw" not in result:
         parsed = result if isinstance(result, schema) else schema.model_validate(result)
