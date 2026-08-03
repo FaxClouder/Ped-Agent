@@ -215,6 +215,30 @@ class AgentRepository:
                 (status.value, error, timestamp, started_at, completed_at, run_id),
             )
 
+    def start_run(self, run_id: str) -> bool:
+        timestamp = _now()
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                """
+                UPDATE runs SET status = ?, started_at = ?, updated_at = ?
+                WHERE id = ? AND status = 'queued' AND cancel_requested = 0
+                """,
+                (RunStatus.RUNNING.value, timestamp, timestamp, run_id),
+            )
+            if cursor.rowcount != 1:
+                return False
+            connection.execute(
+                "INSERT INTO run_events(run_id, event, payload, created_at) VALUES (?, ?, ?, ?)",
+                (
+                    run_id,
+                    "run.started",
+                    _dump({"run_id": run_id, "status": RunStatus.RUNNING.value}),
+                    timestamp,
+                ),
+            )
+        return True
+
     def request_cancel(self, run_id: str) -> bool:
         timestamp = _now()
         with self.connect() as connection:

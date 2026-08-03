@@ -38,6 +38,12 @@ class CancelBeforeCompletionRepository(AgentRepository):
         return super().complete_run(run_id, **kwargs)
 
 
+class CancelBeforeStartRepository(AgentRepository):
+    def start_run(self, run_id: str) -> bool:
+        assert self.request_cancel(run_id) is True
+        return super().start_run(run_id)
+
+
 class FakeExecutor:
     async def execute(self, context, emit, is_cancelled) -> RunExecutionResult:
         await emit("stage.started", {"stage": "local_retrieval"})
@@ -72,6 +78,15 @@ class FakeExecutor:
                 semantic_verification_passed=True,
             ),
         )
+
+
+class CountingExecutor(FakeExecutor):
+    def __init__(self) -> None:
+        self.calls = 0
+
+    async def execute(self, context, emit, is_cancelled) -> RunExecutionResult:
+        self.calls += 1
+        return await super().execute(context, emit, is_cancelled)
 
 
 @pytest.mark.asyncio
@@ -344,3 +359,31 @@ async def test_run_service_records_feedback_for_queued_cancellation(tmp_path: Pa
         }
     ]
     assert observer.observed_run_ids == [first_run["id"]]
+
+
+@pytest.mark.asyncio
+async def test_run_service_cancel_before_atomic_start_wins_without_executor(
+    tmp_path: Path,
+) -> None:
+    repository = CancelBeforeStartRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    observer = RecordingObserver()
+    executor = CountingExecutor()
+    service = RunService(repository, executor, observer=observer)
+
+    run = await service.submit(conversation["id"], "Question")
+    await service.wait(run["id"])
+
+    assert repository.get_run(run["id"])["status"] == "cancelled"
+    assert [event["event"] for event in repository.list_events(run["id"])] == ["run.cancelled"]
+    assert executor.calls == 0
+    assert observer.observed_run_ids == []
+    assert observer.feedback == [
+        {
+            "run_id": run["id"],
+            "run_success": False,
+            "answer_displayed": False,
+            "cancelled": True,
+        }
+    ]

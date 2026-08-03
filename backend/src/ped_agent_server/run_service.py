@@ -80,15 +80,9 @@ class RunService:
     async def _execute(self, run: dict[str, object]) -> None:
         run_id = str(run["id"])
         async with self._semaphore:
-            if self.repository.is_cancel_requested(run_id):
+            if not self.repository.start_run(run_id):
                 await self._record_cancelled_feedback(run_id)
                 return
-            self.repository.set_run_status(run_id, RunStatus.RUNNING)
-            self.repository.append_event(
-                run_id,
-                "run.started",
-                {"run_id": run_id, "status": RunStatus.RUNNING.value},
-            )
             try:
                 context = self._build_context(run)
                 result = await self.observer.observe_run(

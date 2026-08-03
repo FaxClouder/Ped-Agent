@@ -135,3 +135,31 @@ def test_request_cancel_is_idempotent_for_cancelled_run(tmp_path: Path) -> None:
     assert repository.request_cancel(run["id"]) is True
     assert repository.request_cancel(run["id"]) is False
     assert [event["event"] for event in repository.list_events(run["id"])] == ["run.cancelled"]
+
+
+def test_start_run_starts_queued_run_once(tmp_path: Path) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    run = repository.create_run(conversation["id"], query="Question")
+
+    assert hasattr(repository, "start_run")
+    assert repository.start_run(run["id"]) is True
+    started = repository.get_run(run["id"])
+    assert started["status"] == RunStatus.RUNNING.value
+    assert started["started_at"] is not None
+    assert repository.start_run(run["id"]) is False
+    assert [event["event"] for event in repository.list_events(run["id"])] == ["run.started"]
+
+
+def test_start_run_rejects_cancelled_run_without_event(tmp_path: Path) -> None:
+    repository = AgentRepository(tmp_path / "agent.sqlite3")
+    repository.initialize()
+    conversation = repository.create_conversation()
+    run = repository.create_run(conversation["id"], query="Question")
+    assert repository.request_cancel(run["id"]) is True
+
+    assert hasattr(repository, "start_run")
+    assert repository.start_run(run["id"]) is False
+    assert repository.get_run(run["id"])["status"] == RunStatus.CANCELLED.value
+    assert [event["event"] for event in repository.list_events(run["id"])] == ["run.cancelled"]
