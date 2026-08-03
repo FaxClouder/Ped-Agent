@@ -48,3 +48,7 @@ testpaths = ["tests"]
 line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ped_agent_server"]
+known-third-party = ["ped_agent"]
