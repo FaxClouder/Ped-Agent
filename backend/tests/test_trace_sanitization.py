@@ -62,6 +62,19 @@ def test_safe_query_input_keeps_only_query() -> None:
     ) == {"query": "bottleneck"}
 
 
+def test_safe_query_input_fails_closed_for_unknown_or_unstringifiable_values() -> None:
+    class QueryObject:
+        query = "private object query"
+
+    class Unstringifiable:
+        def __str__(self) -> str:
+            raise ValueError("private conversion failure")
+
+    assert safe_query_inputs(None) == {"query": ""}  # type: ignore[arg-type]
+    assert safe_query_inputs(QueryObject()) == {"query": ""}  # type: ignore[arg-type]
+    assert safe_query_inputs({"query": Unstringifiable()}) == {"query": ""}
+
+
 def test_safe_retrieval_output_keeps_identity_but_not_quotes() -> None:
     item = EvidenceItem(
         evidence_id="local:chunk-1",
@@ -83,6 +96,24 @@ def test_safe_retrieval_output_keeps_identity_but_not_quotes() -> None:
         "content_hash": "a" * 64,
     }
     assert "private evidence text" not in str(output)
+
+
+def test_safe_retrieval_output_is_stable_for_none_or_exploding_batches() -> None:
+    class ExplodingBatch:
+        @property
+        def items(self) -> list[object]:
+            raise ValueError("private batch failure")
+
+    empty = {
+        "count": 0,
+        "evidence": [],
+        "sufficient": False,
+        "degraded": False,
+        "degradation_reason": None,
+    }
+
+    assert safe_retrieval_outputs(None) == empty
+    assert safe_retrieval_outputs(ExplodingBatch()) == empty
 
 
 def test_safe_evidence_outputs_handle_optional_evidence_without_quotes() -> None:
@@ -108,6 +139,44 @@ def test_safe_evidence_outputs_handle_optional_evidence_without_quotes() -> None
         ],
     }
     assert safe_optional_evidence_output(None) == {"count": 0, "evidence": []}
+
+
+def test_safe_evidence_outputs_support_mappings_and_skip_unsafe_items() -> None:
+    class ExplodingEvidence:
+        @property
+        def evidence_id(self) -> str:
+            raise ValueError("private evidence failure")
+
+    item = {
+        "evidence_id": "local:chunk-2",
+        "origin": EvidenceOrigin.LOCAL_OFFICIAL,
+        "title": "Paper",
+        "locator": "p. 5",
+        "content_hash": "c" * 64,
+        "quote": "private quote",
+        "url": "https://example.org/private",
+        "doi": "private doi",
+        "publisher": "private publisher",
+        "payload": {"private": "payload"},
+    }
+
+    output = safe_evidence_outputs([item, ExplodingEvidence()])
+
+    assert output == {
+        "count": 1,
+        "evidence": [
+            {
+                "evidence_id": "local:chunk-2",
+                "origin": "local_official",
+                "title": "Paper",
+                "locator": "p. 5",
+                "content_hash": "c" * 64,
+            }
+        ],
+    }
+    assert type(output["evidence"][0]["origin"]) is str
+    assert "private" not in str(output)
+    assert safe_evidence_outputs(None) == {"count": 0, "evidence": []}
 
 
 def test_safe_candidate_output_removes_abstract() -> None:
@@ -136,6 +205,40 @@ def test_safe_candidate_output_removes_abstract() -> None:
     }
     assert safe_candidate_inputs({"candidate": None}) == {"candidate": None}
     assert "private abstract" not in str(output)
+
+
+def test_safe_candidate_processors_support_mappings_and_normalize_urls() -> None:
+    candidate = {
+        "source": "parallel",
+        "title": "Paper",
+        "url": "https://user:password@example.org:8443/path?token=secret#fragment",
+        "doi": None,
+        "abstract": "private abstract",
+    }
+    expected = {
+        "source": "parallel",
+        "title": "Paper",
+        "url": "https://example.org:8443/path",
+        "doi": None,
+    }
+
+    assert safe_candidate_inputs({"candidate": candidate}) == {"candidate": expected}
+    assert safe_candidate_outputs([candidate]) == {"count": 1, "candidates": [expected]}
+
+    rendered = str(safe_candidate_outputs([candidate]))
+    for private_value in ("password", "token", "secret", "fragment", "private abstract"):
+        assert private_value not in rendered
+
+
+def test_safe_candidate_processors_fail_closed_for_unknown_items() -> None:
+    class ExplodingCandidate:
+        @property
+        def source(self) -> str:
+            raise ValueError("private candidate failure")
+
+    assert safe_candidate_inputs({"candidate": ExplodingCandidate()}) == {"candidate": None}
+    assert safe_candidate_outputs([ExplodingCandidate()]) == {"count": 0, "candidates": []}
+    assert safe_candidate_outputs(None) == {"count": 0, "candidates": []}
 
 
 def test_redaction_keeps_question_and_final_answer_but_removes_private_content() -> None:
@@ -305,6 +408,7 @@ def test_redaction_blocks_common_private_containers_and_normalized_secret_keys()
         "client-secret": "private client secret",
         "token": "private token",
         "secret": "private secret",
+        "abstract": "private abstract",
         "token_usage": {"input_tokens": 120, "output_tokens": 40},
     }
 
@@ -329,6 +433,7 @@ def test_redaction_blocks_common_private_containers_and_normalized_secret_keys()
         "client-secret",
         "token",
         "secret",
+        "abstract",
     ):
         assert redacted[key] == "[REDACTED]"
     assert redacted["raw"]["text"] == "[REDACTED]"

@@ -1,10 +1,24 @@
 import httpx
 import pytest
-from langsmith.run_helpers import is_traceable_function
+from langsmith.run_helpers import is_traceable_function, tracing_context
 from ped_agent.agent.contracts import EvidenceOrigin
 
 from ped_agent_server.evidence_executor import HybridLocalEvidenceRetriever
-from ped_agent_server.external_search import ExternalSearchCoordinator
+from ped_agent_server.external_search import ExternalSearchCoordinator, SearchCandidate
+
+
+class FakeTraceClient:
+    otel_exporter = None
+
+    def __init__(self) -> None:
+        self.created: list[dict[str, object]] = []
+        self.updated: list[dict[str, object]] = []
+
+    def create_run(self, **kwargs: object) -> None:
+        self.created.append(kwargs)
+
+    def update_run(self, **kwargs: object) -> None:
+        self.updated.append(kwargs)
 
 
 def mock_response(request: httpx.Request) -> httpx.Response:
@@ -57,6 +71,130 @@ def test_external_search_boundaries_are_traceable() -> None:
     assert is_traceable_function(ExternalSearchCoordinator._openalex)
     assert is_traceable_function(ExternalSearchCoordinator._parallel)
     assert is_traceable_function(ExternalSearchCoordinator._fetch_web)
+
+
+@pytest.mark.asyncio
+async def test_enabled_trace_sanitizes_mapping_candidate_before_business_error() -> None:
+    candidate = {
+        "source": "parallel",
+        "title": "Unsafe mapping",
+        "url": "https://user:password@example.org/path?token=secret#fragment",
+        "doi": None,
+        "abstract": "private abstract",
+    }
+    trace_client = FakeTraceClient()
+    async with httpx.AsyncClient(transport=httpx.MockTransport(mock_response)) as client:
+        coordinator = ExternalSearchCoordinator(client)
+        with tracing_context(enabled=True, client=trace_client), pytest.raises(AttributeError):
+            await coordinator._fetch_web(candidate)  # type: ignore[arg-type]
+
+    assert trace_client.created[0]["inputs"] == {
+        "candidate": {
+            "source": "parallel",
+            "title": "Unsafe mapping",
+            "url": "https://example.org/path",
+            "doi": None,
+        }
+    }
+    rendered = str(trace_client.created)
+    for private_value in ("password", "token", "secret", "fragment", "private abstract"):
+        assert private_value not in rendered
+
+
+@pytest.mark.asyncio
+async def test_enabled_trace_updates_failed_source_span_without_processor_error() -> None:
+    def invalid_json_response(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, text="not valid json")
+
+    trace_client = FakeTraceClient()
+    async with httpx.AsyncClient(transport=httpx.MockTransport(invalid_json_response)) as client:
+        coordinator = ExternalSearchCoordinator(client)
+        with tracing_context(enabled=True, client=trace_client), pytest.raises(ValueError):
+            await coordinator._semantic_scholar("bottleneck")
+
+    assert len(trace_client.created) == 1
+    assert trace_client.created[0]["inputs"] == {"query": "bottleneck"}
+    assert len(trace_client.updated) == 1
+    assert trace_client.updated[0]["outputs"] == {"count": 0, "candidates": []}
+    assert trace_client.updated[0]["error"] is not None
+    assert trace_client.updated[0]["end_time"] is not None
+
+
+@pytest.mark.asyncio
+async def test_enabled_trace_omits_self_candidate_secrets_and_fetched_quote() -> None:
+    def private_web_response(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, text="<html><body>PRIVATE_QUOTE</body></html>")
+
+    candidate = SearchCandidate(
+        source="parallel",
+        title="Safe page",
+        url="https://user:password@site.test/page?token=secret#fragment",
+        abstract="PRIVATE_ABSTRACT",
+    )
+    trace_client = FakeTraceClient()
+    async with httpx.AsyncClient(transport=httpx.MockTransport(private_web_response)) as client:
+        coordinator = ExternalSearchCoordinator(
+            client,
+            parallel_api_key="PRIVATE_CLIENT_SECRET",
+        )
+        with tracing_context(enabled=True, client=trace_client):  # type: ignore[arg-type]
+            result = await coordinator._fetch_web(candidate)
+
+    assert result is not None
+    assert trace_client.created[0]["inputs"] == {
+        "candidate": {
+            "source": "parallel",
+            "title": "Safe page",
+            "url": "https://site.test/page",
+            "doi": None,
+        }
+    }
+    assert trace_client.updated[0]["outputs"] == {
+        "count": 1,
+        "evidence": [
+            {
+                "evidence_id": result.evidence_id,
+                "origin": "external_web",
+                "title": "Safe page",
+                "locator": None,
+                "content_hash": result.content_hash,
+            }
+        ],
+    }
+    rendered = str([trace_client.created, trace_client.updated])
+    for private_value in (
+        "self",
+        "password",
+        "token",
+        "secret",
+        "fragment",
+        "PRIVATE_ABSTRACT",
+        "PRIVATE_CLIENT_SECRET",
+        "PRIVATE_QUOTE",
+    ):
+        assert private_value not in rendered
+
+
+@pytest.mark.asyncio
+async def test_disabled_trace_does_not_call_client_or_change_business_result() -> None:
+    def web_response(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, text="<html><body>Verified page</body></html>")
+
+    trace_client = FakeTraceClient()
+    async with httpx.AsyncClient(transport=httpx.MockTransport(web_response)) as client:
+        coordinator = ExternalSearchCoordinator(client)
+        candidate = SearchCandidate(
+            source="parallel",
+            title="Page",
+            url="https://site.test/page",
+        )
+        with tracing_context(enabled=False, client=trace_client):  # type: ignore[arg-type]
+            result = await coordinator._fetch_web(candidate)
+
+    assert result is not None
+    assert result.quote == "Verified page"
+    assert trace_client.created == []
+    assert trace_client.updated == []
 
 
 @pytest.mark.asyncio
