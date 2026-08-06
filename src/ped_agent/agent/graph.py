@@ -1,3 +1,9 @@
+"""Legacy generic routing scaffold.
+
+The authoritative application runtime lives in ped_agent_server and uses EvidenceGraph.
+This graph remains as an early routing prototype for compatibility tests and reference.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Callable
