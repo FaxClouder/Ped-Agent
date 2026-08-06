@@ -14,6 +14,7 @@ __pycache__/
 .superpowers/
 .mcp.json
 skills-lock.json
+.worktrees/
 
 # Local outputs and knowledge assets
 outputs/
