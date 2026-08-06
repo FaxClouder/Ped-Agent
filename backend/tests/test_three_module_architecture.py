@@ -130,8 +130,20 @@ def test_readme_links_an_explicit_legacy_code_map() -> None:
 
 def test_changelog_records_three_module_alignment() -> None:
     text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    assert "## Unreleased" in text, "CHANGELOG is missing an Unreleased section"
+    unreleased_heading = "## Unreleased"
+    assert unreleased_heading in text, (
+        "CHANGELOG is missing an Unreleased section"
+    )
+    unreleased_tail = text.split(unreleased_heading, maxsplit=1)[1]
+    unreleased_section = unreleased_tail.split("\n## ", maxsplit=1)[0]
+
     for module_name in MODULE_NAMES:
-        assert module_name in text, (
-            f"CHANGELOG is missing aligned module: {module_name}"
+        assert module_name in unreleased_section, (
+            f"CHANGELOG Unreleased section is missing aligned module: "
+            f"{module_name}"
         )
+    application_classification = "applications built from the foundation modules"
+    assert application_classification in unreleased_section, (
+        "CHANGELOG Unreleased section is missing the foundation-module "
+        "application classification"
+    )
