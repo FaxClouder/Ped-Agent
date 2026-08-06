@@ -20,10 +20,17 @@ MODULE_NAMES = (
 def test_approved_three_module_spec_exists() -> None:
     assert SPEC.exists()
     spec_text = SPEC.read_text(encoding="utf-8")
-    assert all(name in spec_text for name in MODULE_NAMES)
+    for module_name in MODULE_NAMES:
+        assert module_name in spec_text, (
+            f"approved architecture spec is missing module: {module_name}"
+        )
 
 
 def test_readme_declares_three_module_architecture() -> None:
     readme_text = README.read_text(encoding="utf-8")
-    assert all(name in readme_text for name in MODULE_NAMES)
-    assert SPEC.name in readme_text
+    for module_name in MODULE_NAMES:
+        assert module_name in readme_text, f"README is missing module: {module_name}"
+    spec_target = SPEC.relative_to(ROOT).as_posix()
+    assert f"]({spec_target})" in readme_text, (
+        f"README is missing architecture spec link target: {spec_target}"
+    )
