@@ -1,5 +1,10 @@
 # 视觉模块详细设计
 
+> **Status: target module design.** Vision belongs to “检测追踪与流动分析”
+> and is not a standalone product line.
+> Canonical module boundary:
+> [Ped-Agent 三模块总体架构设计](superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md).
+
 ## 一、模块概述
 
 视觉模块负责从视频中提取行人轨迹数据，作为可插拔组件接入分析管道。
