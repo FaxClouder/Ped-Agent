@@ -56,6 +56,16 @@ SHARED_CODE_ENTRIES = (
 def test_approved_three_module_spec_exists() -> None:
     assert SPEC.exists()
     spec_text = SPEC.read_text(encoding="utf-8")
+    header = "\n".join(spec_text.splitlines()[:8])
+    status_issues = []
+    if "状态：已批准" not in header:
+        status_issues.append("add `状态：已批准` within the first 8 lines")
+    if "等待书面规格复核" in header:
+        status_issues.append("remove the stale `等待书面规格复核` wording")
+    assert not status_issues, (
+        "canonical architecture spec header must:\n- "
+        + "\n- ".join(status_issues)
+    )
     for module_name in MODULE_NAMES:
         assert module_name in spec_text, (
             f"approved architecture spec is missing module: {module_name}"
