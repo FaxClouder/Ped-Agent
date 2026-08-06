@@ -16,6 +16,10 @@ support are applications that combine these modules, not independent foundations
 [approved three-module architecture specification](docs/superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md)
 for the canonical boundaries.
 
+Contributors should also read the
+[active and legacy code map](docs/legacy-scaffold.md) before changing entrypoints,
+configuration, retrieval, or Agent routing.
+
 The repository preserves two Python distributions:
 
 - `ped-agent-core` / `ped_agent`: shared contracts, policies, evidence graph, analysis,

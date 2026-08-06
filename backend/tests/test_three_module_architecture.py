@@ -3,6 +3,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 README = ROOT / "README.md"
+LEGACY_MAP = ROOT / "docs" / "legacy-scaffold.md"
 SPEC = (
     ROOT
     / "docs"
@@ -56,3 +57,24 @@ def test_broad_design_documents_declare_their_current_status() -> None:
             f"{relative_path} header is missing canonical spec filename: "
             f"{CANONICAL_SPEC_FILENAME}"
         )
+
+
+def test_readme_links_an_explicit_legacy_code_map() -> None:
+    assert LEGACY_MAP.is_file(), f"legacy code map is missing: {LEGACY_MAP}"
+    legacy_map_text = LEGACY_MAP.read_text(encoding="utf-8")
+    readme_text = README.read_text(encoding="utf-8")
+
+    for expected_reference in (
+        "ped_agent_server.cli",
+        "EvidenceGraph",
+        "src/ped_agent/main.py",
+        "src/ped_agent/agent/graph.py",
+    ):
+        assert expected_reference in legacy_map_text, (
+            f"legacy code map is missing reference: {expected_reference}"
+        )
+
+    legacy_map_target = LEGACY_MAP.relative_to(ROOT).as_posix()
+    assert f"]({legacy_map_target})" in readme_text, (
+        f"README is missing legacy code map link target: {legacy_map_target}"
+    )
