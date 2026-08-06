@@ -2,9 +2,9 @@ import ast
 from pathlib import Path
 
 import ped_agent
-import ped_agent_server
 import pytest
 
+import ped_agent_server
 
 ROOT = Path(__file__).resolve().parents[2]
 
