@@ -3,8 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-
 from ped_agent.models.trajectory import TrajectoryData, VideoMetadata
 from ped_agent.vision.detector import PedestrianDetector
 from ped_agent.vision.postprocess import TrajectoryPostProcessor, bbox_bottom_centers
@@ -67,4 +65,3 @@ class VisionPipeline:
             ),
             tracks=self.postprocessor.process(raw_tracks),
         )
-

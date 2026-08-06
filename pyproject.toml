@@ -36,10 +36,14 @@ rag = [
   "arxiv>=2.1",
 ]
 vision = [
-  "ultralytics>=8.2",
+  "ultralytics>=8.3",
   "boxmot>=10.0",
-  "opencv-python>=4.8",
+  "opencv-contrib-python>=4.10",
   "lap>=0.4",
+  "pyarrow>=17.0",
+]
+vision-analysis = [
+  "pedpy>=1.2",
 ]
 dev = [
   "pytest>=8.2",

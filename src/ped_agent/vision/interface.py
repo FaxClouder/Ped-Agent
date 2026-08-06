@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 from ped_agent.models.trajectory import TrajectoryData
-from ped_agent.vision.schemas import Detection, ROI
+from ped_agent.vision.schemas import ROI, Detection
 
 
 @runtime_checkable
@@ -17,4 +17,3 @@ class VisionBackend(Protocol):
 
     @property
     def capabilities(self) -> set[str]: ...
-

@@ -9,6 +9,7 @@ from typing import Annotated
 
 from fastapi import FastAPI, Header, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
+from ped_agent.vision.model_registry import ModelManifestRegistry
 from pydantic import BaseModel, Field
 
 from ped_agent_server.agent_repository import TERMINAL_STATUSES, ActiveRunError, AgentRepository
@@ -17,6 +18,11 @@ from ped_agent_server.index import FTSIndex
 from ped_agent_server.models import EvidenceHit
 from ped_agent_server.retrieval import IndexStaleError, RetrievalService
 from ped_agent_server.run_service import RunService
+from ped_agent_server.scene_registry import SceneProfileRegistry
+from ped_agent_server.vision_api import build_vision_router
+from ped_agent_server.vision_repository import VisionRepository
+from ped_agent_server.vision_service import VisionTaskService
+from ped_agent_server.vision_storage import VisionStorage
 
 
 class ConversationCreate(BaseModel):
@@ -33,24 +39,55 @@ def create_app(
     index_path: Path,
     agent_repository: AgentRepository | None = None,
     run_service: RunService | None = None,
+    vision_repository: VisionRepository | None = None,
+    vision_storage: VisionStorage | None = None,
+    model_registry: ModelManifestRegistry | None = None,
+    scene_registry: SceneProfileRegistry | None = None,
+    vision_service: VisionTaskService | None = None,
     shutdown_callback: Callable[[], Awaitable[None]] | None = None,
 ) -> FastAPI:
     catalog = Catalog(catalog_path)
     retrieval = RetrievalService(catalog, FTSIndex(index_path))
     repository = agent_repository or AgentRepository(catalog_path.parent / "agent.sqlite3")
     repository.initialize()
+    resolved_vision_storage = vision_storage or VisionStorage(catalog_path.parent / "vision")
+    resolved_vision_storage.ensure_dirs()
+    resolved_vision_repository = vision_repository or VisionRepository(
+        catalog_path.parent / "vision.sqlite3"
+    )
+    resolved_vision_repository.initialize()
+    resolved_model_registry = model_registry or ModelManifestRegistry(
+        resolved_vision_storage.paths.model_manifests_dir
+    )
+    resolved_scene_registry = scene_registry or SceneProfileRegistry(
+        resolved_vision_storage.paths.scenes_dir
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
         repository.interrupt_active_runs()
+        if vision_service is not None:
+            await vision_service.start()
         yield
         if shutdown_callback is not None:
             await shutdown_callback()
         elif run_service is not None:
             await run_service.shutdown()
+        if vision_service is not None:
+            await vision_service.shutdown()
 
     app = FastAPI(title="Ped-Agent Knowledge API", version="0.1.0", lifespan=lifespan)
     app.state.agent_repository = repository
+    app.state.vision_repository = resolved_vision_repository
+    app.include_router(
+        build_vision_router(
+            repository=resolved_vision_repository,
+            storage=resolved_vision_storage,
+            model_registry=resolved_model_registry,
+            scene_registry=resolved_scene_registry,
+            service=vision_service,
+        )
+    )
 
     @app.post("/api/conversations", status_code=status.HTTP_201_CREATED)
     def create_conversation(payload: ConversationCreate) -> dict[str, object]:

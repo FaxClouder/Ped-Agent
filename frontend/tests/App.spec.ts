@@ -12,6 +12,7 @@ describe('Ped-Agent shell', () => {
       routes: [
         { path: '/', component: { template: '<div>Library</div>' } },
         { path: '/qa', component: { template: '<div>Answer</div>' } },
+        { path: '/vision', component: { template: '<div>Vision</div>' } },
       ],
     })
     await router.push('/')
@@ -27,6 +28,7 @@ describe('Ped-Agent shell', () => {
     expect(wrapper.text()).toContain('实验支持')
     expect(wrapper.find('[data-route="knowledge"]').classes()).toContain('active')
     expect(wrapper.find('[data-route="answer"]').attributes('href')).toBe('/qa')
+    expect(wrapper.find('[data-route="vision"]').attributes('href')).toBe('/vision')
   })
 
   it('shows the first-stage knowledge workspace structure', () => {

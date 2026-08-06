@@ -24,6 +24,7 @@ data/scenarios/*
 !data/scenarios/.gitkeep
 backend/storage/library/
 backend/storage/agent/
+backend/storage/vision/
 
 # Frontend build artifacts
 frontend/node_modules/

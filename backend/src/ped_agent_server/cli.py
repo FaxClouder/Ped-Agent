@@ -30,6 +30,7 @@ from ped_agent_server.paths import WorkspacePaths
 from ped_agent_server.retrieval import RetrievalService
 from ped_agent_server.settings import load_settings
 from ped_agent_server.vector_index import embedding_fingerprint
+from ped_agent_server.vision_runtime import build_vision_runtime
 
 app = typer.Typer(no_args_is_help=True)
 library = typer.Typer(no_args_is_help=True)
@@ -246,12 +247,18 @@ def serve(
     paths = repo_paths()
     settings = load_settings()
     runtime = build_agent_runtime(settings, paths)
+    vision_runtime = build_vision_runtime(paths.repo_root)
     uvicorn.run(
         create_app(
             catalog_path=paths.catalog_path,
             index_path=paths.index_path,
             agent_repository=runtime.repository,
             run_service=runtime.run_service,
+            vision_repository=vision_runtime.repository,
+            vision_storage=vision_runtime.storage,
+            model_registry=vision_runtime.model_registry,
+            scene_registry=vision_runtime.scene_registry,
+            vision_service=vision_runtime.service,
             shutdown_callback=runtime.close,
         ),
         host=host or settings.runtime.host,

@@ -14,6 +14,8 @@ The repository now contains two Python distributions:
 - Module boundaries for RAG, analysis, experiment evaluation, vision plugins, and evals
 - Pytest smoke tests for the scaffold
 - Optional redacted LangSmith tracing for local runs
+- End-to-end mixed-flow video trajectory workbench with immutable pixel/world artifacts,
+  review patches, calibration quality gates, Plotly exploration and publication figures
 
 ## Quick Start
 
@@ -32,6 +34,19 @@ Optional extras:
 pip install -e ".[rag]"
 pip install -e ".[vision]"
 ```
+
+For the local server with Ultralytics, ByteTrack, OpenCV-contrib, PedPy and Parquet support:
+
+```powershell
+uv sync --project backend --extra vision --group dev
+uv run --project backend ped-agent serve
+```
+
+Open `http://127.0.0.1:8000/vision` through the Vue development server, or use the
+`/api/vision/*` resources directly. Put custom model manifests and weights under
+`backend/storage/vision/models/`; no model training or bundled weights are provided. The source
+video is copied into local task storage, while annotated result videos are intentionally never
+generated. See [`docs/vision-trajectory-workbench.md`](docs/vision-trajectory-workbench.md).
 
 The running `ped_agent_server` treats the repository-root `.env` file and process environment
 as its only authoritative configuration sources. Configuration changes require a restart, and

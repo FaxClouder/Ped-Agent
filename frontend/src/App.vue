@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 const navigation = [
   { name: '知识库', description: '文献、法规与原文证据', route: '/', routeName: 'knowledge' },
   { name: '智能问答', description: '基于证据的研究问答', route: '/qa', routeName: 'answer' },
-  { name: '轨迹分析', description: '轨迹指标与场景诊断' },
+  { name: '轨迹分析', description: '视频检测、标定、复核与多层分析', route: '/vision', routeName: 'vision' },
   { name: '安全评估', description: '风险与规范符合性' },
   { name: '实验支持', description: '方案与指标设计' },
 ]

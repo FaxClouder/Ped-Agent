@@ -1,36 +1,41 @@
 vision:
   enabled: false
-  backend: "yolo26_bytetrack"
-  detector:
-    model: "yolo26x.pt"
-    confidence: 0.5
-    iou_threshold: 0.45
-    classes: [0]
-    input_size: 1280
-    device: "${oc.env:VISION_DEVICE,cpu}"
-    half_precision: false
-    end2end: true
+  backend: "ultralytics"
+  model_manifest_dir: "backend/storage/vision/models"
+  scene_profile_dir: "backend/storage/vision/scenes"
+  inference:
+    batch: 1
+    frame_stride: 1
+    detection_confidence: 0.10
+    nms_iou: 0.65
+    device: "auto"
+    cuda_precision: "fp16"
+    cpu_precision: "fp32"
   tracker:
     algorithm: "bytetrack"
-    track_buffer: 30
-    match_thresh: 0.8
-    reid_model: null
-    max_cosine_distance: 0.3
-  coordinate_transform:
-    method: "none"
-    calibration_file: null
-    pixel_per_meter: null
-  preprocessing:
-    resize: null
-    roi_file: null
-    skip_frames: 1
+    high_threshold: 0.25
+    low_threshold: 0.10
+    new_track_threshold: 0.25
+    match_threshold: 0.80
+    lost_buffer_seconds: 1.2
   postprocessing:
-    min_track_length: 10
-    smoothing: "savgol"
-    smoothing_window: 5
-    interpolation: true
+    max_interpolation_gap_seconds: 0.4
+    smoothing_window_seconds: 0.4
+    smoothing_polynomial_order: 2
+    hampel_window_points: 5
+    hampel_sigma: 3.0
+  analysis:
+    time_window_seconds: 1.0
+    speed_difference_window_seconds: 0.4
+    spatial_grid_metres: 0.25
+    kde_bandwidth_metres: 0.50
+    stop_speed_metres_per_second: 0.10
+    stop_minimum_duration_seconds: 1.0
+    interaction_radius_metres: 5.0
+    ttc_horizon_seconds: 5.0
+    minimum_track_duration_seconds: 2.0
   output:
-    save_video: false
-    video_codec: "mp4v"
-    trajectory_format: "json"
-    output_dir: "${oc.env:APP_OUTPUT_DIR,./outputs}/trajectories"
+    copy_source_video: true
+    save_annotated_video: false
+    trajectory_formats: ["parquet", "csv", "json"]
+    figure_formats: ["plotly-json", "png-300dpi", "svg", "pdf"]

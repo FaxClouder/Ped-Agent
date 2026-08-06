@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.metadata
-from typing import Any
 
 from ped_agent.vision.interface import VisionBackend
 

@@ -655,6 +655,305 @@ textarea:disabled {
   margin: 0 auto;
 }
 
+.vision-page {
+  width: min(1640px, 100%);
+  margin: 0 auto;
+}
+
+.vision-heading {
+  display: flex;
+  gap: 32px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.vision-heading h2 {
+  margin: 10px 0 12px;
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: clamp(2.8rem, 7vw, 5.8rem);
+  font-weight: 500;
+  line-height: 0.94;
+  letter-spacing: -0.065em;
+}
+
+.vision-heading p:last-child {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.vision-gate {
+  display: grid;
+  gap: 4px;
+  min-width: 230px;
+  padding: 14px 16px;
+  color: var(--warning);
+  background: #f1e2d4;
+  border: 1px solid #dec1a7;
+  border-radius: var(--radius-control);
+}
+
+.vision-gate[data-ready="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: #b6d6ce;
+}
+
+.vision-gate span {
+  font-size: 0.72rem;
+}
+
+.vision-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.62fr) minmax(0, 2.2fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.vision-rail,
+.vision-workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.vision-rail {
+  position: sticky;
+  top: 18px;
+}
+
+.vision-card {
+  padding: 22px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+}
+
+.vision-card h3 {
+  margin: 10px 0 20px;
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+}
+
+.task-create,
+.calibration-controls,
+.review-form {
+  display: grid;
+  gap: 12px;
+}
+
+.task-create label,
+.calibration-controls label,
+.review-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.task-create input,
+.task-create select,
+.calibration-controls select,
+.calibration-controls textarea,
+.review-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 11px;
+  color: var(--ink);
+  background: #efebe3;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+}
+
+.task-create button,
+.calibration-controls > button:last-child,
+.review-form button {
+  min-height: 46px;
+  color: var(--paper);
+  font-weight: 700;
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius-control);
+}
+
+.task-list h3 {
+  margin-bottom: 12px;
+}
+
+.task-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px;
+  color: var(--ink-soft);
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+}
+
+.task-row.active,
+.task-row:hover {
+  color: var(--ink);
+  background: var(--accent-soft);
+  border-color: #b6d6ce;
+}
+
+.task-row span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.task-row small {
+  overflow: hidden;
+  font-family: "Cascadia Mono", monospace;
+  font-size: 0.62rem;
+  text-overflow: ellipsis;
+}
+
+.task-row em {
+  font-family: "Cascadia Mono", monospace;
+  font-size: 0.62rem;
+  font-style: normal;
+}
+
+.scene-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.75fr);
+  gap: 18px;
+}
+
+.video-stage {
+  position: relative;
+  min-height: 410px;
+  overflow: hidden;
+  background: #101a2b;
+  border-radius: 10px;
+}
+
+.video-stage video {
+  width: 100%;
+  height: 100%;
+  min-height: 410px;
+  object-fit: contain;
+}
+
+.video-stage svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.video-stage polyline {
+  fill: rgb(15 118 110 / 14%);
+  stroke: #5eead4;
+  stroke-width: 0.004;
+}
+
+.video-stage circle {
+  fill: #f59e0b;
+}
+
+.video-placeholder {
+  display: grid;
+  place-content: center;
+  min-height: 410px;
+  padding: 40px;
+  color: rgb(247 244 237 / 60%);
+  text-align: center;
+  line-height: 1.7;
+}
+
+.calibration-controls p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.calibration-controls textarea {
+  min-height: 230px;
+  font-family: "Cascadia Mono", monospace;
+  font-size: 0.72rem;
+  resize: vertical;
+}
+
+.review-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.review-summary span {
+  padding: 7px 10px;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  background: #efebe3;
+  border-radius: 999px;
+}
+
+.review-form {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: end;
+}
+
+.result-stage {
+  min-height: 620px;
+  box-shadow: var(--shadow-detail);
+}
+
+.result-header {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.result-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.result-tabs button {
+  min-height: 38px;
+  padding: 0 13px;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.result-tabs button.active {
+  color: var(--paper);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.plotly-panel {
+  width: 100%;
+  min-height: 420px;
+}
+
+.result-json {
+  max-height: 180px;
+  padding: 14px;
+  overflow: auto;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  background: #efebe3;
+  border-radius: var(--radius-control);
+}
+
 .page-heading {
   display: flex;
   gap: 32px;
@@ -904,6 +1203,19 @@ textarea:disabled {
     grid-template-columns: 180px minmax(0, 1fr);
   }
 
+  .vision-layout,
+  .scene-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vision-rail {
+    position: static;
+  }
+
+  .review-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .answer-inspector {
     display: none;
   }
@@ -986,6 +1298,20 @@ textarea:disabled {
   .answer-heading {
     display: grid;
     align-items: start;
+  }
+
+  .vision-heading,
+  .result-header {
+    display: grid;
+    align-items: start;
+  }
+
+  .vision-gate {
+    min-width: 0;
+  }
+
+  .review-form {
+    grid-template-columns: 1fr;
   }
 
   .answer-workspace {

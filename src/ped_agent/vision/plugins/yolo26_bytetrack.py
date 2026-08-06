@@ -6,7 +6,7 @@ from typing import Any
 from ped_agent.models.trajectory import TrajectoryData
 from ped_agent.vision.pipeline import VisionPipeline
 from ped_agent.vision.registry import VisionRegistry
-from ped_agent.vision.schemas import Detection, ROI
+from ped_agent.vision.schemas import ROI, Detection
 
 
 @VisionRegistry.register("yolo26_bytetrack")
@@ -37,4 +37,3 @@ class YOLO26ByteTrackBackend:
     @property
     def capabilities(self) -> set[str]:
         return {"detection", "tracking", "coordinate_transform"}
-
