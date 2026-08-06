@@ -12,7 +12,8 @@ _Current runtime boundary for contributors · 2026-08-06_
 | HTTP and SSE | `ped_agent_server.api` |
 | Verified answer graph | `ped_agent.agent.evidence_graph.EvidenceGraph` |
 | Runtime configuration | repository `.env` and `PED_AGENT_*__*` variables |
-| Knowledge runtime | `backend/src/ped_agent_server/` and `backend/storage/library/` |
+| Server and cross-module adapters | `backend/src/ped_agent_server/` — spans API/SSE, Run lifecycle, retrieval, model, external search, and observability adapters |
+| Knowledge-library storage | `backend/storage/library/` — runtime-created, Git-ignored local assets |
 | Answer workspace | `frontend/src/views/AnswerView.vue` |
 
 ## ⚠️ Legacy scaffold

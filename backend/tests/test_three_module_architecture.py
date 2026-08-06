@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 README = ROOT / "README.md"
 LEGACY_MAP = ROOT / "docs" / "legacy-scaffold.md"
@@ -24,6 +23,33 @@ HISTORICAL_DOCUMENTS = {
 }
 CANONICAL_SPEC_FILENAME = (
     "2026-08-06-ped-agent-three-module-architecture-design.md"
+)
+ACTIVE_RUNTIME_HEADING = "## 📋 Active runtime"
+LEGACY_SCAFFOLD_HEADING = "## ⚠️ Legacy scaffold"
+SHARED_CODE_HEADING = "## 🔗 Shared code that remains active"
+ACTIVE_RUNTIME_ROWS = (
+    "| CLI and server startup | `ped_agent_server.cli` |",
+    (
+        "| Verified answer graph | "
+        "`ped_agent.agent.evidence_graph.EvidenceGraph` |"
+    ),
+    (
+        "| Server and cross-module adapters | `backend/src/ped_agent_server/` — "
+        "spans API/SSE, Run lifecycle, retrieval, model, external search, and "
+        "observability adapters |"
+    ),
+    (
+        "| Knowledge-library storage | `backend/storage/library/` — "
+        "runtime-created, Git-ignored local assets |"
+    ),
+)
+LEGACY_SCAFFOLD_ROWS = (
+    "| `src/ped_agent/main.py` | Early OmegaConf CLI; not the server entrypoint |",
+    "| `src/ped_agent/agent/graph.py` | Generic routing prototype |",
+)
+SHARED_CODE_ENTRIES = (
+    "- `src/ped_agent/agent/contracts.py`",
+    "- `src/ped_agent/agent/policy.py`",
 )
 
 
@@ -64,14 +90,36 @@ def test_readme_links_an_explicit_legacy_code_map() -> None:
     legacy_map_text = LEGACY_MAP.read_text(encoding="utf-8")
     readme_text = README.read_text(encoding="utf-8")
 
-    for expected_reference in (
-        "ped_agent_server.cli",
-        "EvidenceGraph",
-        "src/ped_agent/main.py",
-        "src/ped_agent/agent/graph.py",
+    for heading in (
+        ACTIVE_RUNTIME_HEADING,
+        LEGACY_SCAFFOLD_HEADING,
+        SHARED_CODE_HEADING,
     ):
-        assert expected_reference in legacy_map_text, (
-            f"legacy code map is missing reference: {expected_reference}"
+        heading_count = legacy_map_text.count(heading)
+        assert heading_count == 1, (
+            f"legacy code map must contain exactly one {heading!r} heading; "
+            f"found {heading_count}"
+        )
+
+    active_tail = legacy_map_text.split(ACTIVE_RUNTIME_HEADING, maxsplit=1)[1]
+    active_section, legacy_tail = active_tail.split(
+        LEGACY_SCAFFOLD_HEADING, maxsplit=1
+    )
+    legacy_section, shared_section = legacy_tail.split(
+        SHARED_CODE_HEADING, maxsplit=1
+    )
+
+    for expected_row in ACTIVE_RUNTIME_ROWS:
+        assert expected_row in active_section, (
+            f"active runtime section is missing exact row: {expected_row}"
+        )
+    for expected_row in LEGACY_SCAFFOLD_ROWS:
+        assert expected_row in legacy_section, (
+            f"legacy scaffold section is missing exact row: {expected_row}"
+        )
+    for expected_entry in SHARED_CODE_ENTRIES:
+        assert expected_entry in shared_section, (
+            f"shared active-code section is missing entry: {expected_entry}"
         )
 
     legacy_map_target = LEGACY_MAP.relative_to(ROOT).as_posix()
