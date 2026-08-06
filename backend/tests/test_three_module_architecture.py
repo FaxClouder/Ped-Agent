@@ -126,3 +126,12 @@ def test_readme_links_an_explicit_legacy_code_map() -> None:
     assert f"]({legacy_map_target})" in readme_text, (
         f"README is missing legacy code map link target: {legacy_map_target}"
     )
+
+
+def test_changelog_records_three_module_alignment() -> None:
+    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "## Unreleased" in text, "CHANGELOG is missing an Unreleased section"
+    for module_name in MODULE_NAMES:
+        assert module_name in text, (
+            f"CHANGELOG is missing aligned module: {module_name}"
+        )
