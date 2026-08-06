@@ -1,3 +1,10 @@
+"""Legacy Phase 1 scaffold CLI.
+
+The authoritative application CLI and server runtime live in ped_agent_server.
+Verified answers are executed by EvidenceGraph through the server Run lifecycle.
+This module remains only for scaffold compatibility and unit tests.
+"""
+
 from __future__ import annotations
 
 import argparse

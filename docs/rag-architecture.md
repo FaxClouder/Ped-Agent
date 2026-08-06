@@ -1,5 +1,9 @@
 # 行人流问答智能体 RAG 方案详细设计
 
+> **Status: historical reference.** This document preserves the broad RAG research proposal.
+> Canonical module boundary:
+> [Ped-Agent 三模块总体架构设计](superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md).
+
 ## 研究背景
 
 基于对主流开源 RAG 项目、Agent 框架、学术文献系统的调研，本文档提供生产级 RAG 架构设计。

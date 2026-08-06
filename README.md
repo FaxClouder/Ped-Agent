@@ -1,21 +1,35 @@
 # Ped-Agent
 
-Ped-Agent is a local-first, evidence-bound research agent for pedestrian-flow literature,
-regulations, experiments, scenario analysis, and optional video-to-trajectory extraction.
+Ped-Agent is a local-first, evidence-bound research agent for pedestrian-flow research.
 
-The repository now contains two Python distributions:
+The project has three foundation modules:
 
-- `ped-agent-core` / `ped_agent`: graph, schemas, policies and protocols
-- `ped-agent-server` / `ped_agent_server`: FastAPI, SQLite, retrieval, model and search adapters
-- Vue 3 knowledge-library and verified evidence-QA workspaces
-- Deterministic LangGraph with FTS5 + Chroma retrieval, conditional external search,
-  citation rules, semantic verification and one revision
-- Pydantic data models for literature, scenario, and trajectory data
-- Module boundaries for RAG, analysis, experiment evaluation, vision plugins, and evals
-- Pytest smoke tests for the scaffold
-- Optional redacted LangSmith tracing for local runs
-- End-to-end mixed-flow video trajectory workbench with immutable pixel/world artifacts,
-  review patches, calibration quality gates, Plotly exploration and publication figures
+1. **知识与证据底座** — governed literature, regulations, and formal evidence, with
+   Catalog, Vault, FTS5, Chroma, and retrieval evaluation.
+2. **检测追踪与流动分析** — video or trajectory processing, detection, tracking,
+   calibration, review, density, speed, flow, and OD analysis.
+3. **LLM 问答与会话** — conversations, deterministic evidence orchestration, structured
+   generation, citation validation, semantic verification, and SSE.
+
+Literature QA, trajectory analysis, scenario diagnosis, safety assessment, and experiment
+support are applications that combine these modules, not independent foundations. See the
+[approved three-module architecture specification](docs/superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md)
+for the canonical boundaries.
+
+Contributors should also read the
+[active and legacy code map](docs/legacy-scaffold.md) before changing entrypoints,
+configuration, retrieval, or Agent routing.
+
+The repository preserves two Python distributions:
+
+- `ped-agent-core` / `ped_agent`: shared contracts, policies, evidence graph, analysis,
+  vision interfaces, and domain models
+- `ped-agent-server` / `ped_agent_server`: FastAPI, SQLite, retrieval, model,
+  external-search, observability, and CLI adapters
+
+The current detection-and-flow delivery includes an end-to-end mixed-flow trajectory
+workbench with immutable pixel/world artifacts, review patches, calibration quality gates,
+Plotly exploration, and publication figures.
 
 ## Quick Start
 

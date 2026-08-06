@@ -1,5 +1,10 @@
 # 实验评估模块详细设计
 
+> **Status: derived application design.** Experiment support combines
+> “知识与证据底座” and “LLM 问答与会话”; it is not a fourth foundation module.
+> Canonical module boundary:
+> [Ped-Agent 三模块总体架构设计](superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md).
+
 ## 一、模块概述
 
 实验评估模块负责对行人流研究的实验方案进行系统化评估，包括：
