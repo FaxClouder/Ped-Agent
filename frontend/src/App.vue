@@ -48,25 +48,37 @@ const researchApplications = [
       <nav class="primary-nav" aria-label="Ped-Agent 功能导航">
         <section class="nav-group" aria-label="基础模块">
           <p class="nav-group-title">基础模块</p>
-          <RouterLink
-            v-for="item in moduleNavigation"
-            :key="item.key"
-            :to="item.route || '#'"
-            :data-module="item.key"
-            :data-route="item.routeName"
-            :class="['nav-item', { disabled: !item.route }]"
-            active-class="active"
-            :aria-disabled="!item.route"
-            :tabindex="item.route ? 0 : -1"
-            @click="!item.route && $event.preventDefault()"
-          >
-            <span class="nav-index">{{ item.index }}</span>
-            <span class="nav-copy">
-              <strong>{{ item.name }}</strong>
-              <small>{{ item.description }}</small>
-            </span>
-            <span class="nav-stage">{{ item.stage }}</span>
-          </RouterLink>
+          <template v-for="item in moduleNavigation" :key="item.key">
+            <RouterLink
+              v-if="item.route"
+              :to="item.route"
+              :data-module="item.key"
+              :data-route="item.routeName"
+              class="nav-item"
+              active-class="active"
+            >
+              <span class="nav-index">{{ item.index }}</span>
+              <span class="nav-copy">
+                <strong>{{ item.name }}</strong>
+                <small>{{ item.description }}</small>
+              </span>
+              <span class="nav-stage">{{ item.stage }}</span>
+            </RouterLink>
+            <div
+              v-else
+              :data-module="item.key"
+              class="nav-item disabled"
+              role="link"
+              aria-disabled="true"
+            >
+              <span class="nav-index">{{ item.index }}</span>
+              <span class="nav-copy">
+                <strong>{{ item.name }}</strong>
+                <small>{{ item.description }}</small>
+              </span>
+              <span class="nav-stage">{{ item.stage }}</span>
+            </div>
+          </template>
         </section>
 
         <section class="nav-group application-group" aria-label="研究应用">
@@ -76,6 +88,7 @@ const researchApplications = [
             :key="item.name"
             class="nav-item application-item disabled"
             data-application
+            role="link"
             aria-disabled="true"
           >
             <span class="nav-index">—</span>
