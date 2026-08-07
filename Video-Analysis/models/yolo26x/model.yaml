@@ -1,0 +1,32 @@
+model_id: mixed-flow-yolo26-bytetrack
+name: Mixed-flow YOLO26 detector
+version: "1.0.0"
+backend: ultralytics
+weights_path: weights/yolo26x.pt
+sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+input_size: 1280
+class_map:
+  0: pedestrian
+  1: pedestrian_umbrella
+  2: bicycle_rider
+  3: ebike_rider
+keypoint_names:
+  - left_foot
+  - right_foot
+  - front_wheel
+  - rear_wheel
+contact_keypoints:
+  pedestrian: [left_foot, right_foot]
+  pedestrian_umbrella: [left_foot, right_foot]
+  bicycle_rider: [front_wheel, rear_wheel]
+  ebike_rider: [front_wheel, rear_wheel]
+inference:
+  batch: 1
+  frame_stride: 1
+  detection_confidence: 0.10
+  nms_iou: 0.65
+  max_detections: 1000
+  keypoint_confidence: 0.35
+  device: auto
+  cuda_precision: fp16
+  cpu_precision: fp32

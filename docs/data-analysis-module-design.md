@@ -4,6 +4,8 @@
 > current code remains an engineering foundation under “检测追踪与流动分析”.
 > Canonical module boundary:
 > [Ped-Agent 三模块总体架构设计](superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md).
+> Runtime configuration is now unified on the repository-root `.env`; any YAML configuration
+> examples below are historical design sketches rather than active inputs.
 
 ## 一、模块概述
 
@@ -791,7 +793,7 @@ detections = results[0].boxes  # xyxy, conf, cls
 ### 8.3 配置示例
 
 ```yaml
-# config/vision.yaml
+# Video-Analysis/src/ped_video_analysis/configs/analysis/default.yaml
 vision:
   enabled: true
   detector:
@@ -886,7 +888,7 @@ def compute_los(density: float) -> str:
 ## 十、模块文件结构总结
 
 ```
-src/ped_agent/analysis/
+Video-Analysis/src/ped_video_analysis/analysis/
 ├── __init__.py
 ├── pipeline.py              # AnalysisPipeline 主编排
 ├── metrics.py               # 密度/速度/流量计算

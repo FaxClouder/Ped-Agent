@@ -31,9 +31,6 @@ def clear_agent_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "PED_AGENT_LANGSMITH__PROJECT",
         "PED_AGENT_LANGSMITH__SAMPLING_RATE",
         "PED_AGENT_LANGSMITH__CONTENT_POLICY",
-        "OPENAI_API_KEY",
-        "ANTHROPIC_API_KEY",
-        "LANGSMITH_API_KEY",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -59,7 +56,47 @@ def test_settings_load_nested_roles_and_mask_secrets(monkeypatch: pytest.MonkeyP
     assert "embedding-secret" not in rendered
 
 
-def test_settings_accept_legacy_provider_key(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_settings_load_scoped_values_from_env_file(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    clear_agent_env(monkeypatch)
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "PED_AGENT_ANSWER__MODEL=deepseek-file\n"
+        "PED_AGENT_ANSWER__API_KEY=answer-file-secret\n"
+        "PED_AGENT_VERIFY__ENABLED=false\n"
+        "PED_AGENT_EMBEDDING__MODEL=embedding-file\n"
+        "PED_AGENT_EMBEDDING__API_KEY=embedding-file-secret\n",
+        encoding="utf-8",
+    )
+
+    settings = load_settings(env_file)
+
+    assert settings.answer.model == "deepseek-file"
+    assert settings.answer.api_key.get_secret_value() == "answer-file-secret"
+    assert settings.embedding.model == "embedding-file"
+    assert settings.embedding.api_key.get_secret_value() == "embedding-file-secret"
+
+
+def test_runtime_storage_defaults_point_to_memped(monkeypatch: pytest.MonkeyPatch) -> None:
+    clear_agent_env(monkeypatch)
+    monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-test")
+    monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
+    monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
+
+    settings = load_settings(env_file=None)
+
+    assert settings.runtime.agent_db_path.as_posix() == (
+        "memPed/conversations/conversations.sqlite3"
+    )
+    assert settings.runtime.chroma_path.as_posix() == "memPed/knowledge/vectors"
+
+
+def test_settings_reject_unscoped_legacy_provider_keys(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     clear_agent_env(monkeypatch)
     monkeypatch.setenv("PED_AGENT_ANSWER__PROTOCOL", "anthropic")
     monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "claude-sonnet-4-20250514")
@@ -68,12 +105,8 @@ def test_settings_accept_legacy_provider_key(monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "text-embedding-3-small")
     monkeypatch.setenv("OPENAI_API_KEY", "legacy-embedding-secret")
 
-    settings = load_settings(env_file=None)
-
-    assert settings.answer.api_key is not None
-    assert settings.answer.api_key.get_secret_value() == "legacy-secret"
-    assert settings.embedding.api_key is not None
-    assert settings.embedding.api_key.get_secret_value() == "legacy-embedding-secret"
+    with pytest.raises(ValueError, match="answer API key"):
+        load_settings(env_file=None)
 
 
 def test_settings_reject_missing_required_agent_credentials(

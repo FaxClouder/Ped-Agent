@@ -110,7 +110,7 @@ def test_import_preflight_failure_does_not_create_library_storage(tmp_path: Path
     with pytest.raises(ManifestPreflightError):
         ImportService(paths).import_manifest(manifest)
 
-    assert not paths.library_root.exists()
+    assert not paths.memped_root.exists()
 
 
 def test_cli_exposes_library_command_group() -> None:

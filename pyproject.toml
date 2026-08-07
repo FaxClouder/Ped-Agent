@@ -19,7 +19,6 @@ dependencies = [
   "plotly>=5.20",
   "matplotlib>=3.8",
   "python-dotenv>=1.0",
-  "omegaconf>=2.3",
   "langgraph>=1.0",
   "langchain>=1.0",
   "langchain-core>=1.0",
@@ -53,20 +52,20 @@ dev = [
 ]
 
 [project.entry-points."ped_agent.vision"]
-yolo26_bytetrack = "ped_agent.vision.plugins.yolo26_bytetrack:YOLO26ByteTrackBackend"
-yolo26_deepsort = "ped_agent.vision.plugins.yolo26_deepsort:YOLO26DeepSORTBackend"
+yolo26_bytetrack = "ped_video_analysis.vision.plugins.yolo26_bytetrack:YOLO26ByteTrackBackend"
+yolo26_deepsort = "ped_video_analysis.vision.plugins.yolo26_deepsort:YOLO26DeepSORTBackend"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ped_agent"]
+packages = ["src/ped_agent", "Video-Analysis/src/ped_video_analysis"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["src"]
+testpaths = ["tests", "Video-Analysis/tests"]
+pythonpath = ["src", "Video-Analysis/src"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-src = ["src", "tests"]
+src = ["src", "tests", "Video-Analysis/src", "Video-Analysis/tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -74,6 +73,7 @@ ignore = ["B008"]
 
 [tool.mypy]
 python_version = "3.12"
-packages = ["ped_agent"]
+packages = ["ped_agent", "ped_video_analysis"]
+mypy_path = ["src", "Video-Analysis/src"]
 ignore_missing_imports = true
 strict = false

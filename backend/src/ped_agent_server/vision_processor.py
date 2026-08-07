@@ -7,27 +7,27 @@ from pathlib import Path
 from typing import Protocol
 
 import numpy as np
-from ped_agent.analysis.vision_exports import export_analysis_bundle
-from ped_agent.analysis.vision_pipeline import AnalysisProfile, analyze_world_tracks
-from ped_agent.analysis.vision_schemas import AnalysisBundle, FigureArtifact
-from ped_agent.analysis.vision_visualizer import render_analysis_figures
-from ped_agent.vision.adapters import (
+from ped_video_analysis.analysis.vision_exports import export_analysis_bundle
+from ped_video_analysis.analysis.vision_pipeline import AnalysisProfile, analyze_world_tracks
+from ped_video_analysis.analysis.vision_schemas import AnalysisBundle, FigureArtifact
+from ped_video_analysis.analysis.vision_visualizer import render_analysis_figures
+from ped_video_analysis.vision.adapters import (
     BoxMotByteTrackAdapter,
     OpenCVFrameSequence,
     UltralyticsDetector,
 )
-from ped_agent.vision.artifacts import PixelTrackParquetStore, WorldTrackParquetStore
-from ped_agent.vision.calibration import FullCameraCalibration, HomographyCalibration
-from ped_agent.vision.contracts import (
+from ped_video_analysis.vision.artifacts import PixelTrackParquetStore, WorldTrackParquetStore
+from ped_video_analysis.vision.calibration import FullCameraCalibration, HomographyCalibration
+from ped_video_analysis.vision.contracts import (
     CalibrationMode,
     CalibrationReport,
     ModelManifest,
     PixelTrackSet,
 )
-from ped_agent.vision.model_registry import ModelManifestRegistry
-from ped_agent.vision.postprocessing import PostprocessProfile, postprocess_world_tracks
-from ped_agent.vision.projection import project_reviewed_tracks
-from ped_agent.vision.runner import VisionInferenceRunner
+from ped_video_analysis.vision.model_registry import ModelManifestRegistry
+from ped_video_analysis.vision.postprocessing import PostprocessProfile, postprocess_world_tracks
+from ped_video_analysis.vision.projection import project_reviewed_tracks
+from ped_video_analysis.vision.runner import VisionInferenceRunner
 
 from ped_agent_server.scene_registry import SceneProfileRegistry
 from ped_agent_server.vision_repository import VisionRepository

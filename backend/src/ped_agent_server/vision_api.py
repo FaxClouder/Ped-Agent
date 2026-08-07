@@ -11,8 +11,8 @@ from uuid import uuid4
 import numpy as np
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile, status
 from fastapi.responses import StreamingResponse
-from ped_agent.vision.artifacts import PixelTrackParquetStore
-from ped_agent.vision.calibration import (
+from ped_video_analysis.vision.artifacts import PixelTrackParquetStore
+from ped_video_analysis.vision.calibration import (
     CalibrationPoint,
     CharucoBoardSpec,
     FullCameraCalibration,
@@ -20,14 +20,14 @@ from ped_agent.vision.calibration import (
     calibrate_charuco_images,
     solve_homography,
 )
-from ped_agent.vision.contracts import (
+from ped_video_analysis.vision.contracts import (
     CalibrationMode,
     CalibrationReport,
     SceneProfile,
     VideoTaskSpec,
 )
-from ped_agent.vision.model_registry import ModelManifestRegistry
-from ped_agent.vision.review import ReviewPatch, apply_review_patch
+from ped_video_analysis.vision.model_registry import ModelManifestRegistry
+from ped_video_analysis.vision.review import ReviewPatch, apply_review_patch
 from pydantic import BaseModel, Field
 
 from ped_agent_server.scene_registry import SceneProfileRegistry

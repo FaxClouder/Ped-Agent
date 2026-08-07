@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ped_agent.vision.contracts import SceneProfile
+from ped_video_analysis.vision.contracts import SceneProfile
 
 
 class SceneProfileRegistry:

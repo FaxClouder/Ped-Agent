@@ -6,7 +6,7 @@ from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
 
-from ped_agent.vision.contracts import VideoTaskSpec
+from ped_video_analysis.vision.contracts import VideoTaskSpec
 
 VISION_STATUSES = (
     "uploaded",

@@ -5,11 +5,12 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-RESEARCH = ROOT / "research"
+MEMPED = ROOT / "memPed"
+KNOWLEDGE = MEMPED / "knowledge"
 
 
 EXPECTED_CSV_HEADERS = {
-    "sources/literature/search_log.csv": [
+    "literature/records/search_log.csv": [
         "search_id",
         "searched_at",
         "database",
@@ -21,7 +22,7 @@ EXPECTED_CSV_HEADERS = {
         "operator",
         "notes",
     ],
-    "sources/literature/candidates.csv": [
+    "literature/records/candidates.csv": [
         "candidate_id",
         "resource_id",
         "doi",
@@ -38,7 +39,7 @@ EXPECTED_CSV_HEADERS = {
         "screening_status",
         "notes",
     ],
-    "sources/literature/journal_metrics.csv": [
+    "literature/records/journal_metrics.csv": [
         "venue",
         "issn",
         "jci_value",
@@ -52,7 +53,7 @@ EXPECTED_CSV_HEADERS = {
         "verified_at",
         "verified_by",
     ],
-    "sources/literature/citation_snapshots.csv": [
+    "literature/records/citation_snapshots.csv": [
         "resource_id",
         "doi",
         "citation_count",
@@ -61,7 +62,7 @@ EXPECTED_CSV_HEADERS = {
         "meets_age_threshold",
         "notes",
     ],
-    "sources/literature/exclusions.csv": [
+    "literature/records/exclusions.csv": [
         "resource_id",
         "doi",
         "screening_stage",
@@ -70,7 +71,7 @@ EXPECTED_CSV_HEADERS = {
         "decided_at",
         "decided_by",
     ],
-    "sources/regulations/source_checks.csv": [
+    "regulations/records/source_checks.csv": [
         "resource_id",
         "document_number",
         "title",
@@ -83,7 +84,7 @@ EXPECTED_CSV_HEADERS = {
         "accessed_date",
         "verified_by",
     ],
-    "sources/regulations/version_history.csv": [
+    "regulations/records/version_history.csv": [
         "resource_id",
         "document_number",
         "version_id",
@@ -94,7 +95,7 @@ EXPECTED_CSV_HEADERS = {
         "status",
         "notes",
     ],
-    "sources/regulations/exclusions.csv": [
+    "regulations/records/exclusions.csv": [
         "resource_id",
         "document_number",
         "screening_stage",
@@ -103,7 +104,7 @@ EXPECTED_CSV_HEADERS = {
         "decided_at",
         "decided_by",
     ],
-    "screening/literature_screening.csv": [
+    "literature/records/screening.csv": [
         "resource_id",
         "doi",
         "title_screen",
@@ -120,7 +121,7 @@ EXPECTED_CSV_HEADERS = {
         "reviewed_at",
         "reviewed_by",
     ],
-    "screening/literature_exceptions.csv": [
+    "literature/records/exceptions.csv": [
         "resource_id",
         "doi",
         "failed_rule",
@@ -130,7 +131,7 @@ EXPECTED_CSV_HEADERS = {
         "approved_at",
         "decision",
     ],
-    "screening/regulation_screening.csv": [
+    "regulations/records/screening.csv": [
         "resource_id",
         "document_number",
         "official_source_verified",
@@ -146,45 +147,41 @@ EXPECTED_CSV_HEADERS = {
 }
 
 
-def test_research_policies_and_empty_manifests_exist() -> None:
+def test_memped_knowledge_records_and_empty_manifests_exist() -> None:
     expected = [
-        "README.md",
-        "policies/collection_standard.md",
-        "policies/taxonomy.yaml",
-        "policies/quotas.yaml",
-        "policies/literature_quality_rules.yaml",
-        "manifests/README.md",
-        "manifests/literature/pilot.jsonl",
-        "manifests/literature/core.jsonl",
-        "manifests/regulations/pilot.jsonl",
-        "manifests/regulations/core.jsonl",
-        "experiments/README.md",
-        "experiments/pilot_config.json",
-        "experiments/core_config.json",
-        "experiments/pilot_gold.jsonl",
-        "experiments/core_gold.jsonl",
+        "collection_standard.md",
+        "taxonomy.yaml",
+        "quotas.yaml",
+        "literature_quality_rules.yaml",
+        "literature/records/pilot_manifest.jsonl",
+        "literature/records/core_manifest.jsonl",
+        "regulations/records/pilot_manifest.jsonl",
+        "regulations/records/core_manifest.jsonl",
+        "pilot_config.json",
+        "core_config.json",
+        "pilot_gold.jsonl",
+        "core_gold.jsonl",
     ]
 
+    assert (MEMPED / "README.md").is_file()
     for relative_path in expected:
-        assert (RESEARCH / relative_path).is_file(), relative_path
-    for relative_path in expected[6:10]:
-        assert not (RESEARCH / relative_path).read_text(encoding="utf-8").strip()
-    for relative_path in expected[-2:]:
-        assert not (RESEARCH / relative_path).read_text(encoding="utf-8").strip()
+        assert (KNOWLEDGE / relative_path).is_file(), relative_path
+    for relative_path in expected[4:8] + expected[-2:]:
+        assert not (KNOWLEDGE / relative_path).read_text(encoding="utf-8").strip()
 
 
-def test_research_csv_templates_have_stable_headers() -> None:
+def test_memped_csv_templates_have_stable_headers() -> None:
     for relative_path, expected_header in EXPECTED_CSV_HEADERS.items():
-        with (RESEARCH / relative_path).open(encoding="utf-8-sig", newline="") as handle:
+        with (KNOWLEDGE / relative_path).open(encoding="utf-8-sig", newline="") as handle:
             actual_header = next(csv.reader(handle))
         assert actual_header == expected_header, relative_path
 
 
 def test_quality_policy_contains_machine_enforced_thresholds() -> None:
-    quality_rules = (RESEARCH / "policies/literature_quality_rules.yaml").read_text(
+    quality_rules = (KNOWLEDGE / "literature_quality_rules.yaml").read_text(
         encoding="utf-8"
     )
-    quotas = (RESEARCH / "policies/quotas.yaml").read_text(encoding="utf-8")
+    quotas = (KNOWLEDGE / "quotas.yaml").read_text(encoding="utf-8")
 
     assert "minimum_jci: 1.0" in quality_rules
     assert "maximum_cas_zone: 2" in quality_rules
@@ -201,10 +198,10 @@ def test_quality_policy_contains_machine_enforced_thresholds() -> None:
 
 def test_retrieval_evaluation_configs_preserve_acceptance_thresholds() -> None:
     pilot = json.loads(
-        (RESEARCH / "experiments/pilot_config.json").read_text(encoding="utf-8")
+        (KNOWLEDGE / "pilot_config.json").read_text(encoding="utf-8")
     )
     core = json.loads(
-        (RESEARCH / "experiments/core_config.json").read_text(encoding="utf-8")
+        (KNOWLEDGE / "core_config.json").read_text(encoding="utf-8")
     )
 
     assert pilot == {
@@ -218,3 +215,10 @@ def test_retrieval_evaluation_configs_preserve_acceptance_thresholds() -> None:
     assert core["question_count"] == 100
     assert core["minimum_recall_at_k"] == 0.8
     assert core["maximum_non_official_leakage"] == 0.0
+
+
+def test_memped_data_root_contains_no_python_business_code() -> None:
+    code_suffixes = {".py", ".ps1", ".sh", ".bat", ".cmd", ".js", ".ts"}
+    assert not [
+        path for path in MEMPED.rglob("*") if path.is_file() and path.suffix in code_suffixes
+    ]

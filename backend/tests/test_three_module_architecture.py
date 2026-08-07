@@ -39,12 +39,15 @@ ACTIVE_RUNTIME_ROWS = (
         "observability adapters |"
     ),
     (
-        "| Knowledge-library storage | `backend/storage/library/` — "
-        "runtime-created, Git-ignored local assets |"
+        "| memPed data root | `memPed/` — governed knowledge, conversation, "
+        "and reviewed-method data assets |"
     ),
 )
 LEGACY_SCAFFOLD_ROWS = (
-    "| `src/ped_agent/main.py` | Early OmegaConf CLI; not the server entrypoint |",
+    (
+        "| `src/ped_agent/main.py` | Early compatibility CLI; reads the root "
+        "`.env`, but is not the server entrypoint |"
+    ),
     "| `src/ped_agent/agent/graph.py` | Generic routing prototype |",
 )
 SHARED_CODE_ENTRIES = (

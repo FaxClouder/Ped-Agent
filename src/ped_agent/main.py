@@ -1,8 +1,8 @@
-"""Legacy Phase 1 scaffold CLI.
+"""Legacy Phase 1 compatibility CLI.
 
 The authoritative application CLI and server runtime live in ped_agent_server.
 Verified answers are executed by EvidenceGraph through the server Run lifecycle.
-This module remains only for scaffold compatibility and unit tests.
+This module remains only for scaffold compatibility and reads the repository .env.
 """
 
 from __future__ import annotations
@@ -12,8 +12,7 @@ import sys
 from collections.abc import Sequence
 
 from ped_agent.agent.graph import build_agent_graph
-from ped_agent.utils.config import ConfigManager, validate_config
-from ped_agent.utils.langsmith import configure_langsmith
+from ped_agent.utils.config import load_project_env
 from ped_agent.utils.logging import configure_logging, get_logger
 
 logger = get_logger(__name__)
@@ -22,50 +21,19 @@ logger = get_logger(__name__)
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the Ped-Agent scaffold.")
     parser.add_argument("query", nargs="?", help="Question or task to route through the agent.")
-    parser.add_argument(
-        "--config-dir",
-        default="config",
-        help="Directory containing Ped-Agent YAML configuration files.",
-    )
-    parser.add_argument(
-        "--env-file",
-        default=".env",
-        help="Environment file to load before configuration resolution.",
-    )
-    parser.add_argument(
-        "--strict-secrets",
-        action="store_true",
-        help="Fail validation when configured providers are missing API keys.",
-    )
-    parser.add_argument("overrides", nargs="*", help="OmegaConf-style config overrides.")
-    args, unknown = parser.parse_known_args(argv)
-    args.overrides = [*args.overrides, *unknown]
-    return args
+    return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
-    config = ConfigManager().load(
-        config_dir=args.config_dir,
-        env_file=args.env_file,
-        overrides=args.overrides,
-    )
-    configure_langsmith(config)
-    configure_logging(config)
-
-    validation = validate_config(config, require_secrets=args.strict_secrets)
-    for warning in validation.warnings:
-        logger.warning(warning)
-    if not validation.valid:
-        for error in validation.errors:
-            logger.error(error)
-        return 1
+    load_project_env()
+    configure_logging()
 
     if not args.query:
         logger.info("Ped-Agent scaffold is ready. Pass a query to exercise the routing graph.")
         return 0
 
-    graph = build_agent_graph(config)
+    graph = build_agent_graph()
     result = graph.invoke({"query": args.query})
     print(result.get("answer") or result.get("result") or result)
     return 0

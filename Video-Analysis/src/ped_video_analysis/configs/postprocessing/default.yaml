@@ -1,0 +1,5 @@
+max_interpolation_gap_seconds: 0.4
+smoothing_window_seconds: 0.4
+smoothing_polynomial_order: 2
+hampel_window_points: 5
+hampel_sigma: 3.0

@@ -1,0 +1,9 @@
+time_window_seconds: 1.0
+speed_difference_window_seconds: 0.4
+spatial_grid_metres: 0.25
+kde_bandwidth_metres: 0.50
+stop_speed_metres_per_second: 0.10
+stop_minimum_duration_seconds: 1.0
+interaction_radius_metres: 5.0
+ttc_horizon_seconds: 5.0
+minimum_track_duration_seconds: 2.0

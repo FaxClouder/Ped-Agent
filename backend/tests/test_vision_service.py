@@ -4,7 +4,7 @@ import asyncio
 from pathlib import Path
 
 import pytest
-from ped_agent.vision.contracts import VideoTaskSpec
+from ped_video_analysis.vision.contracts import VideoTaskSpec
 
 from ped_agent_server.vision_repository import VisionRepository
 from ped_agent_server.vision_service import VisionTaskService

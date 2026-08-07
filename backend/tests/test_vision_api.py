@@ -5,9 +5,9 @@ import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from ped_agent.vision.artifacts import PixelTrackParquetStore
-from ped_agent.vision.calibration import CameraIntrinsics
-from ped_agent.vision.contracts import (
+from ped_video_analysis.vision.artifacts import PixelTrackParquetStore
+from ped_video_analysis.vision.calibration import CameraIntrinsics
+from ped_video_analysis.vision.contracts import (
     CalibrationMode,
     ContactPointQuality,
     ModelManifest,
@@ -17,8 +17,8 @@ from ped_agent.vision.contracts import (
     SemanticClass,
     VideoMetadata,
 )
-from ped_agent.vision.inference import TrackAssignment, assemble_pixel_tracks
-from ped_agent.vision.model_registry import ModelManifestRegistry
+from ped_video_analysis.vision.inference import TrackAssignment, assemble_pixel_tracks
+from ped_video_analysis.vision.model_registry import ModelManifestRegistry
 
 import ped_agent_server.vision_api as vision_api_module
 from ped_agent_server.api import create_app
@@ -139,7 +139,7 @@ def prepare_review_task(
     source = tmp_path / "source.mp4"
     source.write_bytes(b"fake-video")
     stored_video = storage.ingest_video("review-task", source)
-    from ped_agent.vision.contracts import VideoTaskSpec
+    from ped_video_analysis.vision.contracts import VideoTaskSpec
 
     repository.create_task(
         task_id="review-task",

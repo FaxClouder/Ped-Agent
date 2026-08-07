@@ -1,0 +1,12 @@
+tracker_id: bytetrack
+name: ByteTrack
+version: "1.0.0"
+backend: bytetrack
+settings:
+  backend: bytetrack
+  high_threshold: 0.25
+  low_threshold: 0.10
+  new_track_threshold: 0.25
+  match_threshold: 0.80
+  lost_buffer_seconds: 1.2
+  fuse_score: true

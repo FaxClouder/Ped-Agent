@@ -32,7 +32,7 @@
 | 证据策略 | 本地正式证据优先，不足时单轮外搜 |
 | 输出策略 | 先规则校验和语义复核，再通过 SSE 呈现 |
 | 修订策略 | 只允许使用原 Evidence Pack 修订一次 |
-| 运行持久化 | 继续使用 `backend/storage/agent/agent.sqlite3` |
+| 运行持久化 | 使用 `memPed/conversations/conversations.sqlite3` |
 | LangGraph Checkpointer | 首版不引入，避免双重运行状态 |
 | LangSmith | 服务端 Observer，100% 采样，项目 `ped-agent-local` |
 | LangSmith 内容策略 | 允许当前问题和最终答案；禁止证据正文、历史消息和未验证内容 |

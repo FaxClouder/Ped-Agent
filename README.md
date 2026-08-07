@@ -20,10 +20,12 @@ Contributors should also read the
 [active and legacy code map](docs/legacy-scaffold.md) before changing entrypoints,
 configuration, retrieval, or Agent routing.
 
-The repository preserves two Python distributions:
+The repository exposes two Python package boundaries and one server distribution:
 
-- `ped-agent-core` / `ped_agent`: shared contracts, policies, evidence graph, analysis,
-  vision interfaces, and domain models
+- `ped-agent-core` / `ped_agent`: shared contracts, policies, evidence graph, compatibility
+  imports, and domain models
+- `Video-Analysis/` / `ped_video_analysis`: detector manifests, model-weight location,
+  detection/tracking, calibration, trajectory processing, flow analysis, and public APIs
 - `ped-agent-server` / `ped_agent_server`: FastAPI, SQLite, retrieval, model,
   external-search, observability, and CLI adapters
 
@@ -57,15 +59,19 @@ uv run --project backend ped-agent serve
 ```
 
 Open `http://127.0.0.1:8000/vision` through the Vue development server, or use the
-`/api/vision/*` resources directly. Put custom model manifests and weights under
-`backend/storage/vision/models/`; no model training or bundled weights are provided. The source
-video is copied into local task storage, while annotated result videos are intentionally never
-generated. See [`docs/vision-trajectory-workbench.md`](docs/vision-trajectory-workbench.md).
+`/api/vision/*` resources directly. Detector YAML files live under
+`Video-Analysis/src/ped_video_analysis/configs/detectors/`, while local model weights belong in
+`Video-Analysis/models/weights/`; no model training or bundled weights are provided. Runtime
+tasks and artifacts are stored under `Video-Analysis/runtime/`. Annotated result videos are
+intentionally never generated. See
+[`Video-Analysis/README.md`](Video-Analysis/README.md) and
+[`docs/vision-trajectory-workbench.md`](docs/vision-trajectory-workbench.md).
 
-The running `ped_agent_server` treats the repository-root `.env` file and process environment
-as its only authoritative configuration sources. Configuration changes require a restart, and
-embedding changes require `ped-agent agent rebuild-vector-index`; the legacy YAML files under
-`config/` are not server runtime inputs.
+The repository-root `.env` file and process environment are the only authoritative persisted
+configuration sources for `ped_agent_server` and repository scripts. All project variables use the
+`PED_AGENT_*__*` namespace; unscoped legacy key aliases are no longer accepted. Configuration
+changes require a restart, and embedding changes require
+`ped-agent agent rebuild-vector-index`.
 
 The first-version answer runtime uses `deepseek-v4-flash`, with `deepseek-v4-pro` for semantic
 verification. DeepSeek structured output is requested through LangChain `json_mode`. Every run
@@ -86,19 +92,19 @@ API, SSE, privacy boundary, and answer chain.
 
 ## Quality-Governed Knowledge Corpus
 
-The tracked governance records live under `research/`. They define the controlled
-pedestrian-flow and evacuation taxonomy, pilot/core quotas, JCI and CAS partition
-requirements, citation thresholds, screening records, and import-ready manifests.
+The repository now manages knowledge, conversation memory, and reviewed method memory under
+the data-only [`memPed/`](memPed/README.md) root. Literature and regulations keep separate
+files and governance records, while sharing the local Catalog and retrieval indexes.
 
-PDFs, parsed text, SQLite catalogs, and search indexes remain local under
-`backend/storage/library/` and must not be committed to GitHub. See
-`research/README.md` for the exact tracked/local boundary.
+Tracked quality rules, screening records, manifests, Gold Questions, and approved methods
+remain reproducible in Git. PDFs, SQLite databases, conversations, candidate methods, reports,
+and search indexes remain local through `.gitignore`.
 
 Validate a complete literature or regulation manifest before importing it:
 
 ```powershell
 uv run --project backend ped-agent library validate-manifest `
-  research/manifests/literature/pilot.jsonl `
+  memPed/knowledge/literature/records/pilot_manifest.jsonl `
   --phase pilot
 ```
 
@@ -110,7 +116,7 @@ and run the Gold Question acceptance gate:
 
 ```powershell
 uv run --project backend ped-agent evaluate `
-  research/experiments/pilot_gold.jsonl `
-  backend/storage/library/reports/pilot-evaluation.json `
-  --config research/experiments/pilot_config.json
+  memPed/knowledge/pilot_gold.jsonl `
+  memPed/knowledge/reports/pilot-evaluation.json `
+  --config memPed/knowledge/pilot_config.json
 ```

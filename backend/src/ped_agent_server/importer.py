@@ -33,7 +33,6 @@ class ImportService:
         self.paths.ensure_local_dirs()
         catalog = Catalog(self.paths.catalog_path)
         catalog.initialize()
-        vault = ContentVault(self.paths.objects_dir)
         imported = 0
         unchanged = 0
         failures: list[ImportFailure] = []
@@ -44,6 +43,9 @@ class ImportService:
                 unchanged += 1
                 continue
             try:
+                vault = ContentVault(
+                    self.paths.resource_files_dir(record.resource_type.value)
+                )
                 vault_path = vault.put(record.source_path, record.sha256)
                 chunks = parse_pdf(
                     vault_path,
@@ -54,7 +56,7 @@ class ImportService:
                 catalog.upsert_resource(
                     record,
                     version_id=version_id,
-                    vault_path=str(vault_path.relative_to(self.paths.library_root)),
+                    vault_path=str(vault_path.relative_to(self.paths.memped_root)),
                 )
                 catalog.replace_chunks(version_id, chunks)
                 imported += 1

@@ -6,11 +6,10 @@
 模块仍为 `ped_agent`；`backend` 发行包是 `ped-agent-server`，Python 模块为
 `ped_agent_server`，并提供仓库中唯一的 `ped-agent` CLI。
 
-运行中的 `ped_agent_server` 只把仓库根目录 `.env` 和进程环境（process environment）作为
-authoritative server config sources，使用 `PED_AGENT_*__*` 双下划线嵌套字段；
-`config/*.yaml` 是旧脚手架，
-不参与当前服务配置。配置修改后必须重启；Embedding 模型、Base URL 或维度变化后，
-还必须显式重建 Chroma。
+运行中的 `ped_agent_server` 和仓库脚本只把仓库根目录 `.env` 与进程环境
+（process environment）作为配置来源，统一使用 `PED_AGENT_*__*` 双下划线嵌套字段。
+旧 YAML 配置目录和无命名空间的 Key 别名已经移除。配置修改后必须重启；Embedding
+模型、Base URL 或维度变化后，还必须显式重建 Chroma。
 
 回答模型固定为 `deepseek-v4-flash`，语义复核模型固定为 `deepseek-v4-pro`。两者通过
 LangChain 直接接入，DeepSeek 结构化输出使用 `json_mode`，而不是默认 JSON Schema。
@@ -68,9 +67,11 @@ flowchart LR
 
 ## 本地存储
 
-- `backend/storage/library/`：现有 Catalog、FTS5、原文与派生物，不迁移表。
-- `backend/storage/agent/agent.sqlite3`：会话、消息、Run、SSE 事件、证据快照和引用。
-- `backend/storage/agent/chroma/`：可重建向量索引。
+- `memPed/knowledge/`：分开保存文献与法规原文/治理记录，共享 Catalog、FTS5 和向量索引。
+- `memPed/conversations/conversations.sqlite3`：会话、消息、Run、SSE 事件、证据快照和引用。
+- `memPed/methods/`：Agent 生成的候选方法与人工审核通过的方法；候选方法不进入正式检索。
+- `Video-Analysis/`：检测器 YAML、模型权重位置、视觉/分析函数和公共接口。
+- `Video-Analysis/runtime/`：视频任务、轨迹、场景、SQLite 和导出产物，保持在 memPed 之外并忽略 Git。
 
 SQLite 开启 WAL、外键与版本化迁移。每个会话只允许一个活动 Run，全局默认两个并发
 Run。SSE 断开不取消运行；服务启动会把遗留的 `queued/running` Run 标为 `interrupted`。

@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Literal
 
-from dotenv import dotenv_values
 from pydantic import BaseModel, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -60,8 +58,8 @@ class RuntimeSettings(BaseModel):
     host: str = "127.0.0.1"
     port: int = Field(default=8000, ge=1, le=65535)
     max_concurrent_runs: int = Field(default=2, ge=1)
-    agent_db_path: Path = Path("backend/storage/agent/agent.sqlite3")
-    chroma_path: Path = Path("backend/storage/agent/chroma")
+    agent_db_path: Path = Path("memPed/conversations/conversations.sqlite3")
+    chroma_path: Path = Path("memPed/knowledge/vectors")
     recent_message_limit: int = Field(default=6, ge=1)
 
 
@@ -133,45 +131,8 @@ class AgentSettings(BaseSettings):
 
 def load_settings(env_file: str | Path | None = ".env") -> AgentSettings:
     settings = AgentSettings(_env_file=env_file)
-    legacy = _legacy_values(env_file)
-
-    answer_key = settings.answer.api_key or _provider_key(settings.answer.protocol, legacy)
-    embedding_key = settings.embedding.api_key or _secret(legacy.get("OPENAI_API_KEY"))
-    langsmith_key = settings.langsmith.api_key or _secret(legacy.get("LANGSMITH_API_KEY"))
-
-    settings = settings.model_copy(
-        update={
-            "answer": settings.answer.model_copy(update={"api_key": answer_key}),
-            "embedding": settings.embedding.model_copy(update={"api_key": embedding_key}),
-            "langsmith": settings.langsmith.model_copy(update={"api_key": langsmith_key}),
-        }
-    )
     _validate_credentials(settings)
     return settings
-
-
-def _legacy_values(env_file: str | Path | None) -> dict[str, str | None]:
-    values: dict[str, str | None] = {
-        "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
-        "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
-        "LANGSMITH_API_KEY": os.getenv("LANGSMITH_API_KEY"),
-    }
-    if env_file is None:
-        return values
-
-    dotenv = dotenv_values(env_file)
-    for name, value in values.items():
-        values[name] = value or dotenv.get(name)
-    return values
-
-
-def _provider_key(protocol: ChatProtocol, values: dict[str, str | None]) -> SecretStr | None:
-    name = "ANTHROPIC_API_KEY" if protocol == "anthropic" else "OPENAI_API_KEY"
-    return _secret(values.get(name))
-
-
-def _secret(value: str | None) -> SecretStr | None:
-    return SecretStr(value) if value else None
 
 
 def _validate_credentials(settings: AgentSettings) -> None:

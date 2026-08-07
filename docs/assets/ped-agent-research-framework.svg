@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#17324D" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow-navy" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#17324D"/>
+    </marker>
+    <marker id="arrow-teal" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#168C8C"/>
+    </marker>
+    <marker id="arrow-gold" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#E9A23B"/>
+    </marker>
+    <style>
+      .font { font-family: "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; }
+      .title { font-size: 50px; font-weight: 750; fill: #17324D; }
+      .subtitle { font-size: 25px; font-weight: 500; fill: #5B6B78; letter-spacing: 1px; }
+      .column-title { font-size: 27px; font-weight: 700; fill: #17324D; }
+      .card-title { font-size: 25px; font-weight: 700; fill: #17324D; }
+      .card-copy { font-size: 21px; font-weight: 500; fill: #405564; }
+      .small { font-size: 18px; font-weight: 500; fill: #647581; }
+      .white { fill: #FFFFFF; }
+      .tag { font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#F7F5EF"/>
+  <g opacity="0.28" stroke="#D9E0E3" stroke-width="1">
+    <path d="M0 140H1920 M0 940H1920"/>
+    <path d="M380 170V880 M920 170V880 M1520 170V880" stroke-dasharray="5 10"/>
+  </g>
+
+  <g class="font">
+    <text x="70" y="78" class="title">Ped-Agent 研究框架</text>
+    <text x="72" y="122" class="subtitle">治理型证据问答  →  Flow-Grounded 场景诊断</text>
+
+    <g>
+      <rect x="60" y="176" width="300" height="58" rx="18" fill="#E7F3F2"/>
+      <text x="210" y="214" text-anchor="middle" class="column-title">研究数据源</text>
+
+      <rect x="400" y="176" width="500" height="58" rx="18" fill="#E7F3F2"/>
+      <text x="650" y="214" text-anchor="middle" class="column-title">证据加工层</text>
+
+      <rect x="940" y="176" width="560" height="58" rx="18" fill="#E7F3F2"/>
+      <text x="1220" y="214" text-anchor="middle" class="column-title">可验证 Agent</text>
+
+      <rect x="1540" y="176" width="320" height="58" rx="18" fill="#E7F3F2"/>
+      <text x="1700" y="214" text-anchor="middle" class="column-title">研究应用</text>
+    </g>
+
+    <!-- Data sources -->
+    <g filter="url(#shadow)">
+      <rect x="70" y="280" width="280" height="116" rx="22" fill="#FFFFFF" stroke="#53B7B2" stroke-width="3"/>
+      <circle cx="112" cy="338" r="24" fill="#168C8C"/>
+      <text x="112" y="346" text-anchor="middle" font-size="22" font-weight="700" class="white">K</text>
+      <text x="150" y="330" class="card-title">文献 / 法规 / 标准</text>
+      <text x="150" y="364" class="small">可追溯领域知识</text>
+
+      <rect x="70" y="444" width="280" height="116" rx="22" fill="#FFFFFF" stroke="#E9A23B" stroke-width="3"/>
+      <circle cx="112" cy="502" r="24" fill="#E9A23B"/>
+      <text x="112" y="510" text-anchor="middle" font-size="22" font-weight="700" class="white">T</text>
+      <text x="150" y="494" class="card-title">公开轨迹数据</text>
+      <text x="150" y="528" class="small">下一阶段主要输入</text>
+
+      <rect x="70" y="608" width="280" height="116" rx="22" fill="#EEF1F2" stroke="#B9C2C7" stroke-width="3" stroke-dasharray="8 7"/>
+      <circle cx="112" cy="666" r="24" fill="#AAB5BB"/>
+      <text x="112" y="674" text-anchor="middle" font-size="22" font-weight="700" class="white">V</text>
+      <text x="150" y="658" class="card-title" fill="#69777F">视频数据（后续）</text>
+      <text x="150" y="692" class="small">视觉提取暂缓</text>
+    </g>
+
+    <!-- Evidence processing -->
+    <g filter="url(#shadow)">
+      <rect x="420" y="268" width="460" height="192" rx="24" fill="#FFFFFF" stroke="#53B7B2" stroke-width="3"/>
+      <rect x="444" y="290" width="116" height="34" rx="17" fill="#168C8C"/>
+      <text x="502" y="313" text-anchor="middle" class="tag white">治理链</text>
+      <text x="444" y="360" class="card-title">候选发现 → 质量筛选</text>
+      <text x="444" y="401" class="card-title">Manifest → Catalog / Vault</text>
+      <text x="444" y="435" class="small">准入、版本、来源与内容哈希</text>
+
+      <rect x="420" y="508" width="460" height="112" rx="24" fill="#168C8C"/>
+      <text x="650" y="556" text-anchor="middle" class="card-title white">FTS5 + Chroma 混合检索</text>
+      <text x="650" y="590" text-anchor="middle" class="small white">事实源回查 · 索引可重建</text>
+
+      <rect x="420" y="668" width="460" height="136" rx="24" fill="#FFF8EC" stroke="#E9A23B" stroke-width="4"/>
+      <rect x="444" y="690" width="116" height="34" rx="17" fill="#E9A23B"/>
+      <text x="502" y="713" text-anchor="middle" class="tag white">下一阶段</text>
+      <text x="444" y="758" class="card-title">密度 / 速度 / 流量 / 拥堵事件</text>
+      <text x="444" y="788" class="small">形成结构化 Flow Evidence</text>
+    </g>
+
+    <!-- Agent -->
+    <g filter="url(#shadow)">
+      <rect x="970" y="268" width="500" height="192" rx="26" fill="#17324D"/>
+      <text x="1220" y="322" text-anchor="middle" font-size="34" font-weight="750" class="white">Evidence Pack</text>
+      <text x="1220" y="360" text-anchor="middle" font-size="20" font-weight="500" fill="#CDE9E7">统一证据对象 · 可定位 · 可校验</text>
+      <g font-size="19" font-weight="650">
+        <rect x="1000" y="389" width="104" height="42" rx="14" fill="#168C8C"/>
+        <text x="1052" y="416" text-anchor="middle" class="white">[L] 本地</text>
+        <rect x="1118" y="389" width="104" height="42" rx="14" fill="#2F7EA1"/>
+        <text x="1170" y="416" text-anchor="middle" class="white">[A] 学术</text>
+        <rect x="1236" y="389" width="104" height="42" rx="14" fill="#657A89"/>
+        <text x="1288" y="416" text-anchor="middle" class="white">[W] 网页</text>
+        <rect x="1354" y="389" width="86" height="42" rx="14" fill="#E9A23B"/>
+        <text x="1397" y="416" text-anchor="middle" class="white">[I] 推断</text>
+      </g>
+
+      <rect x="970" y="510" width="145" height="86" rx="20" fill="#FFFFFF" stroke="#53B7B2" stroke-width="3"/>
+      <text x="1042" y="562" text-anchor="middle" class="card-title">检索</text>
+
+      <rect x="1147" y="510" width="145" height="86" rx="20" fill="#FFFFFF" stroke="#53B7B2" stroke-width="3"/>
+      <text x="1219" y="550" text-anchor="middle" class="card-title">结构化</text>
+      <text x="1219" y="580" text-anchor="middle" class="card-title">生成</text>
+
+      <rect x="1324" y="510" width="146" height="86" rx="20" fill="#FFFFFF" stroke="#53B7B2" stroke-width="3"/>
+      <text x="1397" y="549" text-anchor="middle" font-size="18" font-weight="700" fill="#17324D">Claim–Citation</text>
+      <text x="1397" y="579" text-anchor="middle" class="card-title">校验</text>
+
+      <rect x="970" y="674" width="145" height="96" rx="20" fill="#FFFFFF" stroke="#53B7B2" stroke-width="3"/>
+      <text x="1042" y="714" text-anchor="middle" class="card-title">独立语义</text>
+      <text x="1042" y="748" text-anchor="middle" class="card-title">复核</text>
+
+      <rect x="1147" y="674" width="145" height="96" rx="20" fill="#FFF8EC" stroke="#E9A23B" stroke-width="3"/>
+      <text x="1219" y="714" text-anchor="middle" class="card-title">最多一次</text>
+      <text x="1219" y="748" text-anchor="middle" class="card-title">修订</text>
+
+      <rect x="1324" y="674" width="146" height="96" rx="20" fill="#168C8C"/>
+      <text x="1397" y="714" text-anchor="middle" class="card-title white">验证输出</text>
+      <text x="1397" y="748" text-anchor="middle" font-size="19" font-weight="650" class="white">或失败关闭</text>
+    </g>
+
+    <!-- Agent internal arrows -->
+    <path d="M1220 460V500" stroke="#17324D" stroke-width="4" marker-end="url(#arrow-navy)"/>
+    <path d="M1115 553H1136" stroke="#168C8C" stroke-width="4" marker-end="url(#arrow-teal)"/>
+    <path d="M1292 553H1313" stroke="#168C8C" stroke-width="4" marker-end="url(#arrow-teal)"/>
+    <path d="M1397 596V632H1042V663" fill="none" stroke="#168C8C" stroke-width="4" marker-end="url(#arrow-teal)"/>
+    <path d="M1115 722H1136" stroke="#E9A23B" stroke-width="4" marker-end="url(#arrow-gold)"/>
+    <path d="M1292 722H1313" stroke="#168C8C" stroke-width="4" marker-end="url(#arrow-teal)"/>
+
+    <!-- Applications -->
+    <g filter="url(#shadow)">
+      <rect x="1560" y="290" width="280" height="96" rx="22" fill="#168C8C"/>
+      <text x="1700" y="349" text-anchor="middle" class="card-title white">文献问答</text>
+
+      <rect x="1560" y="432" width="280" height="96" rx="22" fill="#FFF8EC" stroke="#E9A23B" stroke-width="4"/>
+      <text x="1700" y="491" text-anchor="middle" class="card-title">场景诊断</text>
+
+      <rect x="1560" y="574" width="280" height="96" rx="22" fill="#EEF1F2" stroke="#B9C2C7" stroke-width="3" stroke-dasharray="8 7"/>
+      <text x="1700" y="633" text-anchor="middle" class="card-title" fill="#69777F">安全评估</text>
+
+      <rect x="1560" y="716" width="280" height="96" rx="22" fill="#EEF1F2" stroke="#B9C2C7" stroke-width="3" stroke-dasharray="8 7"/>
+      <text x="1700" y="775" text-anchor="middle" class="card-title" fill="#69777F">实验支持</text>
+    </g>
+
+    <!-- Cross-column arrows -->
+    <path d="M350 338H400" stroke="#168C8C" stroke-width="5" marker-end="url(#arrow-teal)"/>
+    <path d="M350 502C380 502 382 736 410 736" fill="none" stroke="#E9A23B" stroke-width="5" marker-end="url(#arrow-gold)"/>
+    <path d="M350 666C380 666 382 776 410 776" fill="none" stroke="#AAB5BB" stroke-width="4" stroke-dasharray="8 7"/>
+    <path d="M650 460V498" stroke="#168C8C" stroke-width="5" marker-end="url(#arrow-teal)"/>
+    <path d="M880 564H940" stroke="#168C8C" stroke-width="5" marker-end="url(#arrow-teal)"/>
+    <path d="M880 736C914 736 914 428 958 428" fill="none" stroke="#E9A23B" stroke-width="5" marker-end="url(#arrow-gold)"/>
+    <path d="M1470 338H1550" stroke="#168C8C" stroke-width="5" marker-end="url(#arrow-teal)"/>
+    <path d="M1470 480H1550" stroke="#E9A23B" stroke-width="5" marker-end="url(#arrow-gold)"/>
+    <path d="M1470 622H1550" stroke="#AAB5BB" stroke-width="4" stroke-dasharray="8 7" marker-end="url(#arrow-navy)" opacity="0.65"/>
+    <path d="M1470 764H1550" stroke="#AAB5BB" stroke-width="4" stroke-dasharray="8 7" marker-end="url(#arrow-navy)" opacity="0.65"/>
+
+    <!-- Mainline banner -->
+    <rect x="290" y="866" width="1340" height="76" rx="26" fill="#17324D"/>
+    <text x="960" y="914" text-anchor="middle" font-size="28" font-weight="700" class="white">当前研究主线：正式证据库 → 可验证问答 → Flow Evidence → 场景诊断</text>
+
+    <!-- Legend -->
+    <g transform="translate(500 994)">
+      <rect x="0" y="-16" width="28" height="28" rx="7" fill="#168C8C"/>
+      <text x="42" y="6" class="small">已实现或具备工程基础</text>
+      <rect x="330" y="-16" width="28" height="28" rx="7" fill="#FFF8EC" stroke="#E9A23B" stroke-width="3"/>
+      <text x="372" y="6" class="small">下一阶段研究主线</text>
+      <rect x="670" y="-16" width="28" height="28" rx="7" fill="#EEF1F2" stroke="#B9C2C7" stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="712" y="6" class="small">暂缓模块</text>
+    </g>
+  </g>
+</svg>

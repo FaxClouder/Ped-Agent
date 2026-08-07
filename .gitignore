@@ -15,17 +15,34 @@ __pycache__/
 .mcp.json
 skills-lock.json
 .worktrees/
+.trash/
+.idea/
 
-# Local outputs and knowledge assets
+# Local outputs and memPed runtime assets
 outputs/
+output/*.json
 data/vectordb/
 data/papers/*
 !data/papers/.gitkeep
 data/scenarios/*
 !data/scenarios/.gitkeep
-backend/storage/library/
-backend/storage/agent/
 backend/storage/vision/
+Video-Analysis/runtime/
+Video-Analysis/models/**/weights/*
+!Video-Analysis/models/**/weights/README.md
+Video-Analysis/trackers/**/weights/*
+!Video-Analysis/trackers/**/weights/README.md
+memPed/knowledge/literature/files/
+memPed/knowledge/regulations/files/
+memPed/knowledge/reports/
+memPed/knowledge/knowledge.sqlite3*
+memPed/knowledge/fts.sqlite3*
+memPed/knowledge/vectors/
+memPed/conversations/conversations.sqlite3*
+memPed/conversations/files/
+memPed/methods/candidates/
+memPed/methods/methods.sqlite3*
+scripts/local/
 
 # Frontend build artifacts
 frontend/node_modules/

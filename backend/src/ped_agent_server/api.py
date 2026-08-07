@@ -9,7 +9,7 @@ from typing import Annotated
 
 from fastapi import FastAPI, Header, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
-from ped_agent.vision.model_registry import ModelManifestRegistry
+from ped_video_analysis.vision.model_registry import ModelManifestRegistry
 from pydantic import BaseModel, Field
 
 from ped_agent_server.agent_repository import TERMINAL_STATUSES, ActiveRunError, AgentRepository
@@ -48,7 +48,9 @@ def create_app(
 ) -> FastAPI:
     catalog = Catalog(catalog_path)
     retrieval = RetrievalService(catalog, FTSIndex(index_path))
-    repository = agent_repository or AgentRepository(catalog_path.parent / "agent.sqlite3")
+    repository = agent_repository or AgentRepository(
+        _default_conversation_db_path(catalog_path)
+    )
     repository.initialize()
     resolved_vision_storage = vision_storage or VisionStorage(catalog_path.parent / "vision")
     resolved_vision_storage.ensure_dirs()
@@ -199,6 +201,13 @@ def create_app(
             raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     return app
+
+
+def _default_conversation_db_path(catalog_path: Path) -> Path:
+    knowledge_root = catalog_path.parent
+    if knowledge_root.name == "knowledge" and knowledge_root.parent.name == "memPed":
+        return knowledge_root.parent / "conversations" / "conversations.sqlite3"
+    return knowledge_root / "conversations.sqlite3"
 
 
 def _format_sse(event: dict[str, object]) -> str:

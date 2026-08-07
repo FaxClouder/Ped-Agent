@@ -23,15 +23,21 @@ class VisionStoragePaths:
 
 
 class VisionStorage:
-    def __init__(self, root: Path):
+    def __init__(
+        self,
+        root: Path,
+        *,
+        model_manifests_dir: Path | None = None,
+        scenes_dir: Path | None = None,
+    ):
         resolved = root.resolve()
         self.paths = VisionStoragePaths(
             root=resolved,
             tasks_dir=resolved / "tasks",
             artifacts_dir=resolved / "artifacts",
             exports_dir=resolved / "exports",
-            model_manifests_dir=resolved / "models",
-            scenes_dir=resolved / "scenes",
+            model_manifests_dir=(model_manifests_dir or resolved / "models").resolve(),
+            scenes_dir=(scenes_dir or resolved / "scenes").resolve(),
         )
 
     def ensure_dirs(self) -> None:

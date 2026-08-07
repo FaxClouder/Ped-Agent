@@ -212,7 +212,7 @@ Agent 或贡献者进入仓库后应先读取 `AGENTS.md`，再通过 `docs/READ
 
 - Python、Vue、TypeScript 和配置实现
 - API 路径和数据模型
-- `research/` 中现有治理记录
+- `memPed/knowledge/` 中现有治理记录
 - 本地运行资产和 Git 忽略目录
 - 当前未跟踪的 `docs/assets/`
 

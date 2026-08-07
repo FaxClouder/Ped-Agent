@@ -4,7 +4,7 @@ Ped-Agent's local single-user vision path is:
 
 `upload -> preflight -> single GPU queue -> detection/tracking -> review -> calibration -> projection -> postprocess -> analysis -> rendering/export`
 
-The authoritative runtime directory is `backend/storage/vision/` and is Git-ignored. SQLite
+The authoritative runtime directory is `Video-Analysis/runtime/` and is Git-ignored. SQLite
 stores task state, events, review patches and artifact indexes only. Frame-level trajectory data
 is stored as Parquet; scene profiles, calibration reports, analysis bundles and provenance use
 JSON/GeoJSON-compatible objects.
@@ -22,9 +22,10 @@ damaging completed artifacts.
 
 ## Model manifest boundary
 
-Place a JSON or YAML manifest and its custom Ultralytics-compatible weights in
-`backend/storage/vision/models/`. Relative weight paths resolve against the manifest file. The
-server verifies the weight SHA-256 before accepting a task.
+Place detector YAML under `Video-Analysis/src/ped_video_analysis/configs/detectors/` and its
+custom Ultralytics-compatible weights under `Video-Analysis/models/weights/`. Relative weight
+paths resolve against the module weight directory. The server verifies the weight SHA-256 before
+accepting a task.
 
 ```json
 {

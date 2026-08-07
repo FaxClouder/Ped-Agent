@@ -137,13 +137,13 @@ flowchart LR
 
 | 范围 | 当前路径 |
 | --- | --- |
-| 治理记录 | `research/` |
+| 治理记录 | `memPed/knowledge/*/records/` 与知识根目录规则/评测文件 |
 | Manifest 与准入 | `backend/src/ped_agent_server/manifest.py` |
 | 质量治理 | `backend/src/ped_agent_server/governance.py` |
 | 导入与解析 | `backend/src/ped_agent_server/importer.py`、`parsing.py` |
 | 事实存储 | `catalog.py`、`vault.py` |
 | 检索索引 | `index.py`、`vector_index.py`、`hybrid_retrieval.py` |
-| 本地资产 | `backend/storage/library/` |
+| 本地资产 | `memPed/knowledge/` |
 | 前端入口 | `frontend/src/views/LibraryView.vue` |
 
 ### 当前成熟度
@@ -216,8 +216,10 @@ flowchart LR
 
 | 范围 | 当前路径 |
 | --- | --- |
-| 检测与跟踪 | `src/ped_agent/vision/` |
-| 指标与分析 | `src/ped_agent/analysis/` |
+| 检测与跟踪 | `Video-Analysis/src/ped_video_analysis/vision/` |
+| 指标与分析 | `Video-Analysis/src/ped_video_analysis/analysis/` |
+| 模型与配置 | `Video-Analysis/models/weights/`、`Video-Analysis/src/ped_video_analysis/configs/` |
+| 外部 Python 接口 | `ped_video_analysis.api` |
 | 轨迹模型 | `src/ped_agent/models/trajectory.py` |
 | 场景模型 | `src/ped_agent/models/scenario_data.py` |
 | 独立脚本 | `scripts/run_vision.py` |
@@ -326,21 +328,21 @@ flowchart LR
 - 质量状态和限制
 - 可回查的轨迹或事件定位
 
-只有通过质量检查并获得明确纳入决定的 Flow Evidence，才能沉淀到知识与证据底座。
+Flow Evidence 保持为可回查的分析输出和会话来源。跨场景提炼出的通用方法只有经过人工审核，才能进入 `memPed/methods/approved/`；它不直接写入文献/法规知识库。
 
 ## 💾 记忆与存储边界
 
-“记忆”分为两类，不能混用。
+`memPed/` 统一管理三类数据，但三者不能混用。
 
 | 记忆类型 | 归属 | 示例 |
 | --- | --- | --- |
-| 领域长期记忆 | 知识与证据底座 | 文献结论、法规条款、审核后的 Flow Evidence |
-| 会话短期记忆 | LLM 问答与会话 | 最近消息、上一轮引用、当前问题上下文 |
+| 知识数据 | 知识与证据底座 | 文献原文、法规条款、正式切块和检索索引 |
+| 会话与任务记忆 | LLM 问答与会话 | Session、消息、Run、引用、摘要和用户反馈 |
+| 审核方法记忆 | LLM 问答与会话 + 人工审核 | 可复用的场景分析和评估方法 |
 | Run 运行状态 | LLM 问答与会话 | queued、running、completed、failed |
 | 原始视频和轨迹 | 检测追踪与流动分析 | 视频文件、轨迹文件、标定参数 |
 
-当前会话和 Run 数据继续由 `backend/storage/agent/agent.sqlite3` 管理；
-正式资料、原文、Catalog 和索引继续位于 `backend/storage/library/`。
+会话和 Run 数据由 `memPed/conversations/conversations.sqlite3` 管理；正式文献、法规、Catalog 和索引位于 `memPed/knowledge/`；候选与审核方法位于 `memPed/methods/`。原始视频和轨迹仍在分析模块自己的存储中，不进入 memPed。
 
 ## 📋 研究应用映射
 
@@ -410,8 +412,8 @@ flowchart LR
 
 1. 将 `ped_agent_server + EvidenceGraph + .env` 标记为当前权威问答运行链
 2. 将旧 `src/ped_agent/main.py`、`agent/graph.py` 和 `config/*.yaml` 标记为历史脚手架
-3. 将 `src/ped_agent/vision/` 和 `analysis/` 统一归入检测追踪与流动分析模块
-4. 将 `research/` 和 `backend/storage/library/` 明确归入知识与证据底座
+3. 将视觉、分析、检测器配置和模型权重边界统一收敛到 `Video-Analysis/`
+4. 使用纯数据根目录 `memPed/` 统一管理知识、会话和审核方法数据
 5. 将前端导航与三模块和研究应用建立清晰映射
 6. 为每个模块增加成熟度标记和独立验收入口
 7. 维护一个当前架构总览，历史方案只保留为参考资料

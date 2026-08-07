@@ -29,6 +29,23 @@ def test_api_is_read_only_and_exposes_library_routes(tmp_path: Path) -> None:
     assert client.post("/api/library/resources").status_code == 405
 
 
+def test_api_places_default_conversation_db_beside_memped_components(
+    tmp_path: Path,
+) -> None:
+    knowledge_root = tmp_path / "memPed" / "knowledge"
+    catalog = Catalog(knowledge_root / "knowledge.sqlite3")
+    catalog.initialize()
+    index = FTSIndex(knowledge_root / "fts.sqlite3")
+    index.rebuild([], source_fingerprint=catalog.official_fingerprint())
+
+    client = TestClient(create_app(catalog_path=catalog.path, index_path=index.path))
+
+    repository = client.app.state.agent_repository
+    assert repository.path == (
+        tmp_path / "memPed" / "conversations" / "conversations.sqlite3"
+    )
+
+
 def test_api_returns_resource_detail_and_not_found(tmp_path: Path) -> None:
     catalog = Catalog(tmp_path / "catalog.sqlite3")
     catalog.initialize()

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import os
 
-from ped_agent.utils.config import ConfigManager, select
-from ped_agent.vision.registry import VisionRegistry
+from ped_agent.utils.config import load_project_env
+from ped_video_analysis.vision.registry import VisionRegistry
 
 
 def main() -> int:
@@ -12,9 +13,11 @@ def main() -> int:
     parser.add_argument("--backend", default=None)
     args = parser.parse_args()
 
-    config = ConfigManager().load()
-    backend_name = args.backend or select(config, "vision.backend", "yolo26_bytetrack")
-    backend = VisionRegistry.get(backend_name, select(config, "vision", {}))
+    load_project_env()
+    backend_name = args.backend or os.getenv(
+        "PED_AGENT_VISION__BACKEND", "yolo26_bytetrack"
+    )
+    backend = VisionRegistry.get(backend_name)
     result = backend.process_video(args.video_path)
     print(result.model_dump_json(indent=2))
     return 0
@@ -22,4 +25,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

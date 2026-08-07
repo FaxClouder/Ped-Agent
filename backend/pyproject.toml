@@ -58,4 +58,4 @@ src = ["src", "tests"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["ped_agent_server"]
-known-third-party = ["ped_agent"]
+known-third-party = ["ped_agent", "ped_video_analysis"]

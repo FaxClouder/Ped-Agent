@@ -1,5 +1,40 @@
-from ped_agent.analysis.pipeline import AnalysisPipeline
-from ped_agent.analysis.schemas import AnalysisResult, DensityMetrics, FlowMetrics, VelocityMetrics
+"""Compatibility aliases for the extracted ``ped_video_analysis.analysis`` package."""
 
-__all__ = ["AnalysisPipeline", "AnalysisResult", "DensityMetrics", "FlowMetrics", "VelocityMetrics"]
+from importlib import import_module
+from sys import modules
 
+_SUBMODULES = (
+    "fundamental_diagram",
+    "metrics",
+    "od_matrix",
+    "pedpy_adapter",
+    "pipeline",
+    "schemas",
+    "statistics",
+    "vision_exports",
+    "vision_pipeline",
+    "vision_schemas",
+    "vision_visualizer",
+    "visualizer",
+)
+
+for _submodule in _SUBMODULES:
+    modules[f"{__name__}.{_submodule}"] = import_module(
+        f"ped_video_analysis.analysis.{_submodule}"
+    )
+
+from ped_video_analysis.analysis import (  # noqa: E402
+    AnalysisPipeline,
+    AnalysisResult,
+    DensityMetrics,
+    FlowMetrics,
+    VelocityMetrics,
+)
+
+__all__ = [
+    "AnalysisPipeline",
+    "AnalysisResult",
+    "DensityMetrics",
+    "FlowMetrics",
+    "VelocityMetrics",
+]

@@ -247,6 +247,20 @@ Ped-Agent 最终是面向行人流研究的统一问答与分析智能体。系�
 
 ```text
 Ped-Agent/
+├─ memPed/                  # 纯数据目录，不包含业务代码
+│  ├─ knowledge/
+│  │  ├─ literature/
+│  │  │  ├─ files/         # 本地文献原文；不提交 Git
+│  │  │  └─ records/       # 候选、筛选和 Manifest
+│  │  ├─ regulations/
+│  │  │  ├─ files/         # 本地法规与标准原文；不提交 Git
+│  │  │  └─ records/       # 来源、版本、筛选和 Manifest
+│  │  ├─ knowledge.sqlite3
+│  │  ├─ fts.sqlite3
+│  │  ├─ vectors/
+│  │  └─ reports/
+│  ├─ conversations/
+│  └─ methods/
 ├─ backend/
 │  ├─ src/ped_agent/
 │  │  ├─ library/          # 事实源与资料访问
@@ -254,25 +268,14 @@ Ped-Agent/
 │  │  ├─ retrieval/        # FTS/BM25 与检索接口
 │  │  ├─ evaluation/       # Gold Set 与指标
 │  │  └─ api/              # 最小只读 API
-│  ├─ tests/
-│  └─ storage/library/     # 本地资料库；不提交 Git
-│     ├─ inbox/
-│     ├─ objects/
-│     ├─ catalog/
-│     ├─ indexes/
-│     ├─ derived/
-│     └─ reports/
+│  └─ tests/
 ├─ frontend/               # 统一研究工作台
-├─ research/
-│  ├─ manifests/           # 可复现导入清单
-│  ├─ experiments/         # Gold Questions、配置和摘要报告
-│  └─ sources/             # 来源与收集记录
 ├─ docs/                   # 规格、ADR 和调研文档
 ├─ scripts/                # 本地处理入口
 └─ README.md
 ```
 
-原文、SQLite 数据库、解析派生物和检索索引都位于 `backend/storage/library/`，不直接放在项目根目录，也不提交 Git。可复现的 Manifest、Gold Questions、配置和摘要报告保存在 `research/`。
+知识、会话和方法数据统一位于 `memPed/`。治理记录和审核后的方法可以提交 Git；原文、SQLite、会话、候选方法、报告和检索索引由 `.gitignore` 保持本地。业务代码继续位于现有 Python 包，不放入 `memPed/`。
 
 ## 14. 预留接口边界
 
@@ -282,7 +285,7 @@ Ped-Agent/
 - 轨迹分析输出结构化指标与事件证据；
 - 安全评估组合轨迹证据、法规条款和领域文献；
 - 实验支持读取文献方法、公开数据集关系、评测配置和实验结果；
-- 记忆模块的具体接口在完成 memU 等方案调研后单独设计。
+- 会话记忆按 Session 存入 `memPed/conversations/`；通用方法先进入候选区，经人工审核后进入 `memPed/methods/approved/`。
 
 第一阶段只保证知识库和检索输出可以被这些模块消费，不实现对应消费者。
 

@@ -4,8 +4,8 @@ import hashlib
 from pathlib import Path
 
 import pytest
-from ped_agent.vision.artifacts import PixelTrackParquetStore
-from ped_agent.vision.contracts import (
+from ped_video_analysis.vision.artifacts import PixelTrackParquetStore
+from ped_video_analysis.vision.contracts import (
     CalibrationMode,
     CalibrationReport,
     ContactPointQuality,
@@ -17,9 +17,9 @@ from ped_agent.vision.contracts import (
     VideoMetadata,
     VideoTaskSpec,
 )
-from ped_agent.vision.inference import TrackAssignment, assemble_pixel_tracks
-from ped_agent.vision.model_registry import ModelManifestRegistry
-from ped_agent.vision.review import ReviewPatch, apply_review_patch
+from ped_video_analysis.vision.inference import TrackAssignment, assemble_pixel_tracks
+from ped_video_analysis.vision.model_registry import ModelManifestRegistry
+from ped_video_analysis.vision.review import ReviewPatch, apply_review_patch
 
 from ped_agent_server.scene_registry import SceneProfileRegistry
 from ped_agent_server.vision_processor import VisionPipelineProcessor

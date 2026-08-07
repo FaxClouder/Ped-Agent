@@ -40,9 +40,9 @@ npm run build
 ## Knowledge Asset Rules
 
 - Commit policies, search logs, screening decisions, metric snapshots, manifests,
-  Gold Questions, and summary evaluation reports under `research/`.
+  Gold Questions, and approved methods under `memPed/`.
 - Never commit PDFs, parsed full text, SQLite catalogs, retrieval indexes, API keys,
-  cookies, or raw trajectory data.
+  conversations, candidate methods, cookies, or raw trajectory data.
 - Official literature manifests must pass `ped-agent library validate-manifest`.
 - Do not lower quality thresholds or add X-tier exceptions merely to fill a quota.
 

@@ -605,8 +605,8 @@ class YOLO26ByteTrackBackend:
 ```python
 # 使用示例：从视频到分析结果
 
-from ped_agent.vision.registry import VisionRegistry
-from ped_agent.analysis.pipeline import AnalysisPipeline
+from ped_video_analysis.vision.registry import VisionRegistry
+from ped_video_analysis.analysis.pipeline import AnalysisPipeline
 
 # 1. 视觉提取
 vision = VisionRegistry.get("yolo26_bytetrack", config=vision_config)
@@ -670,7 +670,7 @@ result = pipeline.analyze_scenario(scenario)
 ## 十、模块文件结构
 
 ```
-src/ped_agent/vision/
+Video-Analysis/src/ped_video_analysis/vision/
 ├── __init__.py
 ├── interface.py           # VisionBackend Protocol 定义
 ├── registry.py            # VisionRegistry 插件注册
@@ -701,8 +701,8 @@ vision = [
 ]
 
 [project.entry-points."ped_agent.vision"]
-yolo26_bytetrack = "ped_agent.vision.plugins.yolo26_bytetrack:YOLO26ByteTrackBackend"
-yolo26_deepsort = "ped_agent.vision.plugins.yolo26_deepsort:YOLO26DeepSORTBackend"
+yolo26_bytetrack = "ped_video_analysis.vision.plugins.yolo26_bytetrack:YOLO26ByteTrackBackend"
+yolo26_deepsort = "ped_video_analysis.vision.plugins.yolo26_deepsort:YOLO26DeepSORTBackend"
 ```
 
 安装方式：
