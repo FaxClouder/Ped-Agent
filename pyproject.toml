@@ -59,7 +59,9 @@ yolo26_deepsort = "ped_video_analysis.vision.plugins.yolo26_deepsort:YOLO26DeepS
 packages = ["src/ped_agent", "Video-Analysis/src/ped_video_analysis"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "Video-Analysis/tests"]
+# Video-Analysis remains outside the default suite until its development phase starts.
+# Run its tests explicitly with the vision extras when that phase is activated.
+testpaths = ["tests"]
 pythonpath = ["src", "Video-Analysis/src"]
 
 [tool.ruff]
