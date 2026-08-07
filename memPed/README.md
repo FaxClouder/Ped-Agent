@@ -16,6 +16,7 @@ memPed/
 │  ├─ knowledge.sqlite3
 │  ├─ fts.sqlite3
 │  ├─ vectors/
+│  ├─ derived/      # Canonical Document、结构元素、表格/图片、Chunk 和解析报告
 │  └─ reports/
 ├─ conversations/
 │  ├─ conversations.sqlite3
@@ -36,10 +37,19 @@ memPed/
 - `regulations/records/`：官方来源核验、版本历史、筛选记录和 pilot/core Manifest。
 - `knowledge.sqlite3`：正式资源、版本、正文切块和资源关系的权威 Catalog。
 - `fts.sqlite3`、`vectors/`：从 Catalog 派生、可以重建的检索索引。
+- `derived/`：按 `resource_id/version_id` 保存规范文档、结构元素、表格、图片、
+  Parent-child Chunk 和解析报告；可从原文与配置重建，不提交 Git。
 - `reports/`：本地导入、解析、检索和评测报告。
 - 根目录 YAML/JSONL：分类、配额、质量规则、Gold Questions 和评测配置。
 
-正式治理顺序保持为：候选记录 → 人工筛选 → Manifest → 预检 → 导入 Catalog → 构建索引 → Gold 评测。候选资料、外部搜索结果和 LLM 回答不能绕过该流程进入正式知识库。
+资料选择在上传前完成。`memPed` 从准备入库的资料开始，只承接技术预检、版本登记、
+解析、Chunking、Catalog、索引和评测数据。技术预检检查文件、哈希、重复、元数据、
+版本关系和可解析性，不重复执行论文价值、主题相关性、JCI、CAS 或引用量判断。
+
+现有筛选表、质量规则和指标快照继续作为上游资料与历史兼容资产保存。活动导入链使用
+`ped_knowledge.ingestion.IngestionManifest` 与技术预检；`ResourceManifest`、`manifest.py`
+和 `governance.py` 的内容质量门禁只保留给历史兼容和离线审计。Gold Questions 用于
+检索配置和索引的发布验收，不用于单份文档的入库准入。
 
 ## `conversations/`
 
@@ -78,17 +88,28 @@ memPed/
 
 ## 常用命令
 
+技术预检与导入：
+
 ```powershell
-uv run --project backend ped-agent library validate-manifest `
-  memPed/knowledge/literature/records/pilot_manifest.jsonl `
-  --phase pilot
+uv run --project backend ped-agent library preflight `
+  memPed/knowledge/literature/records/import_manifest.jsonl
+
+uv run --project backend ped-agent library import-manifest `
+  memPed/knowledge/literature/records/import_manifest.jsonl
 
 uv run --project backend ped-agent library build-index
 
 uv run --project backend ped-agent evaluate `
   memPed/knowledge/pilot_gold.jsonl `
   memPed/knowledge/reports/pilot-evaluation.json `
-  --config memPed/knowledge/pilot_config.json
+  --config memPed/knowledge/pilot_config.json `
+  --pipeline hybrid
 ```
 
-业务代码仍位于 `backend/src/ped_agent_server/` 和 `src/ped_agent/`；`memPed/` 只回答“数据放在哪里”。
+历史质量与配额规则可继续通过 `library validate-manifest` 做离线审计，但该命令不在
+活动导入链中。
+
+知识业务代码位于 `Knowledge-Base/src/ped_knowledge/`。后端的同名旧模块只提供兼容导出，
+`src/ped_agent/knowledge/` 仍是冻结的早期占位代码；新实现不应写入 `memPed/`，也不应
+继续扩展旧目录。详细方案见
+[`docs/modules/knowledge-and-evidence.md`](../docs/modules/knowledge-and-evidence.md)。

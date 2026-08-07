@@ -100,22 +100,22 @@ flowchart LR
 
 ### 输入
 
-- 候选文献、法规和标准题录
-- 合法取得的 PDF 或其他原文
-- 检索日志、来源核验和期刊指标快照
-- 人工筛选、例外审批和正式纳入决定
+- 上传前已经确认可入库的文献、法规和标准
+- 合法取得、准备入库的 PDF 或其他原文
+- 来源、标题、语言、资源类型和版本等最小元数据
+- 可选的上游选择记录、来源核验和质量元数据
 - 经过审核、允许长期复用的 Flow Evidence
 
 ### 核心能力
 
-1. 候选发现与来源记录
-2. 标题、摘要、全文和质量筛选
-3. Manifest 构建与准入校验
+1. 文件、哈希、重复、版本和可解析性技术预检
+2. Manifest 或等价导入描述解析
+3. 结构化解析、规范文档与解析质量报告
 4. 原文哈希、版本和来源管理
-5. PDF 解析、切块和页码或条款定位
+5. Parent-child Chunking 和页码或条款定位
 6. Catalog 与内容 Vault 持久化
-7. FTS5 与 Chroma 混合检索
-8. Gold Questions 与检索质量评测
+7. FTS5、Chroma、RRF 与 Cross-Encoder Rerank
+8. Gold Questions 与检索配置发布评测
 9. 资料关系和领域长期记忆预留
 
 ### 输出
@@ -131,6 +131,7 @@ flowchart LR
 - 不直接生成 LLM 答案
 - 不管理当前会话的消息顺序和 Run 状态
 - 不执行目标检测、轨迹跟踪和行人流指标计算
+- 不在入库时重复判断资料是否值得纳入
 - 不把未经治理的候选或外部搜索结果标记为正式证据
 
 ### 当前代码映射
@@ -138,17 +139,22 @@ flowchart LR
 | 范围 | 当前路径 |
 | --- | --- |
 | 治理记录 | `memPed/knowledge/*/records/` 与知识根目录规则/评测文件 |
-| Manifest 与准入 | `backend/src/ped_agent_server/manifest.py` |
-| 质量治理 | `backend/src/ped_agent_server/governance.py` |
-| 导入与解析 | `backend/src/ped_agent_server/importer.py`、`parsing.py` |
-| 事实存储 | `catalog.py`、`vault.py` |
-| 检索索引 | `index.py`、`vector_index.py`、`hybrid_retrieval.py` |
+| 活动技术预检与导入 | `Knowledge-Base/src/ped_knowledge/ingestion/` |
+| 历史 Manifest 与质量准入 | `backend/src/ped_agent_server/manifest.py`、`models.py`，仅兼容/离线审计 |
+| 当前离线质量治理 | `backend/src/ped_agent_server/governance.py` |
+| 导入、解析与 Chunking | `ped_knowledge.ingestion`、`parsing`、`chunking` |
+| 事实存储 | `ped_knowledge.storage` |
+| 检索、Rerank 与评测 | `ped_knowledge.indexing`、`retrieval`、`reranking`、`evaluation` |
 | 本地资产 | `memPed/knowledge/` |
+| 知识程序目录 | `Knowledge-Base/src/ped_knowledge/`，已实现并由后端装配 |
+| 详细模块设计 | [`docs/modules/knowledge-and-evidence.md`](../../modules/knowledge-and-evidence.md) |
 | 前端入口 | `frontend/src/views/LibraryView.vue` |
 
 ### 当前成熟度
 
-工程能力已经具备，但正式知识资产尚未形成。截至 2026-08-06：
+知识程序边界、结构化解析、层次化 Chunking、活动版本、混合检索、可选 Rerank
+与端到端评测代码已经实现；正式语料和真实模型/Gold 验收仍未开始。
+截至 2026-08-07：
 
 | 资产 | 当前数量 |
 | --- | ---: |
@@ -160,8 +166,10 @@ flowchart LR
 | Manifest 记录 | 0 |
 | Gold Questions | 0 |
 | Catalog 正式资源 | 0 |
+| Catalog Chunk | 0 |
+| FTS 文档 | 0 |
 
-因此，该模块当前应标记为“工程基础完成，正式数据建设中”。
+因此，该模块当前应标记为“程序能力完成，正式数据与真实模型验收待执行”。
 
 ## 📊 模块二：检测追踪与流动分析
 
@@ -440,8 +448,8 @@ flowchart LR
     class apps success
 ```
 
-每个阶段独立设计、实施和验收。资料发现、筛选、质量评价、全文确认、
-Manifest、导入和评测继续作为知识治理中的独立阶段，不自动串行推进。
+每个阶段独立设计、实施和验收。上传前的资料准备属于模块外部上游；
+模块内部按技术预检、解析、Chunking、索引、Rerank 和检索评测推进。
 
 ## ✅ 验收标准
 

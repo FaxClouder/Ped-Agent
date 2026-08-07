@@ -5,19 +5,19 @@ from pathlib import Path
 
 import httpx
 from ped_agent.agent.evidence_graph import EvidenceGraph
+from ped_knowledge.indexing import ChromaVectorIndex, FTSIndex, embedding_fingerprint
+from ped_knowledge.reranking import CrossEncoderReranker
+from ped_knowledge.retrieval import HybridRetriever
+from ped_knowledge.storage import Catalog
 
 from ped_agent_server.agent_repository import AgentRepository
-from ped_agent_server.catalog import Catalog
 from ped_agent_server.evidence_executor import HybridLocalEvidenceRetriever, LangGraphRunExecutor
 from ped_agent_server.external_search import ExternalSearchCoordinator
-from ped_agent_server.hybrid_retrieval import HybridRetriever
-from ped_agent_server.index import FTSIndex
 from ped_agent_server.model_gateway import DirectModelGateway
 from ped_agent_server.paths import WorkspacePaths
 from ped_agent_server.run_observer import LangSmithObserver, NoOpRunObserver, RunObserver
 from ped_agent_server.run_service import RunService
 from ped_agent_server.settings import AgentSettings
-from ped_agent_server.vector_index import ChromaVectorIndex, embedding_fingerprint
 
 
 @dataclass
@@ -27,6 +27,7 @@ class AgentRuntime:
     vector_index: ChromaVectorIndex
     http_client: httpx.AsyncClient
     observer: RunObserver
+    hybrid_retriever: HybridRetriever
 
     async def close(self) -> None:
         await self.run_service.shutdown()
@@ -47,11 +48,21 @@ def build_agent_runtime(settings: AgentSettings, paths: WorkspacePaths) -> Agent
         _resolve_path(paths.repo_root, settings.runtime.chroma_path),
         gateway,
     )
+    reranker = (
+        CrossEncoderReranker(
+            settings.rerank.model,
+            use_fp16=settings.rerank.use_fp16,
+            cache_size=settings.rerank.cache_size,
+        )
+        if settings.rerank.enabled
+        else None
+    )
     hybrid = HybridRetriever(
         Catalog(paths.catalog_path),
         FTSIndex(paths.index_path),
         vector_index,
         embedding_fingerprint=embedding_id,
+        reranker=reranker,
     )
     http_client = httpx.AsyncClient(timeout=settings.search.timeout_seconds)
     parallel_key = (
@@ -93,7 +104,14 @@ def build_agent_runtime(settings: AgentSettings, paths: WorkspacePaths) -> Agent
         max_concurrent_runs=settings.runtime.max_concurrent_runs,
         recent_message_limit=settings.runtime.recent_message_limit,
     )
-    return AgentRuntime(repository, service, vector_index, http_client, observer)
+    return AgentRuntime(
+        repository=repository,
+        run_service=service,
+        vector_index=vector_index,
+        http_client=http_client,
+        observer=observer,
+        hybrid_retriever=hybrid,
+    )
 
 
 def _resolve_path(repo_root: Path, configured: Path) -> Path:

@@ -45,6 +45,13 @@ class EmbeddingSettings(BaseModel):
     max_retries: int = 2
 
 
+class RerankSettings(BaseModel):
+    enabled: bool = False
+    model: str = "BAAI/bge-reranker-v2-m3"
+    use_fp16: bool = True
+    cache_size: int = Field(default=4096, ge=1)
+
+
 class SearchSettings(BaseModel):
     academic_enabled: bool = True
     parallel_enabled: bool = False
@@ -84,6 +91,7 @@ class AgentSettings(BaseSettings):
     answer: ChatModelSettings
     verify: VerifySettings = Field(default_factory=VerifySettings)
     embedding: EmbeddingSettings
+    rerank: RerankSettings = Field(default_factory=RerankSettings)
     search: SearchSettings = Field(default_factory=SearchSettings)
     runtime: RuntimeSettings = Field(default_factory=RuntimeSettings)
     langsmith: LangSmithSettings = Field(default_factory=LangSmithSettings)

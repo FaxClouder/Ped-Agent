@@ -9,14 +9,14 @@ from typing import Annotated
 
 from fastapi import FastAPI, Header, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
+from ped_knowledge.contracts import EvidenceHit
+from ped_knowledge.indexing import FTSIndex
+from ped_knowledge.retrieval import IndexStaleError, RetrievalService
+from ped_knowledge.storage import Catalog
 from ped_video_analysis.vision.model_registry import ModelManifestRegistry
 from pydantic import BaseModel, Field
 
 from ped_agent_server.agent_repository import TERMINAL_STATUSES, ActiveRunError, AgentRepository
-from ped_agent_server.catalog import Catalog
-from ped_agent_server.index import FTSIndex
-from ped_agent_server.models import EvidenceHit
-from ped_agent_server.retrieval import IndexStaleError, RetrievalService
 from ped_agent_server.run_service import RunService
 from ped_agent_server.scene_registry import SceneProfileRegistry
 from ped_agent_server.vision_api import build_vision_router
@@ -48,9 +48,7 @@ def create_app(
 ) -> FastAPI:
     catalog = Catalog(catalog_path)
     retrieval = RetrievalService(catalog, FTSIndex(index_path))
-    repository = agent_repository or AgentRepository(
-        _default_conversation_db_path(catalog_path)
-    )
+    repository = agent_repository or AgentRepository(_default_conversation_db_path(catalog_path))
     repository.initialize()
     resolved_vision_storage = vision_storage or VisionStorage(catalog_path.parent / "vision")
     resolved_vision_storage.ensure_dirs()

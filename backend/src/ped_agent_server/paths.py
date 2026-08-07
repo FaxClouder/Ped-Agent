@@ -15,6 +15,7 @@ class WorkspacePaths:
     regulations_files_dir: Path
     literature_records_dir: Path
     regulations_records_dir: Path
+    derived_dir: Path
     reports_dir: Path
     conversations_root: Path
     conversation_files_dir: Path
@@ -45,6 +46,7 @@ class WorkspacePaths:
             regulations_files_dir=regulations_root / "files",
             literature_records_dir=literature_root / "records",
             regulations_records_dir=regulations_root / "records",
+            derived_dir=knowledge_root / "derived",
             reports_dir=knowledge_root / "reports",
             conversations_root=conversations_root,
             conversation_files_dir=conversations_root / "files",
@@ -61,6 +63,7 @@ class WorkspacePaths:
         for directory in (
             self.literature_files_dir,
             self.regulations_files_dir,
+            self.derived_dir,
             self.reports_dir,
             self.conversation_files_dir,
             self.method_candidates_dir,

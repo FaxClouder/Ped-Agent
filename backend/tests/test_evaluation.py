@@ -136,6 +136,13 @@ def test_cli_lists_evaluation_and_audit_commands() -> None:
     assert "audit" in result.stdout
 
 
+def test_library_cli_exposes_technical_preflight() -> None:
+    result = CliRunner().invoke(app, ["library", "--help"])
+
+    assert result.exit_code == 0
+    assert "preflight" in result.stdout
+
+
 def test_evaluate_cli_exposes_acceptance_config_option() -> None:
     result = CliRunner().invoke(app, ["evaluate", "--help"])
 

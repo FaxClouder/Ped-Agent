@@ -3,8 +3,8 @@ from __future__ import annotations
 from langsmith import traceable
 from ped_agent.agent.contracts import RetrievalBatch
 from ped_agent.agent.evidence_graph import EvidenceGraph
+from ped_knowledge.retrieval import HybridRetriever, retrieval_is_sufficient
 
-from ped_agent_server.hybrid_retrieval import HybridRetriever, retrieval_is_sufficient
 from ped_agent_server.run_service import (
     CancellationCheck,
     EventEmitter,

@@ -50,6 +50,7 @@ ped-agent-core = { path = "..", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["../Knowledge-Base/src"]
 
 [tool.ruff]
 line-length = 100
@@ -58,4 +59,4 @@ src = ["src", "tests"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["ped_agent_server"]
-known-third-party = ["ped_agent", "ped_video_analysis"]
+known-third-party = ["ped_agent", "ped_knowledge", "ped_video_analysis"]

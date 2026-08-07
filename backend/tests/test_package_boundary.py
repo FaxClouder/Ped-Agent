@@ -2,6 +2,7 @@ import ast
 from pathlib import Path
 
 import ped_agent
+import ped_knowledge
 import pytest
 
 import ped_agent_server
@@ -16,6 +17,19 @@ def test_core_and_server_are_distinct_python_packages() -> None:
     assert core_path != server_path
     assert core_path.parent.name == "ped_agent"
     assert server_path.parent.name == "ped_agent_server"
+
+
+def test_knowledge_package_is_distinct_and_server_independent() -> None:
+    knowledge_path = Path(ped_knowledge.__file__).resolve()
+
+    assert knowledge_path.parent.name == "ped_knowledge"
+    assert "Knowledge-Base" in knowledge_path.parts
+    for path in (ROOT / "Knowledge-Base" / "src" / "ped_knowledge").rglob("*.py"):
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        imports = [
+            node.module or "" for node in ast.walk(module) if isinstance(node, ast.ImportFrom)
+        ]
+        assert not any(name.startswith("ped_agent_server") for name in imports), path
 
 
 @pytest.mark.parametrize(

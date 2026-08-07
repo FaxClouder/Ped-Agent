@@ -15,6 +15,8 @@ dependencies = [
   "PyYAML>=6.0",
   "numpy>=1.26",
   "pandas>=2.2",
+  "jieba>=0.42,<1",
+  "pymupdf>=1.26,<2",
   "scipy>=1.12",
   "plotly>=5.20",
   "matplotlib>=3.8",
@@ -56,18 +58,29 @@ yolo26_bytetrack = "ped_video_analysis.vision.plugins.yolo26_bytetrack:YOLO26Byt
 yolo26_deepsort = "ped_video_analysis.vision.plugins.yolo26_deepsort:YOLO26DeepSORTBackend"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ped_agent", "Video-Analysis/src/ped_video_analysis"]
+packages = [
+  "src/ped_agent",
+  "Knowledge-Base/src/ped_knowledge",
+  "Video-Analysis/src/ped_video_analysis",
+]
 
 [tool.pytest.ini_options]
 # Video-Analysis remains outside the default suite until its development phase starts.
 # Run its tests explicitly with the vision extras when that phase is activated.
-testpaths = ["tests"]
-pythonpath = ["src", "Video-Analysis/src"]
+testpaths = ["tests", "Knowledge-Base/tests"]
+pythonpath = ["src", "Knowledge-Base/src", "Video-Analysis/src"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-src = ["src", "tests", "Video-Analysis/src", "Video-Analysis/tests"]
+src = [
+  "src",
+  "tests",
+  "Knowledge-Base/src",
+  "Knowledge-Base/tests",
+  "Video-Analysis/src",
+  "Video-Analysis/tests",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -75,7 +88,7 @@ ignore = ["B008"]
 
 [tool.mypy]
 python_version = "3.12"
-packages = ["ped_agent", "ped_video_analysis"]
-mypy_path = ["src", "Video-Analysis/src"]
+packages = ["ped_agent", "ped_knowledge", "ped_video_analysis"]
+mypy_path = ["src", "Knowledge-Base/src", "Video-Analysis/src"]
 ignore_missing_imports = true
 strict = false

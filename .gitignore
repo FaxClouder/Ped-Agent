@@ -35,6 +35,7 @@ Video-Analysis/trackers/**/weights/*
 memPed/knowledge/literature/files/
 memPed/knowledge/regulations/files/
 memPed/knowledge/reports/
+memPed/knowledge/derived/
 memPed/knowledge/knowledge.sqlite3*
 memPed/knowledge/fts.sqlite3*
 memPed/knowledge/vectors/

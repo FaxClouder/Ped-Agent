@@ -1660,6 +1660,7 @@ name = "ped-agent-core"
 version = "0.1.0"
 source = { editable = "../" }
 dependencies = [
+    { name = "jieba" },
     { name = "langchain" },
     { name = "langchain-anthropic" },
     { name = "langchain-core" },
@@ -1670,6 +1671,7 @@ dependencies = [
     { name = "pandas" },
     { name = "plotly" },
     { name = "pydantic" },
+    { name = "pymupdf" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "scipy" },
@@ -1693,6 +1695,7 @@ requires-dist = [
     { name = "boxmot", marker = "extra == 'vision'", specifier = ">=10.0" },
     { name = "chromadb", marker = "extra == 'rag'", specifier = ">=0.5" },
     { name = "flagembedding", marker = "extra == 'rag'", specifier = ">=1.2" },
+    { name = "jieba", specifier = ">=0.42,<1" },
     { name = "langchain", specifier = ">=1.0" },
     { name = "langchain-anthropic", specifier = ">=1.0" },
     { name = "langchain-chroma", marker = "extra == 'rag'", specifier = ">=0.1" },
@@ -1710,6 +1713,7 @@ requires-dist = [
     { name = "plotly", specifier = ">=5.20" },
     { name = "pyarrow", marker = "extra == 'vision'", specifier = ">=17.0" },
     { name = "pydantic", specifier = ">=2.7" },
+    { name = "pymupdf", specifier = ">=1.26,<2" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.2" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
     { name = "python-dotenv", specifier = ">=1.0" },

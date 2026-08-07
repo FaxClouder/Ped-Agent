@@ -10,6 +10,13 @@ The project follows semantic versioning while it matures:
 
 ## Unreleased
 
+- Added the independent `Knowledge-Base/` / `ped_knowledge` package with technical
+  preflight, structured Canonical Documents, deterministic parent-child Chunking,
+  active-version Catalog semantics, rebuildable FTS/Chroma indexes, RRF, optional
+  Cross-Encoder Rerank, and end-to-end Gold release gates
+- Migrated the active API, CLI, and EvidenceGraph retrieval assembly to `ped_knowledge`;
+  former server knowledge modules remain compatibility exports and the historical
+  academic-quality validation remains an offline audit path
 - Extracted detection, tracking, calibration, trajectory processing, and flow-analysis code
   into `Video-Analysis/`, with module-owned detector YAML, weight/runtime directories, a
   `ped_video_analysis` public API, and compatibility aliases for the former imports

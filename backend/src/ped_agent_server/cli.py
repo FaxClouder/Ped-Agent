@@ -9,27 +9,27 @@ from typing import Annotated
 
 import typer
 import uvicorn
-
-from ped_agent_server.agent_runtime import build_agent_runtime
-from ped_agent_server.api import create_app
-from ped_agent_server.catalog import Catalog
-from ped_agent_server.evaluation import (
+from ped_knowledge.contracts import ResourceType
+from ped_knowledge.evaluation import (
     EvaluationAcceptanceConfig,
     audit_catalog,
     audit_evaluation,
     evaluate_rankings,
+    evaluate_retriever,
     load_gold,
 )
+from ped_knowledge.indexing import FTSIndex, embedding_fingerprint
+from ped_knowledge.ingestion import ImportService, preflight_manifest
+from ped_knowledge.retrieval import RetrievalService
+from ped_knowledge.storage import Catalog
+
+from ped_agent_server.agent_runtime import build_agent_runtime
+from ped_agent_server.api import create_app
 from ped_agent_server.governance import audit_literature_corpus, audit_regulation_corpus
-from ped_agent_server.importer import ImportService
-from ped_agent_server.index import FTSIndex
 from ped_agent_server.manifest import load_and_preflight
 from ped_agent_server.model_gateway import DirectModelGateway
-from ped_agent_server.models import ResourceType
 from ped_agent_server.paths import WorkspacePaths
-from ped_agent_server.retrieval import RetrievalService
 from ped_agent_server.settings import load_settings
-from ped_agent_server.vector_index import embedding_fingerprint
 from ped_agent_server.vision_runtime import build_vision_runtime
 
 app = typer.Typer(no_args_is_help=True)
@@ -55,6 +55,18 @@ def import_manifest(
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(payload, encoding="utf-8")
     typer.echo(payload)
+
+
+@library.command("preflight")
+def technical_preflight(path: Path) -> None:
+    batch = preflight_manifest(path)
+    payload = {
+        "valid_records": [record.model_dump(mode="json") for record in batch.records],
+        "failures": [asdict(item) for item in batch.failures],
+    }
+    typer.echo(json.dumps(payload, ensure_ascii=False, indent=2))
+    if batch.failures:
+        raise typer.Exit(code=1)
 
 
 @library.command("validate-manifest")
@@ -117,9 +129,9 @@ def evaluate(
     output: Path,
     k: int = 5,
     config: Annotated[Path | None, typer.Option("--config")] = None,
+    pipeline: Annotated[str, typer.Option("--pipeline")] = "hybrid",
 ) -> None:
     paths = repo_paths()
-    service = RetrievalService(Catalog(paths.catalog_path), FTSIndex(paths.index_path))
     questions = load_gold(gold)
     acceptance_config = (
         EvaluationAcceptanceConfig.model_validate_json(config.read_text(encoding="utf-8"))
@@ -127,13 +139,33 @@ def evaluate(
         else None
     )
     effective_k = acceptance_config.k if acceptance_config is not None else k
-    rankings = {
-        item.question_id: [
-            (hit.resource_id, hit.locator) for hit in service.search(item.query, limit=effective_k)
-        ]
-        for item in questions
-    }
-    report = evaluate_rankings(questions, rankings, k=effective_k)
+    if pipeline == "fts":
+        service = RetrievalService(Catalog(paths.catalog_path), FTSIndex(paths.index_path))
+        rankings = {
+            item.question_id: [
+                (hit.resource_id, hit.locator)
+                for hit in service.search(item.query, limit=effective_k)
+            ]
+            for item in questions
+        }
+        report = evaluate_rankings(questions, rankings, k=effective_k)
+    elif pipeline == "hybrid":
+        settings = load_settings()
+        runtime = build_agent_runtime(settings, paths)
+
+        async def run_hybrid_evaluation():
+            try:
+                return await evaluate_retriever(
+                    questions,
+                    runtime.hybrid_retriever,
+                    k=effective_k,
+                )
+            finally:
+                await runtime.close()
+
+        report = asyncio.run(run_hybrid_evaluation())
+    else:
+        raise typer.BadParameter("--pipeline must be 'hybrid' or 'fts'")
     acceptance = (
         audit_evaluation(report, acceptance_config, non_official_leakage=0.0)
         if acceptance_config is not None
@@ -193,6 +225,11 @@ def agent_doctor() -> None:
                     base_url=settings.embedding.base_url,
                     dimensions=settings.embedding.dimensions,
                 ),
+            },
+            "rerank": {
+                "enabled": settings.rerank.enabled,
+                "model": settings.rerank.model,
+                "use_fp16": settings.rerank.use_fp16,
             },
             "storage": {
                 "catalog_exists": paths.catalog_path.exists(),

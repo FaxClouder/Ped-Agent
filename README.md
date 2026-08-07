@@ -20,14 +20,23 @@ Contributors should also read the
 [active and legacy code map](docs/legacy-scaffold.md) before changing entrypoints,
 configuration, retrieval, or Agent routing.
 
-The repository exposes two Python package boundaries and one server distribution:
+The repository exposes three program packages and one server distribution:
 
 - `ped-agent-core` / `ped_agent`: shared contracts, policies, evidence graph, compatibility
   imports, and domain models
+- `Knowledge-Base/` / `ped_knowledge`: technical ingestion, structured parsing,
+  parent-child Chunking, Catalog/Vault, sparse and dense indexing, hybrid retrieval,
+  optional Cross-Encoder Rerank, and Gold evaluation
 - `Video-Analysis/` / `ped_video_analysis`: detector manifests, model-weight location,
   detection/tracking, calibration, trajectory processing, flow analysis, and public APIs
-- `ped-agent-server` / `ped_agent_server`: FastAPI, SQLite, retrieval, model,
-  external-search, observability, and CLI adapters
+- `ped-agent-server` / `ped_agent_server`: FastAPI, CLI, configuration, Run lifecycle,
+  model/external-service providers, observability, and cross-module adapters
+
+The knowledge program now lives at `Knowledge-Base/src/ped_knowledge/`, parallel to
+`Video-Analysis/`. The former server knowledge modules remain as compatibility exports, while
+the active API, CLI, and EvidenceGraph runtime assemble `ped_knowledge` directly. `memPed/`
+remains data-only. See the
+[knowledge and evidence module design](docs/modules/knowledge-and-evidence.md).
 
 The current detection-and-flow delivery includes an end-to-end mixed-flow trajectory
 workbench with immutable pixel/world artifacts, review patches, calibration quality gates,
@@ -90,33 +99,46 @@ drafts, raw model payloads, and secrets; traced URLs have credentials, query str
 fragments removed. See [`docs/agent-architecture.md`](docs/agent-architecture.md) for the full
 API, SSE, privacy boundary, and answer chain.
 
-## Quality-Governed Knowledge Corpus
+## Knowledge Corpus and Ingestion
 
-The repository now manages knowledge, conversation memory, and reviewed method memory under
-the data-only [`memPed/`](memPed/README.md) root. Literature and regulations keep separate
-files and governance records, while sharing the local Catalog and retrieval indexes.
+The repository manages knowledge, conversation memory, and reviewed method memory under the
+data-only [`memPed/`](memPed/README.md) root. Literature and regulations keep separate files and
+records, while sharing the local Catalog and retrieval indexes.
 
-Tracked quality rules, screening records, manifests, Gold Questions, and approved methods
-remain reproducible in Git. PDFs, SQLite databases, conversations, candidate methods, reports,
-and search indexes remain local through `.gitignore`.
+Documents entering the ingestion flow are assumed to have been selected before upload. Runtime
+admission performs technical checks only: file integrity, PDF readability, SHA-256,
+duplicate/version identity, minimum metadata, and parseability. Existing quality rules and
+screening records remain tracked as upstream and compatibility assets. The former strict
+`ResourceManifest` validation remains available only through the legacy/offline governance path;
+the active import command uses `ped_knowledge.ingestion.IngestionManifest`.
 
-Validate a complete literature or regulation manifest before importing it:
+PDFs, SQLite databases, conversations, candidate methods, reports, and search indexes remain local
+through `.gitignore`. Gold Questions gate retrieval/index configuration releases, not individual
+document admission.
+
+Run technical preflight, then import the selected records:
 
 ```powershell
-uv run --project backend ped-agent library validate-manifest `
-  memPed/knowledge/literature/records/pilot_manifest.jsonl `
-  --phase pilot
+uv run --project backend ped-agent library preflight `
+  memPed/knowledge/literature/records/import_manifest.jsonl
+
+uv run --project backend ped-agent library import-manifest `
+  memPed/knowledge/literature/records/import_manifest.jsonl
 ```
 
-The validation enforces formal publication status, verified JCI/CAS metrics,
-age-adjusted citation impact, quality tiers, exception limits, and topic quotas.
+`library validate-manifest` remains an optional offline audit command for the historical
+JCI/CAS/citation and corpus-quota rules; it is not called by runtime import.
 
-After importing five literature items or two regulations per batch, rebuild the index
-and run the Gold Question acceptance gate:
+After an import batch, rebuild the indexes and run the Hybrid + optional Rerank Gold gate.
+Use `--pipeline fts` only for the compatibility baseline:
 
 ```powershell
+uv run --project backend ped-agent library build-index
+uv run --project backend ped-agent agent rebuild-vector-index
+
 uv run --project backend ped-agent evaluate `
   memPed/knowledge/pilot_gold.jsonl `
   memPed/knowledge/reports/pilot-evaluation.json `
-  --config memPed/knowledge/pilot_config.json
+  --config memPed/knowledge/pilot_config.json `
+  --pipeline hybrid
 ```

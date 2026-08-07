@@ -21,22 +21,21 @@ HISTORICAL_DOCUMENTS = {
     "docs/experiment-evaluation-module-design.md": "derived application design",
     "docs/vision-module-design.md": "target module design",
 }
-CANONICAL_SPEC_FILENAME = (
-    "2026-08-06-ped-agent-three-module-architecture-design.md"
-)
+CANONICAL_SPEC_FILENAME = "2026-08-06-ped-agent-three-module-architecture-design.md"
 ACTIVE_RUNTIME_HEADING = "## 📋 Active runtime"
 LEGACY_SCAFFOLD_HEADING = "## ⚠️ Legacy scaffold"
 SHARED_CODE_HEADING = "## 🔗 Shared code that remains active"
 ACTIVE_RUNTIME_ROWS = (
     "| CLI and server startup | `ped_agent_server.cli` |",
+    ("| Verified answer graph | `ped_agent.agent.evidence_graph.EvidenceGraph` |"),
     (
-        "| Verified answer graph | "
-        "`ped_agent.agent.evidence_graph.EvidenceGraph` |"
+        "| Knowledge program | `Knowledge-Base/src/ped_knowledge/` — ingestion, "
+        "parsing, Chunking, storage, indexing, retrieval, Rerank, and evaluation |"
     ),
     (
         "| Server and cross-module adapters | `backend/src/ped_agent_server/` — "
-        "spans API/SSE, Run lifecycle, retrieval, model, external search, and "
-        "observability adapters |"
+        "API/SSE, CLI, settings, Run lifecycle, provider assembly, external search, "
+        "and observability |"
     ),
     (
         "| memPed data root | `memPed/` — governed knowledge, conversation, "
@@ -65,9 +64,8 @@ def test_approved_three_module_spec_exists() -> None:
         status_issues.append("add `状态：已批准` within the first 8 lines")
     if "等待书面规格复核" in header:
         status_issues.append("remove the stale `等待书面规格复核` wording")
-    assert not status_issues, (
-        "canonical architecture spec header must:\n- "
-        + "\n- ".join(status_issues)
+    assert not status_issues, "canonical architecture spec header must:\n- " + "\n- ".join(
+        status_issues
     )
     for module_name in MODULE_NAMES:
         assert module_name in spec_text, (
@@ -93,8 +91,7 @@ def test_broad_design_documents_declare_their_current_status() -> None:
             f"{relative_path} is missing status phrase: {expected_status}"
         )
         assert CANONICAL_SPEC_FILENAME in header, (
-            f"{relative_path} header is missing canonical spec filename: "
-            f"{CANONICAL_SPEC_FILENAME}"
+            f"{relative_path} header is missing canonical spec filename: {CANONICAL_SPEC_FILENAME}"
         )
 
 
@@ -110,17 +107,12 @@ def test_readme_links_an_explicit_legacy_code_map() -> None:
     ):
         heading_count = legacy_map_text.count(heading)
         assert heading_count == 1, (
-            f"legacy code map must contain exactly one {heading!r} heading; "
-            f"found {heading_count}"
+            f"legacy code map must contain exactly one {heading!r} heading; found {heading_count}"
         )
 
     active_tail = legacy_map_text.split(ACTIVE_RUNTIME_HEADING, maxsplit=1)[1]
-    active_section, legacy_tail = active_tail.split(
-        LEGACY_SCAFFOLD_HEADING, maxsplit=1
-    )
-    legacy_section, shared_section = legacy_tail.split(
-        SHARED_CODE_HEADING, maxsplit=1
-    )
+    active_section, legacy_tail = active_tail.split(LEGACY_SCAFFOLD_HEADING, maxsplit=1)
+    legacy_section, shared_section = legacy_tail.split(SHARED_CODE_HEADING, maxsplit=1)
 
     for expected_row in ACTIVE_RUNTIME_ROWS:
         assert expected_row in active_section, (
@@ -144,19 +136,15 @@ def test_readme_links_an_explicit_legacy_code_map() -> None:
 def test_changelog_records_three_module_alignment() -> None:
     text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     unreleased_heading = "## Unreleased"
-    assert unreleased_heading in text, (
-        "CHANGELOG is missing an Unreleased section"
-    )
+    assert unreleased_heading in text, "CHANGELOG is missing an Unreleased section"
     unreleased_tail = text.split(unreleased_heading, maxsplit=1)[1]
     unreleased_section = unreleased_tail.split("\n## ", maxsplit=1)[0]
 
     for module_name in MODULE_NAMES:
         assert module_name in unreleased_section, (
-            f"CHANGELOG Unreleased section is missing aligned module: "
-            f"{module_name}"
+            f"CHANGELOG Unreleased section is missing aligned module: {module_name}"
         )
     application_classification = "applications built from the foundation modules"
     assert application_classification in unreleased_section, (
-        "CHANGELOG Unreleased section is missing the foundation-module "
-        "application classification"
+        "CHANGELOG Unreleased section is missing the foundation-module application classification"
     )

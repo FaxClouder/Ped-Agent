@@ -26,6 +26,10 @@ def clear_agent_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "PED_AGENT_VERIFY__STRUCTURED_OUTPUT_METHOD",
         "PED_AGENT_EMBEDDING__MODEL",
         "PED_AGENT_EMBEDDING__API_KEY",
+        "PED_AGENT_RERANK__ENABLED",
+        "PED_AGENT_RERANK__MODEL",
+        "PED_AGENT_RERANK__USE_FP16",
+        "PED_AGENT_RERANK__CACHE_SIZE",
         "PED_AGENT_LANGSMITH__ENABLED",
         "PED_AGENT_LANGSMITH__API_KEY",
         "PED_AGENT_LANGSMITH__PROJECT",
@@ -92,6 +96,25 @@ def test_runtime_storage_defaults_point_to_memped(monkeypatch: pytest.MonkeyPatc
         "memPed/conversations/conversations.sqlite3"
     )
     assert settings.runtime.chroma_path.as_posix() == "memPed/knowledge/vectors"
+    assert settings.rerank.enabled is False
+
+
+def test_settings_load_optional_cross_encoder_rerank(monkeypatch: pytest.MonkeyPatch) -> None:
+    clear_agent_env(monkeypatch)
+    monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-test")
+    monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
+    monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
+    monkeypatch.setenv("PED_AGENT_RERANK__ENABLED", "true")
+    monkeypatch.setenv("PED_AGENT_RERANK__MODEL", "BAAI/test-reranker")
+    monkeypatch.setenv("PED_AGENT_RERANK__USE_FP16", "false")
+
+    settings = load_settings(env_file=None)
+
+    assert settings.rerank.enabled is True
+    assert settings.rerank.model == "BAAI/test-reranker"
+    assert settings.rerank.use_fp16 is False
 
 
 def test_settings_reject_unscoped_legacy_provider_keys(
