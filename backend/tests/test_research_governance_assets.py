@@ -153,6 +153,7 @@ def test_memped_knowledge_records_and_empty_manifests_exist() -> None:
         "taxonomy.yaml",
         "quotas.yaml",
         "literature_quality_rules.yaml",
+        "prisma_governance.yaml",
         "literature/records/pilot_manifest.jsonl",
         "literature/records/core_manifest.jsonl",
         "regulations/records/pilot_manifest.jsonl",
@@ -166,8 +167,42 @@ def test_memped_knowledge_records_and_empty_manifests_exist() -> None:
     assert (MEMPED / "README.md").is_file()
     for relative_path in expected:
         assert (KNOWLEDGE / relative_path).is_file(), relative_path
-    for relative_path in expected[4:8] + expected[-2:]:
+    empty_expected = [
+        "literature/records/pilot_manifest.jsonl",
+        "literature/records/core_manifest.jsonl",
+        "regulations/records/pilot_manifest.jsonl",
+        "regulations/records/core_manifest.jsonl",
+        "pilot_gold.jsonl",
+        "core_gold.jsonl",
+    ]
+    for relative_path in empty_expected:
         assert not (KNOWLEDGE / relative_path).read_text(encoding="utf-8").strip()
+
+
+def test_prisma_governance_separates_selection_from_engineering_import() -> None:
+    governance = (KNOWLEDGE / "prisma_governance.yaml").read_text(encoding="utf-8")
+
+    stage_ids = [
+        "id: protocol",
+        "id: identification",
+        "id: deduplication",
+        "id: title_abstract_screening",
+        "id: fulltext_retrieval",
+        "id: fulltext_eligibility",
+        "id: quality_and_corpus_audit",
+        "id: selection_freeze",
+        "id: manifest_preflight",
+        "id: ingestion_and_indexing",
+        "id: retrieval_release",
+    ]
+    positions = [governance.index(stage_id) for stage_id in stage_ids]
+
+    assert positions == sorted(positions)
+    assert "prisma_inclusion_is_not_formal_import: true" in governance
+    assert "ai_can_assist_but_cannot_make_final_exclusion: true" in governance
+    assert "selection_freeze.json" in governance
+    assert "manifest_release.json" in governance
+    assert "retrieval_release.md" in governance
 
 
 def test_memped_csv_templates_have_stable_headers() -> None:

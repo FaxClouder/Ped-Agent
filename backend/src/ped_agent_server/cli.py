@@ -18,25 +18,35 @@ from ped_knowledge.evaluation import (
     evaluate_retriever,
     load_gold,
 )
-from ped_knowledge.indexing import FTSIndex, embedding_fingerprint
+from ped_knowledge.indexing import FTSIndex
 from ped_knowledge.ingestion import ImportService, preflight_manifest
 from ped_knowledge.retrieval import RetrievalService
 from ped_knowledge.storage import Catalog
 
 from ped_agent_server.agent_runtime import build_agent_runtime
 from ped_agent_server.api import create_app
+from ped_agent_server.embedding_gateway import (
+    configured_embedding_fingerprint,
+    validate_embedding_environment,
+)
 from ped_agent_server.governance import audit_literature_corpus, audit_regulation_corpus
 from ped_agent_server.manifest import load_and_preflight
 from ped_agent_server.model_gateway import DirectModelGateway
 from ped_agent_server.paths import WorkspacePaths
+from ped_agent_server.research_governance import (
+    GovernanceValidationError,
+    ResearchGovernanceService,
+)
 from ped_agent_server.settings import load_settings
 from ped_agent_server.vision_runtime import build_vision_runtime
 
 app = typer.Typer(no_args_is_help=True)
 library = typer.Typer(no_args_is_help=True)
 agent = typer.Typer(no_args_is_help=True)
+research = typer.Typer(no_args_is_help=True)
 app.add_typer(library, name="library")
 app.add_typer(agent, name="agent")
+app.add_typer(research, name="research")
 
 
 def repo_paths() -> WorkspacePaths:
@@ -47,14 +57,91 @@ def repo_paths() -> WorkspacePaths:
 def import_manifest(
     path: Path,
     report_output: Annotated[Path | None, typer.Option("--report")] = None,
+    release: Annotated[Path | None, typer.Option("--release")] = None,
+    technical_only: Annotated[bool, typer.Option("--technical-only")] = False,
 ) -> None:
     paths = repo_paths()
+    if release is not None and technical_only:
+        raise typer.BadParameter("--release and --technical-only are mutually exclusive")
+    batch = preflight_manifest(path)
+    resource_types = {record.resource_type for record in batch.records}
+    if len(resource_types) > 1:
+        raise typer.BadParameter("mixed resource types require separate Manifests")
+    if release is not None:
+        try:
+            ResearchGovernanceService(paths).verify_manifest_release(
+                release,
+                manifest_path=path,
+            )
+        except GovernanceValidationError as exc:
+            raise typer.BadParameter(str(exc), param_hint="--release") from exc
+    elif resource_types == {ResourceType.LITERATURE} and not technical_only:
+        raise typer.BadParameter(
+            "literature import requires --release; use --technical-only only for controlled "
+            "engineering validation"
+        )
     report = ImportService(paths).import_manifest(path)
     payload = json.dumps(asdict(report), ensure_ascii=False, indent=2)
     output = report_output or paths.reports_dir / f"{path.stem}-import.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(payload, encoding="utf-8")
     typer.echo(payload)
+
+
+@research.command("init")
+def initialize_research_review(review_id: str) -> None:
+    try:
+        review_root = ResearchGovernanceService(repo_paths()).initialize_review(review_id)
+    except GovernanceValidationError as exc:
+        raise typer.BadParameter(str(exc), param_hint="review_id") from exc
+    typer.echo(json.dumps({"review_id": review_id, "path": str(review_root)}, ensure_ascii=False))
+
+
+@research.command("freeze-selection")
+def freeze_research_selection(
+    review_id: str,
+    approved_by: Annotated[str, typer.Option("--approved-by")],
+) -> None:
+    try:
+        freeze = ResearchGovernanceService(repo_paths()).create_selection_freeze(
+            review_id,
+            approved_by=approved_by,
+        )
+    except GovernanceValidationError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(freeze.model_dump_json(indent=2))
+
+
+@research.command("release-manifest")
+def release_research_manifest(
+    review_id: str,
+    manifest: Path,
+    approved_by: Annotated[str, typer.Option("--approved-by")],
+) -> None:
+    try:
+        release = ResearchGovernanceService(repo_paths()).create_manifest_release(
+            review_id,
+            manifest,
+            approved_by=approved_by,
+        )
+    except GovernanceValidationError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(release.model_dump_json(indent=2))
+
+
+@research.command("validate-release")
+def validate_research_release(
+    release: Path,
+    manifest: Annotated[Path | None, typer.Option("--manifest")] = None,
+) -> None:
+    try:
+        validated = ResearchGovernanceService(repo_paths()).verify_manifest_release(
+            release,
+            manifest_path=manifest,
+        )
+    except GovernanceValidationError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(validated.model_dump_json(indent=2))
 
 
 @library.command("preflight")
@@ -191,8 +278,9 @@ def audit(output: Path) -> None:
 def agent_doctor() -> None:
     try:
         settings = load_settings()
-        DirectModelGateway.from_settings(settings)
         paths = repo_paths()
+        validate_embedding_environment(settings.embedding)
+        DirectModelGateway.from_settings(settings, repo_root=paths.repo_root)
         report = {
             "configuration": "ok",
             "answer": {
@@ -219,12 +307,19 @@ def agent_doctor() -> None:
                 "content_policy": settings.langsmith.content_policy,
             },
             "embedding": {
+                "protocol": settings.embedding.protocol,
                 "model": settings.embedding.model,
-                "fingerprint": embedding_fingerprint(
-                    model=settings.embedding.model,
-                    base_url=settings.embedding.base_url,
-                    dimensions=settings.embedding.dimensions,
+                "device": (
+                    settings.embedding.device
+                    if settings.embedding.protocol == "local_bge_m3"
+                    else None
                 ),
+                "use_fp16": (
+                    settings.embedding.use_fp16
+                    if settings.embedding.protocol == "local_bge_m3"
+                    else None
+                ),
+                "fingerprint": configured_embedding_fingerprint(settings.embedding),
             },
             "rerank": {
                 "enabled": settings.rerank.enabled,
@@ -263,11 +358,7 @@ def rebuild_vector_index() -> None:
             await runtime.vector_index.rebuild(
                 chunks,
                 catalog_fingerprint=catalog.official_fingerprint(),
-                embedding_fingerprint=embedding_fingerprint(
-                    model=settings.embedding.model,
-                    base_url=settings.embedding.base_url,
-                    dimensions=settings.embedding.dimensions,
-                ),
+                embedding_fingerprint=configured_embedding_fingerprint(settings.embedding),
             )
             typer.echo(json.dumps({"indexed_chunks": len(chunks)}, ensure_ascii=False))
         finally:

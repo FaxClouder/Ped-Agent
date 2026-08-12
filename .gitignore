@@ -27,6 +27,7 @@ data/papers/*
 data/scenarios/*
 !data/scenarios/.gitkeep
 backend/storage/vision/
+backend/storage/models/
 Video-Analysis/runtime/
 Video-Analysis/models/**/weights/*
 !Video-Analysis/models/**/weights/README.md

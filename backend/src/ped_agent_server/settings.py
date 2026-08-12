@@ -3,11 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ChatProtocol = Literal["openai_compatible", "anthropic"]
 StructuredOutputMethod = Literal["json_mode", "json_schema", "function_calling"]
+EmbeddingProtocol = Literal["local_bge_m3", "openai_compatible"]
 
 
 class ChatModelSettings(BaseModel):
@@ -36,13 +37,25 @@ class VerifySettings(BaseModel):
 
 
 class EmbeddingSettings(BaseModel):
-    protocol: Literal["openai_compatible"] = "openai_compatible"
-    model: str
+    protocol: EmbeddingProtocol = "local_bge_m3"
+    model: str = "BAAI/bge-m3"
     api_key: SecretStr | None = None
     base_url: str | None = None
     dimensions: int | None = None
+    revision: str | None = None
+    device: str = "cuda"
+    cache_dir: Path = Path("backend/storage/models/embeddings")
+    use_fp16: bool = True
+    normalize_embeddings: bool = True
+    batch_size: int = Field(default=16, ge=1)
     timeout_seconds: float = 60.0
     max_retries: int = 2
+
+    @model_validator(mode="after")
+    def default_local_dimensions(self) -> EmbeddingSettings:
+        if self.protocol == "local_bge_m3" and self.dimensions is None:
+            self.dimensions = 1024
+        return self
 
 
 class RerankSettings(BaseModel):
@@ -90,7 +103,7 @@ class AgentSettings(BaseSettings):
 
     answer: ChatModelSettings
     verify: VerifySettings = Field(default_factory=VerifySettings)
-    embedding: EmbeddingSettings
+    embedding: EmbeddingSettings = Field(default_factory=EmbeddingSettings)
     rerank: RerankSettings = Field(default_factory=RerankSettings)
     search: SearchSettings = Field(default_factory=SearchSettings)
     runtime: RuntimeSettings = Field(default_factory=RuntimeSettings)
@@ -146,7 +159,10 @@ def load_settings(env_file: str | Path | None = ".env") -> AgentSettings:
 def _validate_credentials(settings: AgentSettings) -> None:
     if settings.answer.api_key is None:
         raise ValueError("answer API key is required")
-    if settings.embedding.api_key is None:
+    if (
+        settings.embedding.protocol == "openai_compatible"
+        and settings.embedding.api_key is None
+    ):
         raise ValueError("embedding API key is required")
     if settings.verify.enabled and settings.resolved_verify.api_key is None:
         raise ValueError("verify API key is required")

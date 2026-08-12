@@ -11,8 +11,10 @@ Ped-Agent 的知识能力应拆成两个清晰边界：
 - `memPed/` 只保存资料、元数据、解析产物、数据库、索引和评测报告
 - `Knowledge-Base/` 保存解析、Chunking、索引、检索、Rerank 和评测程序
 
-资料在上传前已经确认可进入本地库。知识模块从“收到准备入库的资料”开始，
-只进行文件、版本、元数据、可解析性和数据一致性等技术校验，不重复执行内容准入审批。
+资料在上传前已经通过 PRISMA-informed 选择链、Ped-Agent 质量审计和选择冻结。
+知识模块从“收到批准的选择冻结包及其 Manifest”开始，只进行文件、版本、元数据、
+可解析性和数据一致性等技术校验，不重复执行内容准入审批。上游阶段、门禁和产物见
+[`PRISMA 文献治理与入库方案`](prisma-literature-governance.md)。
 
 当前优先级为：结构化解析、层次化 Chunking、BM25 + Dense + RRF、
 Cross-Encoder Rerank 和端到端 Gold 评测。GraphRAG 暂缓，不进入近期实施范围。
@@ -80,6 +82,8 @@ flowchart LR
 - `ped_agent_server` 可以导入并装配 `ped_knowledge`
 - `ped_knowledge` 不得反向导入 `ped_agent_server`
 - Embedding、Rerank 和外部解析服务使用 `ped_knowledge` 定义的协议，由后端注入实现
+- 默认 Embedding 实现由 `ped_agent_server` 在本机装配 `BAAI/bge-m3`，使用 CUDA + FP16；
+  模型权重写入 Git-ignored `backend/storage/models/embeddings/`，不进入 `memPed/`
 - `memPed/` 不出现 Python、TypeScript、JavaScript 或 Shell 业务代码
 - 旧 `src/ped_agent/knowledge/` 不再新增实现，待调用方迁移完成后逐步退役
 
@@ -89,7 +93,8 @@ flowchart LR
 memPed/knowledge/
 ├── literature/
 │   ├── files/                              # 文献原文和按哈希寻址的 Vault 文件
-│   └── records/                            # 上游选择记录、来源元数据和 Manifest
+│   ├── records/                            # 跨批次主表、来源元数据和 Manifest
+│   └── reviews/<review_id>/                # PRISMA 阶段快照、决定与选择冻结包
 ├── regulations/
 │   ├── files/
 │   └── records/
@@ -152,7 +157,7 @@ flowchart LR
     accTitle: Revised Knowledge Ingestion Pipeline
     accDescr: Preselected documents enter technical validation, structured parsing, canonicalization, hierarchical chunking, indexing, and release evaluation before a new active index configuration is published.
 
-    selected([📥 上传前已选资料])
+    selected([📥 已批准选择冻结包])
 
     subgraph ingest ["⚙️ 技术入库"]
         preflight{🔍 技术预检通过?}
@@ -389,6 +394,7 @@ Gold 评测用于检索算法、Chunk 策略、Embedding、Rerank 模型和参�
 | `Knowledge-Base/` 目录 | 已实现 | 保持独立模块边界和 README |
 | `ped_knowledge` 包 | 已实现 | 已加入根工作区打包、测试、Ruff 和 mypy |
 | 技术预检 | 已实现 | 文件、PDF 头、哈希、重复、元数据和可解析性校验 |
+| PRISMA 选择冻结与 Manifest Release | 已实现 | 上游产物哈希、数量守恒、资源集合绑定和 CLI 正式导入门禁 |
 | 内容准入移出运行时 | 已实现 | 活动导入不要求 JCI/CAS/引用量；旧门禁仅离线兼容 |
 | Content Vault | 已迁移 | 位于 `ped_knowledge.storage` |
 | Catalog | 已迁移增强 | 活动版本、版本状态、派生资产与检索配置表 |

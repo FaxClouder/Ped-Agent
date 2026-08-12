@@ -1,0 +1,194 @@
+version: 1
+profile: prisma_informed_literature_governance
+frameworks:
+  baseline: prisma_2020
+  search_reporting: prisma_s
+  optional_protocol: prisma_p
+  optional_scoping: prisma_scr
+
+boundary:
+  selection_ends_at: selection_freeze
+  active_ingestion_starts_at: manifest_preflight
+  prisma_inclusion_is_not_formal_import: true
+  ai_can_assist_but_cannot_make_final_exclusion: true
+
+identifiers:
+  review_id: One governed review or corpus-construction cycle
+  search_id: One executed search strategy against one source
+  record_id: One database or website record before deduplication
+  report_id: One retrievable document such as an article or preprint
+  study_id: One underlying study that can have multiple reports
+  resource_id: One Ped-Agent knowledge resource
+  version_id: One immutable imported version of a resource
+  decision_id: One reviewer or adjudication decision
+
+retention_classes:
+  git:
+    description: Small governed records, criteria, decisions, hashes, manifests, and release summaries
+  local_restricted:
+    description: Licensed full text, raw provider exports, and other source material that must not enter Git
+  derived_rebuildable:
+    description: Parsed documents, chunks, databases, and indexes that can be rebuilt
+
+stages:
+  - order: 0
+    id: protocol
+    name_zh: 范围与方案冻结
+    gate: protocol_approved
+    required_artifacts:
+      - path: literature/reviews/<review_id>/00-protocol/protocol.md
+        retention: git
+      - path: literature/reviews/<review_id>/00-protocol/eligibility_criteria.yaml
+        retention: git
+      - path: literature/reviews/<review_id>/00-protocol/search_strategy.yaml
+        retention: git
+      - path: literature/reviews/<review_id>/00-protocol/amendments.csv
+        retention: git
+
+  - order: 1
+    id: identification
+    name_zh: 检索与候选识别
+    gate: searches_complete
+    required_artifacts:
+      - path: literature/records/search_log.csv
+        retention: git
+      - path: literature/records/candidates.csv
+        retention: git
+      - path: literature/reviews/<review_id>/01-identification/search_snapshot.csv
+        retention: git
+      - path: reports/literature-search/<review_id>/
+        retention: local_restricted
+
+  - order: 2
+    id: deduplication
+    name_zh: 规范化与去重
+    gate: canonical_records_frozen
+    required_artifacts:
+      - path: literature/reviews/<review_id>/02-deduplication/deduplication.csv
+        retention: git
+      - path: literature/reviews/<review_id>/02-deduplication/record_aliases.csv
+        retention: git
+      - path: literature/reviews/<review_id>/02-deduplication/canonical_records.csv
+        retention: git
+
+  - order: 3
+    id: title_abstract_screening
+    name_zh: 标题与摘要筛选
+    gate: title_abstract_decisions_complete
+    required_artifacts:
+      - path: literature/reviews/<review_id>/03-title-abstract/screening_decisions.csv
+        retention: git
+      - path: literature/reviews/<review_id>/03-title-abstract/screening_consensus.csv
+        retention: git
+      - path: literature/reviews/<review_id>/03-title-abstract/automation_log.csv
+        retention: git
+      - path: literature/records/exclusions.csv
+        retention: git
+
+  - order: 4
+    id: fulltext_retrieval
+    name_zh: 全文查找与合法获取
+    gate: retrieval_status_complete
+    required_artifacts:
+      - path: literature/reviews/<review_id>/04-fulltext-retrieval/fulltext_retrieval.csv
+        retention: git
+      - path: literature/reviews/<review_id>/04-fulltext-retrieval/fulltext_inventory.csv
+        retention: git
+      - path: literature/files/
+        retention: local_restricted
+
+  - order: 5
+    id: fulltext_eligibility
+    name_zh: 全文资格筛选
+    gate: eligibility_decisions_complete
+    required_artifacts:
+      - path: literature/reviews/<review_id>/05-fulltext-eligibility/screening_decisions.csv
+        retention: git
+      - path: literature/reviews/<review_id>/05-fulltext-eligibility/study_report_map.csv
+        retention: git
+      - path: literature/reviews/<review_id>/05-fulltext-eligibility/eligibility_snapshot.csv
+        retention: git
+      - path: literature/records/exclusions.csv
+        retention: git
+
+  - order: 6
+    id: quality_and_corpus_audit
+    name_zh: 质量、完整性与语料结构审计
+    gate: corpus_requirements_passed
+    required_artifacts:
+      - path: literature/records/journal_metrics.csv
+        retention: git
+      - path: literature/records/citation_snapshots.csv
+        retention: git
+      - path: literature/records/screening.csv
+        retention: git
+      - path: literature/records/exceptions.csv
+        retention: git
+      - path: literature/reviews/<review_id>/06-quality/integrity_checks.csv
+        retention: git
+      - path: literature/reviews/<review_id>/06-quality/corpus_audit.json
+        retention: git
+
+  - order: 7
+    id: selection_freeze
+    name_zh: 纳入集合冻结与 PRISMA 报告
+    gate: selection_freeze_approved
+    required_artifacts:
+      - path: literature/reviews/<review_id>/07-selection-freeze/included_studies.csv
+        retention: git
+      - path: literature/reviews/<review_id>/07-selection-freeze/prisma_counts.json
+        retention: git
+      - path: literature/reviews/<review_id>/07-selection-freeze/prisma_flow.md
+        retention: git
+      - path: literature/reviews/<review_id>/07-selection-freeze/prisma_checklist.md
+        retention: git
+      - path: literature/reviews/<review_id>/07-selection-freeze/selection_freeze.json
+        retention: git
+
+  - order: 8
+    id: manifest_preflight
+    name_zh: Manifest 生成与技术预检
+    gate: manifest_preflight_passed
+    required_artifacts:
+      - path: literature/records/pilot_manifest.jsonl
+        retention: git
+      - path: literature/records/core_manifest.jsonl
+        retention: git
+      - path: literature/reviews/<review_id>/08-manifest/manifest_release.json
+        retention: git
+      - path: reports/<review_id>/manifest_preflight_report.json
+        retention: local_restricted
+
+  - order: 9
+    id: ingestion_and_indexing
+    name_zh: 导入、解析与索引
+    gate: ingestion_completed
+    required_artifacts:
+      - path: reports/<review_id>/import_report.json
+        retention: local_restricted
+      - path: derived/<resource_id>/<version_id>/parse_report.json
+        retention: derived_rebuildable
+      - path: knowledge.sqlite3
+        retention: derived_rebuildable
+      - path: fts.sqlite3
+        retention: derived_rebuildable
+      - path: vectors/
+        retention: derived_rebuildable
+
+  - order: 10
+    id: retrieval_release
+    name_zh: Gold 评测与检索发布
+    gate: retrieval_release_approved
+    required_artifacts:
+      - path: pilot_gold.jsonl
+        retention: git
+      - path: core_gold.jsonl
+        retention: git
+      - path: pilot_config.json
+        retention: git
+      - path: core_config.json
+        retention: git
+      - path: reports/<review_id>/evaluation_report.json
+        retention: local_restricted
+      - path: literature/reviews/<review_id>/10-release/retrieval_release.md
+        retention: git

@@ -208,9 +208,26 @@ class ChromaVectorIndex:
         return self._client().get_or_create_collection(self.collection_name)
 
 
-def embedding_fingerprint(*, model: str, base_url: str | None, dimensions: int | None) -> str:
+def embedding_fingerprint(
+    *,
+    model: str,
+    base_url: str | None,
+    dimensions: int | None,
+    protocol: str = "openai_compatible",
+    revision: str | None = None,
+    normalize_embeddings: bool | None = None,
+    use_fp16: bool | None = None,
+) -> str:
     payload = json.dumps(
-        {"model": model, "base_url": base_url, "dimensions": dimensions},
+        {
+            "protocol": protocol,
+            "model": model,
+            "revision": revision,
+            "base_url": base_url,
+            "dimensions": dimensions,
+            "normalize_embeddings": normalize_embeddings,
+            "use_fp16": use_fp16,
+        },
         sort_keys=True,
         separators=(",", ":"),
     )

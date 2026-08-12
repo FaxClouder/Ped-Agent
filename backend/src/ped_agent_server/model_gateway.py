@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Any
 
 from langchain_anthropic import ChatAnthropic
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 from ped_agent.agent.contracts import ModelOutput
 from ped_agent.agent.ports import StructuredOutputUnsupported
 from pydantic import BaseModel
 
-from ped_agent_server.settings import AgentSettings, ChatModelSettings, EmbeddingSettings
+from ped_agent_server.embedding_gateway import build_embedding_gateway
+from ped_agent_server.settings import AgentSettings, ChatModelSettings
 
 
 class DirectModelGateway:
@@ -29,7 +31,12 @@ class DirectModelGateway:
         self._verify_structured_method = verify_structured_method
 
     @classmethod
-    def from_settings(cls, settings: AgentSettings) -> DirectModelGateway:
+    def from_settings(
+        cls,
+        settings: AgentSettings,
+        *,
+        repo_root: Path,
+    ) -> DirectModelGateway:
         verify_settings = settings.resolved_verify
         verify_client = (
             _build_chat_client(verify_settings) if settings.verify.enabled else None
@@ -37,7 +44,10 @@ class DirectModelGateway:
         return cls(
             answer_client=_build_chat_client(settings.answer),
             verify_client=verify_client,
-            embedding_client=_build_embedding_client(settings.embedding),
+            embedding_client=build_embedding_gateway(
+                settings.embedding,
+                repo_root=repo_root,
+            ),
             answer_structured_method=(
                 settings.answer.structured_output_method
                 if settings.answer.protocol == "openai_compatible"
@@ -64,6 +74,9 @@ class DirectModelGateway:
         return _to_model_output(await self._verify_client.ainvoke(prompt))
 
     async def embed(self, texts: list[str]) -> list[list[float]]:
+        embed = getattr(self._embedding_client, "embed", None)
+        if callable(embed):
+            return await embed(texts)
         return await self._embedding_client.aembed_documents(texts)
 
     async def generate_structured(
@@ -111,20 +124,6 @@ def _build_chat_client(settings: ChatModelSettings) -> Any:
     if settings.base_url:
         common["base_url"] = settings.base_url
     return ChatOpenAI(**common)
-
-
-def _build_embedding_client(settings: EmbeddingSettings) -> OpenAIEmbeddings:
-    kwargs: dict[str, Any] = {
-        "model": settings.model,
-        "api_key": settings.api_key.get_secret_value() if settings.api_key else None,
-        "request_timeout": settings.timeout_seconds,
-        "max_retries": settings.max_retries,
-    }
-    if settings.base_url:
-        kwargs["base_url"] = settings.base_url
-    if settings.dimensions:
-        kwargs["dimensions"] = settings.dimensions
-    return OpenAIEmbeddings(**kwargs)
 
 
 def _to_model_output(message: Any) -> ModelOutput:

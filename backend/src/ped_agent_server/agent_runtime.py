@@ -5,12 +5,13 @@ from pathlib import Path
 
 import httpx
 from ped_agent.agent.evidence_graph import EvidenceGraph
-from ped_knowledge.indexing import ChromaVectorIndex, FTSIndex, embedding_fingerprint
+from ped_knowledge.indexing import ChromaVectorIndex, FTSIndex
 from ped_knowledge.reranking import CrossEncoderReranker
 from ped_knowledge.retrieval import HybridRetriever
 from ped_knowledge.storage import Catalog
 
 from ped_agent_server.agent_repository import AgentRepository
+from ped_agent_server.embedding_gateway import configured_embedding_fingerprint
 from ped_agent_server.evidence_executor import HybridLocalEvidenceRetriever, LangGraphRunExecutor
 from ped_agent_server.external_search import ExternalSearchCoordinator
 from ped_agent_server.model_gateway import DirectModelGateway
@@ -38,12 +39,11 @@ class AgentRuntime:
 def build_agent_runtime(settings: AgentSettings, paths: WorkspacePaths) -> AgentRuntime:
     repository = AgentRepository(_resolve_path(paths.repo_root, settings.runtime.agent_db_path))
     repository.initialize()
-    gateway = DirectModelGateway.from_settings(settings)
-    embedding_id = embedding_fingerprint(
-        model=settings.embedding.model,
-        base_url=settings.embedding.base_url,
-        dimensions=settings.embedding.dimensions,
+    gateway = DirectModelGateway.from_settings(
+        settings,
+        repo_root=paths.repo_root,
     )
+    embedding_id = configured_embedding_fingerprint(settings.embedding)
     vector_index = ChromaVectorIndex(
         _resolve_path(paths.repo_root, settings.runtime.chroma_path),
         gateway,

@@ -25,7 +25,16 @@ def clear_agent_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "PED_AGENT_VERIFY__MAX_RETRIES",
         "PED_AGENT_VERIFY__STRUCTURED_OUTPUT_METHOD",
         "PED_AGENT_EMBEDDING__MODEL",
+        "PED_AGENT_EMBEDDING__PROTOCOL",
         "PED_AGENT_EMBEDDING__API_KEY",
+        "PED_AGENT_EMBEDDING__BASE_URL",
+        "PED_AGENT_EMBEDDING__DIMENSIONS",
+        "PED_AGENT_EMBEDDING__REVISION",
+        "PED_AGENT_EMBEDDING__DEVICE",
+        "PED_AGENT_EMBEDDING__CACHE_DIR",
+        "PED_AGENT_EMBEDDING__USE_FP16",
+        "PED_AGENT_EMBEDDING__NORMALIZE_EMBEDDINGS",
+        "PED_AGENT_EMBEDDING__BATCH_SIZE",
         "PED_AGENT_RERANK__ENABLED",
         "PED_AGENT_RERANK__MODEL",
         "PED_AGENT_RERANK__USE_FP16",
@@ -46,6 +55,7 @@ def test_settings_load_nested_roles_and_mask_secrets(monkeypatch: pytest.MonkeyP
     monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
     monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "true")
     monkeypatch.setenv("PED_AGENT_VERIFY__PROTOCOL", "inherit")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__PROTOCOL", "openai_compatible")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "text-embedding-3-small")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
 
@@ -69,6 +79,7 @@ def test_settings_load_scoped_values_from_env_file(
         "PED_AGENT_ANSWER__MODEL=deepseek-file\n"
         "PED_AGENT_ANSWER__API_KEY=answer-file-secret\n"
         "PED_AGENT_VERIFY__ENABLED=false\n"
+        "PED_AGENT_EMBEDDING__PROTOCOL=openai_compatible\n"
         "PED_AGENT_EMBEDDING__MODEL=embedding-file\n"
         "PED_AGENT_EMBEDDING__API_KEY=embedding-file-secret\n",
         encoding="utf-8",
@@ -87,6 +98,7 @@ def test_runtime_storage_defaults_point_to_memped(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-test")
     monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
     monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__PROTOCOL", "openai_compatible")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
 
@@ -104,6 +116,7 @@ def test_settings_load_optional_cross_encoder_rerank(monkeypatch: pytest.MonkeyP
     monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-test")
     monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
     monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__PROTOCOL", "openai_compatible")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
     monkeypatch.setenv("PED_AGENT_RERANK__ENABLED", "true")
@@ -125,6 +138,7 @@ def test_settings_reject_unscoped_legacy_provider_keys(
     monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "claude-sonnet-4-20250514")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "legacy-secret")
     monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__PROTOCOL", "openai_compatible")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "text-embedding-3-small")
     monkeypatch.setenv("OPENAI_API_KEY", "legacy-embedding-secret")
 
@@ -138,6 +152,7 @@ def test_settings_reject_missing_required_agent_credentials(
     clear_agent_env(monkeypatch)
     monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "gpt-test")
     monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__PROTOCOL", "openai_compatible")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
 
     with pytest.raises(ValueError, match="answer API key"):
@@ -155,6 +170,7 @@ def test_settings_resolve_deepseek_json_mode_and_redacted_langsmith(
     monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "true")
     monkeypatch.setenv("PED_AGENT_VERIFY__PROTOCOL", "inherit")
     monkeypatch.setenv("PED_AGENT_VERIFY__MODEL", "deepseek-v4-pro")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__PROTOCOL", "openai_compatible")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
     monkeypatch.setenv("PED_AGENT_LANGSMITH__ENABLED", "true")
@@ -190,6 +206,7 @@ def test_settings_reject_non_redacted_langsmith_policy(
     monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-v4-flash")
     monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
     monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__PROTOCOL", "openai_compatible")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
     monkeypatch.setenv("PED_AGENT_LANGSMITH__CONTENT_POLICY", "full")
@@ -212,6 +229,7 @@ def test_settings_resolve_explicit_verify_zero_values_and_inherit_output_method(
     monkeypatch.setenv("PED_AGENT_VERIFY__MAX_TOKENS", "0")
     monkeypatch.setenv("PED_AGENT_VERIFY__TIMEOUT_SECONDS", "0.0")
     monkeypatch.setenv("PED_AGENT_VERIFY__MAX_RETRIES", "0")
+    monkeypatch.setenv("PED_AGENT_EMBEDDING__PROTOCOL", "openai_compatible")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__MODEL", "embed-test")
     monkeypatch.setenv("PED_AGENT_EMBEDDING__API_KEY", "embedding-secret")
 
@@ -222,3 +240,21 @@ def test_settings_resolve_explicit_verify_zero_values_and_inherit_output_method(
     assert resolved.timeout_seconds == 0.0
     assert resolved.max_retries == 0
     assert resolved.structured_output_method == "json_mode"
+
+
+def test_local_embedding_defaults_to_cuda_fp16_without_api_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clear_agent_env(monkeypatch)
+    monkeypatch.setenv("PED_AGENT_ANSWER__MODEL", "deepseek-test")
+    monkeypatch.setenv("PED_AGENT_ANSWER__API_KEY", "answer-secret")
+    monkeypatch.setenv("PED_AGENT_VERIFY__ENABLED", "false")
+
+    settings = load_settings(env_file=None)
+
+    assert settings.embedding.protocol == "local_bge_m3"
+    assert settings.embedding.model == "BAAI/bge-m3"
+    assert settings.embedding.device == "cuda"
+    assert settings.embedding.use_fp16 is True
+    assert settings.embedding.dimensions == 1024
+    assert settings.embedding.api_key is None

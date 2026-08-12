@@ -14,6 +14,7 @@ class WorkspacePaths:
     literature_files_dir: Path
     regulations_files_dir: Path
     literature_records_dir: Path
+    literature_reviews_dir: Path
     regulations_records_dir: Path
     derived_dir: Path
     reports_dir: Path
@@ -45,6 +46,7 @@ class WorkspacePaths:
             literature_files_dir=literature_root / "files",
             regulations_files_dir=regulations_root / "files",
             literature_records_dir=literature_root / "records",
+            literature_reviews_dir=literature_root / "reviews",
             regulations_records_dir=regulations_root / "records",
             derived_dir=knowledge_root / "derived",
             reports_dir=knowledge_root / "reports",
@@ -62,6 +64,7 @@ class WorkspacePaths:
     def ensure_local_dirs(self) -> None:
         for directory in (
             self.literature_files_dir,
+            self.literature_reviews_dir,
             self.regulations_files_dir,
             self.derived_dir,
             self.reports_dir,

@@ -82,6 +82,13 @@ configuration sources for `ped_agent_server` and repository scripts. All project
 changes require a restart, and embedding changes require
 `ped-agent agent rebuild-vector-index`.
 
+Dense retrieval defaults to local `BAAI/bge-m3` embeddings on CUDA with FP16. Model files are
+downloaded lazily into Git-ignored `backend/storage/models/embeddings/`; Chroma data remains under
+`memPed/knowledge/vectors/`. The runtime fails clearly when CUDA is unavailable instead of silently
+using the CPU. An explicit CPU fallback requires both
+`PED_AGENT_EMBEDDING__DEVICE=cpu` and `PED_AGENT_EMBEDDING__USE_FP16=false`. The
+`openai_compatible` embedding protocol remains available for remote services.
+
 The first-version answer runtime uses `deepseek-v4-flash`, with `deepseek-v4-pro` for semantic
 verification. DeepSeek structured output is requested through LangChain `json_mode`. Every run
 performs deterministic local-evidence preflight before any DeepSeek chat call and, only when
@@ -110,21 +117,33 @@ admission performs technical checks only: file integrity, PDF readability, SHA-2
 duplicate/version identity, minimum metadata, and parseability. Existing quality rules and
 screening records remain tracked as upstream and compatibility assets. The former strict
 `ResourceManifest` validation remains available only through the legacy/offline governance path;
-the active import command uses `ped_knowledge.ingestion.IngestionManifest`.
+the active low-level importer uses `ped_knowledge.ingestion.IngestionManifest`, while the CLI
+requires an approved PRISMA selection freeze and bound Manifest Release for literature.
 
 PDFs, SQLite databases, conversations, candidate methods, reports, and search indexes remain local
 through `.gitignore`. Gold Questions gate retrieval/index configuration releases, not individual
 document admission.
 
-Run technical preflight, then import the selected records:
+Initialize and complete a governed review, freeze the selection, release the Manifest, then run
+technical preflight and formal import:
 
 ```powershell
+uv run --project backend ped-agent research init <review_id>
+uv run --project backend ped-agent research freeze-selection <review_id> --approved-by <name>
+uv run --project backend ped-agent research release-manifest <review_id> `
+  memPed/knowledge/literature/records/import_manifest.jsonl --approved-by <name>
+
 uv run --project backend ped-agent library preflight `
   memPed/knowledge/literature/records/import_manifest.jsonl
 
 uv run --project backend ped-agent library import-manifest `
-  memPed/knowledge/literature/records/import_manifest.jsonl
+  memPed/knowledge/literature/records/import_manifest.jsonl `
+  --release memPed/knowledge/literature/reviews/<review_id>/08-manifest/manifest_release.json
 ```
+
+`--technical-only` is reserved for controlled low-level import smoke tests and is not formal
+literature admission. Regulation and standard Manifests currently remain outside the PRISMA
+Release requirement and must be imported separately from literature.
 
 `library validate-manifest` remains an optional offline audit command for the historical
 JCI/CAS/citation and corpus-quota rules; it is not called by runtime import.
