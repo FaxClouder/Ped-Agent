@@ -1,0 +1,28 @@
+run_id: TODO
+name: TODO
+run_type: experiment
+status: planned
+started_at: TODO
+finished_at: TODO
+
+version:
+  git_commit: TODO
+  git_dirty: TODO
+  data_version: TODO
+  config_path: TODO
+
+environment:
+  operating_system: TODO
+  python_version: TODO
+  dependency_lock: TODO
+  model_ids: []
+
+execution:
+  command: TODO
+  seed: TODO
+  operator: TODO
+
+artifacts:
+  metrics: metrics.csv
+  notes: notes.md
+  figures: []

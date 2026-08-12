@@ -1,0 +1,29 @@
+experiment:
+  name: governed-retrieval-baseline
+  status: planned
+  task: evidence_retrieval
+  research_question: Does the governed retrieval pipeline meet the pre-registered acceptance thresholds?
+
+data:
+  corpus_version: TODO
+  gold_set: TODO
+  split: test
+
+conditions:
+  - name: baseline_fts5
+    retriever: fts5_bm25
+  - name: candidate_hybrid
+    retriever: hybrid
+
+metrics:
+  - recall_at_5
+  - mean_reciprocal_rank
+  - citation_coverage
+
+acceptance_thresholds:
+  recall_at_5: TODO
+  mean_reciprocal_rank: TODO
+
+reproducibility:
+  seed: 20260812
+  command: TODO

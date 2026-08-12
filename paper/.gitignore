@@ -1,0 +1,22 @@
+# LaTeX build artifacts
+build/
+latex/**/*.aux
+latex/**/*.bbl
+latex/**/*.blg
+latex/**/*.fdb_latexmk
+latex/**/*.fls
+latex/**/*.log
+latex/**/*.out
+latex/**/*.spl
+latex/ieee/*.pdf
+latex/elsevier/*.pdf
+latex/**/*.synctex.gz
+latex/**/*.toc
+
+# Large or sensitive experiment artifacts
+experiments/data/raw/*
+!experiments/data/raw/.gitkeep
+experiments/results/runs/**/checkpoints/
+experiments/results/runs/**/logs/
+experiments/results/runs/**/traces/
+experiments/results/runs/**/.env

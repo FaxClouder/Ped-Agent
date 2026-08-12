@@ -1,0 +1,42 @@
+\documentclass[preprint,12pt]{elsarticle}
+
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+
+\input{../shared/metadata}
+
+\journal{Target Journal}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{\PaperTitle}
+
+\author[inst1]{Author Name}
+\address[inst1]{Institution, City, Country}
+
+\begin{abstract}
+\input{../shared/abstract}
+\end{abstract}
+
+\begin{keyword}
+\PaperKeywords
+\end{keyword}
+
+\end{frontmatter}
+
+\input{../shared/sections/01_introduction}
+\input{../shared/sections/02_related_work}
+\input{../shared/sections/03_method}
+\input{../shared/sections/04_experiments}
+\input{../shared/sections/05_results}
+\input{../shared/sections/06_discussion}
+\input{../shared/sections/07_conclusion}
+
+\bibliographystyle{elsarticle-num}
+\bibliography{../references/references}
+
+\end{document}
