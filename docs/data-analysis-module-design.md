@@ -2,8 +2,7 @@
 
 > **Status: target module design.** This document describes intended analysis depth;
 > current code remains an engineering foundation under “检测追踪与流动分析”.
-> Canonical module boundary:
-> [Ped-Agent 三模块总体架构设计](superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md).
+> Current module boundary: [Ped-Agent current project architecture](project-architecture.md).
 > Runtime configuration is now unified on the repository-root `.env`; any YAML configuration
 > examples below are historical design sketches rather than active inputs.
 

@@ -2,8 +2,7 @@
 
 > **Status: target module design.** Vision belongs to “检测追踪与流动分析”
 > and is not a standalone product line.
-> Canonical module boundary:
-> [Ped-Agent 三模块总体架构设计](superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md).
+> Current module boundary: [Ped-Agent current project architecture](project-architecture.md).
 
 ## 一、模块概述
 

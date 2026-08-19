@@ -1,56 +1,35 @@
 # Contributing
 
-Ped-Agent uses a small, conventional Git workflow:
+Ped-Agent 当前是科研工程。贡献应围绕一个明确的研究问题、算法模块或可复现实验展开，
+不要同时引入产品后端、前端页面和运行平台。
 
-1. Create a branch from `main`.
-2. Keep changes focused on one feature or fix.
-3. Run the core, backend and frontend verification commands before opening a pull request.
-4. Include tests for new behavior where practical.
-5. Use the pull request template to summarize the change and validation.
+## 开发原则
 
-## Development Setup
+1. 每次改动只影响一个模块或一个稳定契约。
+2. 保存实验输入、配置、模型版本、随机种子和结果说明。
+3. 对数值算法提供一个固定样例或参考输出。
+4. 不以测试覆盖率、服务高可用或 UI 完成度衡量科研进度。
+5. 不提交 API Key、原始受限数据、本地模型权重和运行数据库。
+
+## 本地环境
 
 ```powershell
 py -3.12 -m venv .venv
-uv sync --project backend
-$env:PYTHONPATH='src'
-.\.venv\Scripts\python.exe -m pytest tests -q
+uv sync
+$env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src"
 ```
 
-Optional module dependencies are installed separately:
-
-```bash
-pip install -e ".[rag]"
-pip install -e ".[vision]"
-```
-
-The local knowledge backend has its own dependency environment and tests:
+按需运行模块验证：
 
 ```powershell
-cd backend
-uv run --group dev python -m pytest -q --basetemp .pytest-tmp
-uv run --group dev ruff check src tests
-
-cd ..\frontend
-npm ci
-npm test
-npm run build
+.\.venv\Scripts\python -m pytest Knowledge-Base/tests -q
+.\.venv\Scripts\python -m pytest Video-Analysis/tests -q
+.\.venv\Scripts\python -m pytest Agent/tests Contracts/tests -q
 ```
 
-## Knowledge Asset Rules
+## 数据规则
 
-- Commit policies, search logs, screening decisions, metric snapshots, manifests,
-  Gold Questions, and approved methods under `memPed/`.
-- Never commit PDFs, parsed full text, SQLite catalogs, retrieval indexes, API keys,
-  conversations, candidate methods, cookies, or raw trajectory data.
-- Official literature manifests must pass `ped-agent library validate-manifest`.
-- Do not lower quality thresholds or add X-tier exceptions merely to fill a quota.
-
-## Commit Style
-
-Use concise imperative commit messages, for example:
-
-```text
-scaffold phase 1 project structure
-add analysis pipeline smoke tests
-```
+- `memPed/` 保存研究数据、记录、索引和实验报告。
+- `paper/` 保存论文源文件和构建结果。
+- 大文件、PDF、数据库、向量索引和模型缓存保持本地，不提交 Git。
+- SHA-256 用于实验输入身份和复现，不代表产品级安全体系。

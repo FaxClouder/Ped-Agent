@@ -1,61 +1,25 @@
 # Video-Analysis
 
-`Video-Analysis/` 是 Ped-Agent 的独立视频检测与轨迹分析模块。当前先完成模型资源、追踪器资源和公共接口骨架的拆分；`tools/` 仅作为预留能力目录，不预设具体分析实现。
+检测追踪与流动分析科研模块，负责把视频或轨迹数据转换为可复查的轨迹、指标、图表和
+分析产物。
 
-## 当前目录
+## 研究链路
 
 ```text
-Video-Analysis/
-├─ models/                           # 按模型存放配置和权重
-│  └─ yolo26x/
-│     ├─ model.yaml
-│     └─ weights/
-├─ trackers/                         # 按追踪器存放配置和专属资源
-│  └─ bytetrack/
-│     └─ tracker.yaml
-├─ src/ped_video_analysis/
-│  ├─ api.py                         # 对外稳定函数
-│  ├─ schemas.py                     # 公共数据契约
-│  ├─ registry.py                    # 模型与追踪器资源加载
-│  ├─ pipeline.py                    # 已确认的检测与追踪编排
-│  ├─ paths.py                       # 模块资源路径
-│  └─ tools/README.md                # 未确定能力的预留边界
-├─ runtime/                          # 本地任务和运行产物；Git 忽略
-└─ tests/                            # 模块级测试
+视频或轨迹
+→ 检测与跟踪
+→ 人工复核
+→ 标定与坐标投影
+→ 轨迹后处理
+→ 密度、速度、流量、OD 与交互分析
+→ 图表和实验导出
 ```
 
-现有 `vision/`、`analysis/` 和内部配置暂时作为兼容实现保留，待 `tools` 的功能清单确认后再决定迁移位置，不在本阶段做推测性重构。
+## 边界
 
-## 模型与追踪器
+- 模块不依赖后端服务、任务数据库、SSE 或前端页面。
+- `models/` 和 `trackers/` 保存配置；本地权重与运行产物受 Git 忽略。
+- `ped_contracts` 提供共享轨迹结构；分析特有数据结构由本模块维护。
+- 当前先保留 `vision/` 与 `analysis/` 两套研究实现，待实验路线明确后再收敛。
 
-默认模型配置：
-
-`models/yolo26x/model.yaml`
-
-默认追踪器配置：
-
-`trackers/bytetrack/tracker.yaml`
-
-首次运行前需要：
-
-1. 将模型权重放入 `models/yolo26x/weights/yolo26x.pt`；
-2. 将 `model.yaml` 中的占位 `sha256` 替换为权重文件的真实 SHA-256；
-3. 根据需要调整模型推理参数或 ByteTrack 参数。
-
-模型配置不再包含追踪器参数。注册器加载模型时，会将选定的追踪器配置组合为现有运行链路所需的兼容清单。
-
-## 外部调用
-
-```python
-from ped_video_analysis import create_model_registry, run_video_inference
-
-registry = create_model_registry(tracker_id="bytetrack")
-pixel_tracks = run_video_inference(
-    "sample.mp4",
-    task_id="demo-001",
-    model_id="mixed-flow-yolo26-bytetrack",
-    registry=registry,
-)
-```
-
-Ped-Agent 后端继续提供 `/api/vision/*` HTTP 接口。独立使用时可以通过 `PED_VIDEO_ANALYSIS_HOME` 指定 `Video-Analysis` 根目录。
+独立推理示例见 `examples/run_vision.py`。

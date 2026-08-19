@@ -1,144 +1,47 @@
 # Ped-Agent
 
-Ped-Agent is a local-first, evidence-bound research agent for pedestrian-flow research.
+Ped-Agent 是面向行人流研究的模块化科研工程。当前目标是形成可独立实验、可组合、
+可复现的知识检索、视频分析和证据问答能力，而不是建设 Web 产品或长期运行服务。
 
-The project has three foundation modules:
+## 研究模块
 
-1. **知识与证据底座** — governed literature, regulations, and formal evidence, with
-   Catalog, Vault, FTS5, Chroma, and retrieval evaluation.
-2. **检测追踪与流动分析** — video or trajectory processing, detection, tracking,
-   calibration, review, density, speed, flow, and OD analysis.
-3. **LLM 问答与会话** — conversations, deterministic evidence orchestration, structured
-   generation, citation validation, semantic verification, and SSE.
+| 目录 | 研究职责 | 主要输出 |
+| --- | --- | --- |
+| `Contracts/` | 稳定的跨模块数据契约 | Evidence、Answer、Trajectory |
+| `Knowledge-Base/` | 文献解析、索引、检索、Rerank 与评测 | Evidence Item、检索报告 |
+| `Video-Analysis/` | 检测、跟踪、标定、轨迹与流动分析 | 轨迹、指标、图表、Analysis Bundle |
+| `Agent/` | 证据编排、引用约束和科研问答 | Answer Document |
 
-Literature QA, trajectory analysis, scenario diagnosis, safety assessment, and experiment
-support are applications that combine these modules, not independent foundations. See the
-[approved three-module architecture specification](docs/superpowers/specs/2026-08-06-ped-agent-three-module-architecture-design.md)
-for the canonical boundaries.
+科研资产按用途分开：`memPed/` 保存本地研究数据，`experiments/` 保存可复现实验定义，
+`paper/` 保存论文工程，`outputs/` 保存本地实验产物，`docs/` 保存方法和设计记录。
+当前文档入口见 [`docs/README.md`](docs/README.md)；贡献与 Agent 规则见 [`AGENTS.md`](AGENTS.md)。
 
-Contributors should also read the
-[active and legacy code map](docs/legacy-scaffold.md) before changing entrypoints,
-configuration, retrieval, or Agent routing.
+## 当前阶段边界
 
-The repository exposes three program packages and one server distribution:
+- 各模块独立开发，通过 `Contracts/` 预留接口。
+- 不维护 FastAPI、Vue、SSE、任务队列和会话数据库。
+- 不追求产品级高可用、权限、加密、审计和高覆盖率测试。
+- 保留科研所需的文件哈希、算法版本、配置、随机种子和结果 provenance。
+- 测试只服务于算法正确性、契约稳定和实验结果不被无意改变。
 
-- `ped-agent-core` / `ped_agent`: shared contracts, policies, evidence graph, compatibility
-  imports, and domain models
-- `Knowledge-Base/` / `ped_knowledge`: technical ingestion, structured parsing,
-  parent-child Chunking, Catalog/Vault, sparse and dense indexing, hybrid retrieval,
-  optional Cross-Encoder Rerank, and Gold evaluation
-- `Video-Analysis/` / `ped_video_analysis`: detector manifests, model-weight location,
-  detection/tracking, calibration, trajectory processing, flow analysis, and public APIs
-- `ped-agent-server` / `ped_agent_server`: FastAPI, CLI, configuration, Run lifecycle,
-  model/external-service providers, observability, and cross-module adapters
+## 本地验证
 
-The knowledge program now lives at `Knowledge-Base/src/ped_knowledge/`, parallel to
-`Video-Analysis/`. The former server knowledge modules remain as compatibility exports, while
-the active API, CLI, and EvidenceGraph runtime assemble `ped_knowledge` directly. `memPed/`
-remains data-only. See the
-[knowledge and evidence module design](docs/modules/knowledge-and-evidence.md).
-
-The current detection-and-flow delivery includes an end-to-end mixed-flow trajectory
-workbench with immutable pixel/world artifacts, review patches, calibration quality gates,
-Plotly exploration, and publication figures.
-
-## Quick Start
+现有环境无需启动服务，可直接运行模块级检查：
 
 ```powershell
-Copy-Item .env.example .env
-uv sync --project backend
-uv run --project backend ped-agent agent doctor
-uv run --project backend ped-agent library build-index
-uv run --project backend ped-agent agent rebuild-vector-index
-uv run --project backend ped-agent serve
+$env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src"
+.\.venv\Scripts\python -m pytest Contracts/tests Agent/tests Knowledge-Base/tests Video-Analysis/tests -q
 ```
 
-Optional extras:
+视频真实推理需要本地权重；知识 Dense 检索和 Rerank 需要对应本地模型或外部适配器。
 
-```bash
-pip install -e ".[rag]"
-pip install -e ".[vision]"
-```
+## 研究开发顺序
 
-For the local server with Ultralytics, ByteTrack, OpenCV-contrib, PedPy and Parquet support:
+1. 固定输入数据和实验问题。
+2. 在单个模块内运行算法并保存中间产物。
+3. 记录配置、代码版本、模型版本和输入哈希。
+4. 生成指标、图表和实验报告。
+5. 模块接口稳定后，再开展跨模块组合实验。
 
-```powershell
-uv sync --project backend --extra vision --group dev
-uv run --project backend ped-agent serve
-```
-
-Open `http://127.0.0.1:8000/vision` through the Vue development server, or use the
-`/api/vision/*` resources directly. Detector YAML files live under
-`Video-Analysis/src/ped_video_analysis/configs/detectors/`, while local model weights belong in
-`Video-Analysis/models/weights/`; no model training or bundled weights are provided. Runtime
-tasks and artifacts are stored under `Video-Analysis/runtime/`. Annotated result videos are
-intentionally never generated. See
-[`Video-Analysis/README.md`](Video-Analysis/README.md) and
-[`docs/vision-trajectory-workbench.md`](docs/vision-trajectory-workbench.md).
-
-The repository-root `.env` file and process environment are the only authoritative persisted
-configuration sources for `ped_agent_server` and repository scripts. All project variables use the
-`PED_AGENT_*__*` namespace; unscoped legacy key aliases are no longer accepted. Configuration
-changes require a restart, and embedding changes require
-`ped-agent agent rebuild-vector-index`.
-
-The first-version answer runtime uses `deepseek-v4-flash`, with `deepseek-v4-pro` for semantic
-verification. DeepSeek structured output is requested through LangChain `json_mode`. Every run
-performs deterministic local-evidence preflight before any DeepSeek chat call and, only when
-needed, at most one external-search pass. Once usable evidence exists, Flash rewrites the query
-for refined local retrieval before drafting. Zero usable evidence produces a deterministic
-`insufficient_evidence` answer without calling Flash or Pro, although vector retrieval may still
-call the configured Embedding service.
-
-LangSmith is optional, off by default, restricted to the `redacted` content policy, and
-non-blocking after startup configuration succeeds: tracing or feedback delivery failures do not
-change the local Run result. The local Run UUID is also the LangSmith root Trace UUID. When
-enabled, traces may contain the current query, verified final answer, evidence identity,
-candidate metadata, and metrics. They exclude conversation history, evidence quotes, abstracts,
-drafts, raw model payloads, and secrets; traced URLs have credentials, query strings, and
-fragments removed. See [`docs/agent-architecture.md`](docs/agent-architecture.md) for the full
-API, SSE, privacy boundary, and answer chain.
-
-## Knowledge Corpus and Ingestion
-
-The repository manages knowledge, conversation memory, and reviewed method memory under the
-data-only [`memPed/`](memPed/README.md) root. Literature and regulations keep separate files and
-records, while sharing the local Catalog and retrieval indexes.
-
-Documents entering the ingestion flow are assumed to have been selected before upload. Runtime
-admission performs technical checks only: file integrity, PDF readability, SHA-256,
-duplicate/version identity, minimum metadata, and parseability. Existing quality rules and
-screening records remain tracked as upstream and compatibility assets. The former strict
-`ResourceManifest` validation remains available only through the legacy/offline governance path;
-the active import command uses `ped_knowledge.ingestion.IngestionManifest`.
-
-PDFs, SQLite databases, conversations, candidate methods, reports, and search indexes remain local
-through `.gitignore`. Gold Questions gate retrieval/index configuration releases, not individual
-document admission.
-
-Run technical preflight, then import the selected records:
-
-```powershell
-uv run --project backend ped-agent library preflight `
-  memPed/knowledge/literature/records/import_manifest.jsonl
-
-uv run --project backend ped-agent library import-manifest `
-  memPed/knowledge/literature/records/import_manifest.jsonl
-```
-
-`library validate-manifest` remains an optional offline audit command for the historical
-JCI/CAS/citation and corpus-quota rules; it is not called by runtime import.
-
-After an import batch, rebuild the indexes and run the Hybrid + optional Rerank Gold gate.
-Use `--pipeline fts` only for the compatibility baseline:
-
-```powershell
-uv run --project backend ped-agent library build-index
-uv run --project backend ped-agent agent rebuild-vector-index
-
-uv run --project backend ped-agent evaluate `
-  memPed/knowledge/pilot_gold.jsonl `
-  memPed/knowledge/reports/pilot-evaluation.json `
-  --config memPed/knowledge/pilot_config.json `
-  --pipeline hybrid
-```
+研究目标设计保存在 `docs/data-analysis-module-design.md` 和
+`docs/vision-module-design.md` 中；是否已实现必须以代码和测试为准。

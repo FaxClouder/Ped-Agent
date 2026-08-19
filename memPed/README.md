@@ -111,5 +111,6 @@ uv run --project backend ped-agent evaluate `
 
 知识业务代码位于 `Knowledge-Base/src/ped_knowledge/`。后端的同名旧模块只提供兼容导出，
 `src/ped_agent/knowledge/` 仍是冻结的早期占位代码；新实现不应写入 `memPed/`，也不应
-继续扩展旧目录。详细方案见
-[`docs/modules/knowledge-and-evidence.md`](../docs/modules/knowledge-and-evidence.md)。
+继续扩展旧目录。当前程序边界见
+[`Knowledge-Base/README.md`](../Knowledge-Base/README.md)；数据与知识工程总览见
+[`docs/project-architecture.md`](../docs/project-architecture.md)。
