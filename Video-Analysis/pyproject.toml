@@ -14,6 +14,7 @@ dependencies = [
   "ped-research-contracts",
   "plotly>=5.20",
   "pydantic>=2.7",
+  "pyarrow>=17.0",
   "PyYAML>=6.0",
   "scipy>=1.12",
 ]
@@ -23,7 +24,6 @@ inference = [
   "boxmot>=10.0",
   "lap>=0.4",
   "opencv-contrib-python>=4.10",
-  "pyarrow>=17.0",
   "ultralytics>=8.3",
 ]
 analysis = ["pedpy>=1.2"]
