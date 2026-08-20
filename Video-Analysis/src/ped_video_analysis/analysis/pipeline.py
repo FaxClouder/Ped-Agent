@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from typing import Any
 
-from ped_agent.models.scenario_data import ScenarioInput
-from ped_agent.utils.config import select
 from ped_video_analysis.analysis.fundamental_diagram import compute_fundamental_diagram
 from ped_video_analysis.analysis.metrics import (
     compute_density_series,
     compute_global_flow,
     compute_velocity_metrics,
 )
+from ped_video_analysis.analysis.scenario import ScenarioInput
 from ped_video_analysis.analysis.schemas import AnalysisResult
 from ped_video_analysis.analysis.visualizer import Visualizer
+from ped_video_analysis.config import select
 
 
 class AnalysisPipeline:

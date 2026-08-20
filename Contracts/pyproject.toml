@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ped-research-contracts"
+version = "0.2.0"
+description = "Stable data contracts shared by Ped-Agent research modules."
+requires-python = ">=3.12,<3.13"
+dependencies = ["pydantic>=2.7"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ped_contracts"]

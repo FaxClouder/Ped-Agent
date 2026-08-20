@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from ped_agent.models.scenario_data import ScenarioInput, ScenarioMetadata
-from ped_agent.models.trajectory import PedestrianTrack, Position
+from ped_contracts.trajectory import PedestrianTrack, Position
 from ped_video_analysis.analysis.metrics import compute_los
 from ped_video_analysis.analysis.pipeline import AnalysisPipeline
+from ped_video_analysis.analysis.scenario import ScenarioInput, ScenarioMetadata
 
 
 def test_compute_los_thresholds():

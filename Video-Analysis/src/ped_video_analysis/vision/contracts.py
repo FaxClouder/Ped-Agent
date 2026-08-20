@@ -6,7 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
-from ped_agent.models.trajectory import VideoMetadata
+from ped_contracts.trajectory import VideoMetadata
 
 
 class FrozenModel(BaseModel):

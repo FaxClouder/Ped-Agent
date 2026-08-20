@@ -4,8 +4,8 @@ from collections import defaultdict
 
 import numpy as np
 
-from ped_agent.models.scenario_data import ScenarioInput
-from ped_agent.models.trajectory import PedestrianTrack
+from ped_contracts.trajectory import PedestrianTrack
+from ped_video_analysis.analysis.scenario import ScenarioInput
 from ped_video_analysis.analysis.schemas import DensityMetrics, FlowMetrics, VelocityMetrics
 
 

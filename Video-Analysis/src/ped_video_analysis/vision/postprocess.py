@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ped_agent.models.trajectory import PedestrianTrack, Position
+from ped_contracts.trajectory import PedestrianTrack, Position
 
 
 class TrajectoryPostProcessor:

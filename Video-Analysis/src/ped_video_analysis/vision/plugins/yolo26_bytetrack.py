@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ped_agent.models.trajectory import TrajectoryData
+from ped_contracts.trajectory import TrajectoryData
 from ped_video_analysis.vision.pipeline import VisionPipeline
 from ped_video_analysis.vision.registry import VisionRegistry
 from ped_video_analysis.vision.schemas import ROI, Detection

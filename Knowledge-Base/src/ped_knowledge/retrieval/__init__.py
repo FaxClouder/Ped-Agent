@@ -6,7 +6,7 @@ import hashlib
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
-from ped_agent.agent.contracts import EvidenceItem, EvidenceOrigin
+from ped_contracts.evidence import EvidenceItem, EvidenceOrigin
 from ped_knowledge.contracts import (
     EvidenceHit,
     IndexHit,

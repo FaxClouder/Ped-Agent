@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ped-research-agent"
+version = "0.2.0"
+description = "Evidence-grounded question answering for pedestrian-flow research."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "httpx>=0.28,<1",
+  "langchain-anthropic>=1.0,<2",
+  "langchain-openai>=1.0,<2",
+  "langgraph>=1.0,<2",
+  "ped-research-contracts",
+  "pydantic>=2.11,<3",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ped_research_agent"]
+
+[tool.uv.sources]
+ped-research-contracts = { workspace = true }

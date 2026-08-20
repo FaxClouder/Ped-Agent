@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ped_agent.models.trajectory import PedestrianTrack, Position
+from ped_contracts.trajectory import PedestrianTrack, Position
 from ped_video_analysis.analysis.schemas import ODMatrix
 
 

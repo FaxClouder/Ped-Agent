@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ped_agent.models.trajectory import PedestrianTrack
+from ped_contracts.trajectory import PedestrianTrack
 from ped_video_analysis.analysis.metrics import compute_track_speeds
 from ped_video_analysis.analysis.schemas import FundamentalDiagram
 

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ped-knowledge"
+version = "0.2.0"
+description = "Literature ingestion, retrieval and evaluation experiments."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "chromadb>=1.0,<2",
+  "jieba>=0.42,<1",
+  "ped-research-contracts",
+  "pydantic>=2.11,<3",
+  "pymupdf>=1.26,<2",
+]
+
+[project.optional-dependencies]
+rerank = ["FlagEmbedding>=1.2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ped_knowledge"]
+
+[tool.uv.sources]
+ped-research-contracts = { workspace = true }

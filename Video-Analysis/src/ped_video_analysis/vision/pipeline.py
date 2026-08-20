@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ped_agent.models.trajectory import TrajectoryData, VideoMetadata
+from ped_contracts.trajectory import TrajectoryData, VideoMetadata
 from ped_video_analysis.vision.detector import PedestrianDetector
 from ped_video_analysis.vision.postprocess import TrajectoryPostProcessor, bbox_bottom_centers
 from ped_video_analysis.vision.tracker import PedestrianTracker

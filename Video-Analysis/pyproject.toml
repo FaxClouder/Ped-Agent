@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ped-video-analysis"
+version = "0.2.0"
+description = "Pedestrian detection, tracking and flow-analysis experiments."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "matplotlib>=3.8",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "ped-research-contracts",
+  "plotly>=5.20",
+  "pydantic>=2.7",
+  "PyYAML>=6.0",
+  "scipy>=1.12",
+]
+
+[project.optional-dependencies]
+inference = [
+  "boxmot>=10.0",
+  "lap>=0.4",
+  "opencv-contrib-python>=4.10",
+  "pyarrow>=17.0",
+  "ultralytics>=8.3",
+]
+analysis = ["pedpy>=1.2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ped_video_analysis"]
+
+[tool.uv.sources]
+ped-research-contracts = { workspace = true }

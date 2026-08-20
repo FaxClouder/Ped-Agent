@@ -1,6 +1,5 @@
 # Python environments and caches
 .venv/
-backend/.venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -20,13 +19,7 @@ skills-lock.json
 
 # Local outputs and memPed runtime assets
 outputs/
-output/*.json
-data/vectordb/
-data/papers/*
-!data/papers/.gitkeep
-data/scenarios/*
-!data/scenarios/.gitkeep
-backend/storage/vision/
+tmp/
 Video-Analysis/runtime/
 Video-Analysis/models/**/weights/*
 !Video-Analysis/models/**/weights/README.md
@@ -39,16 +32,15 @@ memPed/knowledge/derived/
 memPed/knowledge/knowledge.sqlite3*
 memPed/knowledge/fts.sqlite3*
 memPed/knowledge/vectors/
+memPed/knowledge/models/
+Knowledge-Base/local/
 memPed/conversations/conversations.sqlite3*
 memPed/conversations/files/
 memPed/methods/candidates/
 memPed/methods/methods.sqlite3*
-scripts/local/
-
-# Frontend build artifacts
-frontend/node_modules/
-frontend/dist/
-frontend/.vite/
+paper/build/
+paper/latex/**/*.bbl
+paper/latex/**/*.spl
 
 # Local configuration and secrets
 .env

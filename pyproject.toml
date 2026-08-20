@@ -1,81 +1,43 @@
-[build-system]
-requires = ["hatchling>=1.25"]
-build-backend = "hatchling.build"
-
 [project]
-name = "ped-agent-core"
-version = "0.1.0"
-description = "Agentic question-answering and analysis toolkit for pedestrian-flow research."
-readme = "README.md"
+name = "ped-agent-research-workspace"
+version = "0.2.0"
+description = "Research workspace for evidence-grounded pedestrian-flow experiments."
 requires-python = ">=3.12,<3.13"
-license = { text = "MIT" }
-authors = [{ name = "Ped-Agent contributors" }]
-dependencies = [
-  "pydantic>=2.7",
-  "PyYAML>=6.0",
-  "numpy>=1.26",
-  "pandas>=2.2",
-  "jieba>=0.42,<1",
-  "pymupdf>=1.26,<2",
-  "scipy>=1.12",
-  "plotly>=5.20",
-  "matplotlib>=3.8",
-  "python-dotenv>=1.0",
-  "langgraph>=1.0",
-  "langchain>=1.0",
-  "langchain-core>=1.0",
-  "langchain-openai>=1.0",
-  "langchain-anthropic>=1.0",
-]
+dependencies = []
 
-[project.optional-dependencies]
-rag = [
-  "chromadb>=0.5",
-  "langchain-chroma>=0.1",
-  "langchain-huggingface>=0.1",
-  "FlagEmbedding>=1.2",
-  "arxiv>=2.1",
-]
-vision = [
-  "ultralytics>=8.3",
-  "boxmot>=10.0",
-  "opencv-contrib-python>=4.10",
-  "lap>=0.4",
-  "pyarrow>=17.0",
-]
-vision-analysis = [
-  "pedpy>=1.2",
-]
+[tool.uv.workspace]
+members = ["Contracts", "Agent", "Knowledge-Base", "Video-Analysis"]
+
+[dependency-groups]
 dev = [
+  "mypy>=1.10",
   "pytest>=8.2",
   "pytest-asyncio>=0.23",
-  "ruff>=0.6",
-  "mypy>=1.10",
-]
-
-[project.entry-points."ped_agent.vision"]
-yolo26_bytetrack = "ped_video_analysis.vision.plugins.yolo26_bytetrack:YOLO26ByteTrackBackend"
-yolo26_deepsort = "ped_video_analysis.vision.plugins.yolo26_deepsort:YOLO26DeepSORTBackend"
-
-[tool.hatch.build.targets.wheel]
-packages = [
-  "src/ped_agent",
-  "Knowledge-Base/src/ped_knowledge",
-  "Video-Analysis/src/ped_video_analysis",
+  "ruff>=0.12",
 ]
 
 [tool.pytest.ini_options]
-# Video-Analysis remains outside the default suite until its development phase starts.
-# Run its tests explicitly with the vision extras when that phase is activated.
-testpaths = ["tests", "Knowledge-Base/tests"]
-pythonpath = ["src", "Knowledge-Base/src", "Video-Analysis/src"]
+testpaths = [
+  "Contracts/tests",
+  "Agent/tests",
+  "Knowledge-Base/tests",
+  "Video-Analysis/tests",
+]
+pythonpath = [
+  "Contracts/src",
+  "Agent/src",
+  "Knowledge-Base/src",
+  "Video-Analysis/src",
+]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
 src = [
-  "src",
-  "tests",
+  "Contracts/src",
+  "Contracts/tests",
+  "Agent/src",
+  "Agent/tests",
   "Knowledge-Base/src",
   "Knowledge-Base/tests",
   "Video-Analysis/src",
@@ -88,7 +50,7 @@ ignore = ["B008"]
 
 [tool.mypy]
 python_version = "3.12"
-packages = ["ped_agent", "ped_knowledge", "ped_video_analysis"]
-mypy_path = ["src", "Knowledge-Base/src", "Video-Analysis/src"]
+packages = ["ped_contracts", "ped_research_agent", "ped_knowledge", "ped_video_analysis"]
+mypy_path = ["Contracts/src", "Agent/src", "Knowledge-Base/src", "Video-Analysis/src"]
 ignore_missing_imports = true
 strict = false

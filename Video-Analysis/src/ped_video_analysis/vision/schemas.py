@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from ped_agent.models.trajectory import PedestrianTrack, Position, TrajectoryData, VideoMetadata
+from ped_contracts.trajectory import PedestrianTrack, Position, TrajectoryData, VideoMetadata
 
 
 class Detection(BaseModel):

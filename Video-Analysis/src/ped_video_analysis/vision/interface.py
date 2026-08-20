@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
-from ped_agent.models.trajectory import TrajectoryData
+from ped_contracts.trajectory import TrajectoryData
 from ped_video_analysis.vision.schemas import ROI, Detection
 
 

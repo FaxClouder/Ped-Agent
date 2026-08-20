@@ -1,4 +1,4 @@
-name: CI
+name: Research module checks
 
 on:
   pull_request:
@@ -6,26 +6,18 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
-    name: Python tests
+  focused-checks:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Install package
+      - name: Install workspace
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Compile
-        run: python -m compileall src Knowledge-Base/src scripts tests Knowledge-Base/tests
-
-      - name: Test
-        run: pytest -q
+          python -m pip install -e Contracts -e Agent -e Knowledge-Base -e Video-Analysis pytest pytest-asyncio
+      - name: Compile research modules
+        run: python -m compileall Contracts/src Agent/src Knowledge-Base/src Video-Analysis/src
+      - name: Run focused checks
+        run: pytest Contracts/tests Agent/tests Knowledge-Base/tests Video-Analysis/tests -q
