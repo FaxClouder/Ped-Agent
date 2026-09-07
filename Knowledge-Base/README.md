@@ -28,3 +28,10 @@ Knowledge-Base/
 ├── examples/
 └── tests/
 ```
+
+## BGE-M3 本地配置
+
+BGE-M3 的固定参数和复现命令见
+[`config/embeddings/bge-m3/README.md`](config/embeddings/bge-m3/README.md)。模型权重保存在
+`memPed/knowledge/models/bge-m3/`，后续独立 Chroma 索引保存在
+`memPed/knowledge/indexes/bge-m3-1024/`；两者均不提交 Git。

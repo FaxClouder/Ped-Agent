@@ -1,0 +1,9 @@
+model_id: BAAI/bge-m3
+model_path: memPed/knowledge/models/bge-m3
+index_path: memPed/knowledge/indexes/bge-m3-1024
+device: cuda
+use_fp16: true
+dimensions: 1024
+batch_size: 8
+max_length: 1024
+normalize_embeddings: true

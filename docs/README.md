@@ -21,5 +21,6 @@
 - [`data-analysis-module-design.md`](data-analysis-module-design.md)：数据分析目标设计。
 - [`vision-module-design.md`](vision-module-design.md)：视觉分析目标设计。
 - [`superpowers/specs/2026-09-07-bge-m3-local-deployment-design.md`](superpowers/specs/2026-09-07-bge-m3-local-deployment-design.md)：BGE-M3 本地部署配置计划。
+- [`superpowers/plans/2026-09-07-bge-m3-local-deployment.md`](superpowers/plans/2026-09-07-bge-m3-local-deployment.md)：BGE-M3 本地部署实施步骤。
 
 模块 README 是当前实现边界；设计文档只描述目标深度，是否完成必须以代码和测试为准。

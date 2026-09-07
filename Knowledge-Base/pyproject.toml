@@ -16,6 +16,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+embedding = ["FlagEmbedding>=1.4,<2"]
 rerank = ["FlagEmbedding>=1.2"]
 
 [tool.hatch.build.targets.wheel]
