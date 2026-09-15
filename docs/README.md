@@ -19,6 +19,7 @@
 ## 研究设计与工程规范
 
 - [`data-analysis-module-design.md`](data-analysis-module-design.md)：数据分析目标设计。
+- [`superpowers/specs/2026-09-15-pytorch-cuda-unification-design.md`](superpowers/specs/2026-09-15-pytorch-cuda-unification-design.md)：PyTorch CUDA 版本统一计划。
 - [`vision-module-design.md`](vision-module-design.md)：视觉分析目标设计。
 - [`superpowers/specs/2026-09-07-bge-m3-local-deployment-design.md`](superpowers/specs/2026-09-07-bge-m3-local-deployment-design.md)：BGE-M3 本地部署配置计划。
 - [`superpowers/plans/2026-09-07-bge-m3-local-deployment.md`](superpowers/plans/2026-09-07-bge-m3-local-deployment.md)：BGE-M3 本地部署实施步骤。
