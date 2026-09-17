@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import re
 from dataclasses import dataclass
 
 from ped_knowledge.contracts import (
@@ -14,8 +13,8 @@ from ped_knowledge.contracts import (
     ElementType,
     KnowledgeChunk,
 )
+from ped_knowledge.tokenization import RegexTokenCounter, TOKEN_PATTERN, TokenCounter
 
-TOKEN_PATTERN = re.compile(r"[A-Za-z0-9]+|[\u3400-\u9fff]|[^\s]")
 SKIPPED_TYPES = {ElementType.IMAGE}
 
 
@@ -25,9 +24,23 @@ class _ElementGroup:
     token_count: int
 
 
+@dataclass(frozen=True)
+class _ChildText:
+    text: str
+    character_start: int
+    character_end: int
+    hard_split: bool = False
+
+
 class HierarchicalChunker:
-    def __init__(self, policy: ChunkingPolicy | None = None) -> None:
+    def __init__(
+        self,
+        policy: ChunkingPolicy | None = None,
+        *,
+        token_counter: TokenCounter | None = None,
+    ) -> None:
         self.policy = policy or ChunkingPolicy()
+        self.token_counter = token_counter or RegexTokenCounter()
 
     def chunk(self, document: CanonicalDocument) -> list[KnowledgeChunk]:
         groups = self._parent_groups(document)
@@ -43,6 +56,7 @@ class HierarchicalChunker:
                 parent_index,
                 group.elements,
                 parent_text,
+                tokenizer_fingerprint=self.token_counter.fingerprint,
             )
             parent = KnowledgeChunk(
                 chunk_id=parent_id,
@@ -59,6 +73,8 @@ class HierarchicalChunker:
                 heading_path=heading_path,
                 policy_version=self.policy.policy_version,
                 element_ids=tuple(item.element_id for item in group.elements),
+                token_count=self.token_counter.count(parent_text),
+                tokenizer_fingerprint=self.token_counter.fingerprint,
             )
             output.append(parent)
             ordinal += 1
@@ -69,8 +85,9 @@ class HierarchicalChunker:
                     ChunkLevel.CHILD,
                     child_index,
                     group.elements,
-                    child_text,
+                    child_text.text,
                     parent_id=parent_id,
+                    tokenizer_fingerprint=self.token_counter.fingerprint,
                 )
                 output.append(
                     KnowledgeChunk(
@@ -78,7 +95,7 @@ class HierarchicalChunker:
                         resource_id=document.resource_id,
                         version_id=document.version_id,
                         ordinal=ordinal,
-                        text=child_text,
+                        text=child_text.text,
                         page_start=parent.page_start,
                         page_end=parent.page_end,
                         locator=parent.locator,
@@ -89,6 +106,11 @@ class HierarchicalChunker:
                         heading_path=heading_path,
                         policy_version=self.policy.policy_version,
                         element_ids=parent.element_ids,
+                        token_count=self.token_counter.count(child_text.text),
+                        tokenizer_fingerprint=self.token_counter.fingerprint,
+                        character_start=child_text.character_start,
+                        character_end=child_text.character_end,
+                        hard_split=child_text.hard_split,
                     )
                 )
                 ordinal += 1
@@ -107,7 +129,7 @@ class HierarchicalChunker:
         current_tokens = 0
         current_heading: tuple[str, ...] | None = None
         for element in elements:
-            token_count = len(_tokens(element.text))
+            token_count = self.token_counter.count(element.text)
             heading_changed = current and element.heading_path != current_heading
             would_overflow = (
                 current and current_tokens + token_count > self.policy.parent_max_tokens
@@ -128,29 +150,72 @@ class HierarchicalChunker:
             groups.append(_ElementGroup(tuple(current), current_tokens))
         return groups
 
-    def _child_texts(self, text: str) -> list[str]:
+    def _child_texts(self, text: str) -> list[_ChildText]:
+        if isinstance(self.token_counter, RegexTokenCounter):
+            return self._regex_child_texts(text)
+        return self._token_child_texts(text)
+
+    def _regex_child_texts(self, text: str) -> list[_ChildText]:
         matches = list(TOKEN_PATTERN.finditer(text))
         if not matches:
             return []
         window = min(self.policy.child_target_tokens, self.policy.child_max_tokens)
         overlap = min(self.policy.child_overlap_tokens, max(0, window - 1))
-        results: list[str] = []
+        results: list[_ChildText] = []
         start = 0
         while start < len(matches):
             end = min(len(matches), start + window)
             character_start = matches[start].start()
             character_end = matches[end - 1].end()
-            child = text[character_start:character_end].strip()
+            raw_child = text[character_start:character_end]
+            child = raw_child.strip()
             if child:
-                results.append(child)
+                left_trim = len(raw_child) - len(raw_child.lstrip())
+                right_trim = len(raw_child) - len(raw_child.rstrip())
+                results.append(
+                    _ChildText(
+                        text=child,
+                        character_start=character_start + left_trim,
+                        character_end=character_end - right_trim,
+                    )
+                )
             if end == len(matches):
                 break
             start = end - overlap
         return results
 
-
-def _tokens(text: str) -> list[str]:
-    return [match.group(0) for match in TOKEN_PATTERN.finditer(text)]
+    def _token_child_texts(self, text: str) -> list[_ChildText]:
+        token_ids = self.token_counter.encode(text)
+        if not token_ids:
+            return []
+        window = min(self.policy.child_target_tokens, self.policy.child_max_tokens)
+        overlap = min(self.policy.child_overlap_tokens, max(0, window - 1))
+        results: list[_ChildText] = []
+        start = 0
+        search_start = 0
+        while start < len(token_ids):
+            end = min(len(token_ids), start + window)
+            child = self.token_counter.decode(token_ids[start:end]).strip()
+            if child:
+                character_start = text.find(child, search_start)
+                if character_start < 0:
+                    character_start = text.find(child)
+                if character_start < 0:
+                    raise ValueError("decoded child text cannot be located in source text")
+                character_end = character_start + len(child)
+                results.append(
+                    _ChildText(
+                        text=child,
+                        character_start=character_start,
+                        character_end=character_end,
+                        hard_split=len(token_ids) > self.policy.child_max_tokens,
+                    )
+                )
+                search_start = character_start + 1
+            if end == len(token_ids):
+                break
+            start = end - overlap
+        return results
 
 
 def _render_elements(elements: tuple[DocumentElement, ...]) -> str:
@@ -176,6 +241,7 @@ def _chunk_id(
     text: str,
     *,
     parent_id: str = "",
+    tokenizer_fingerprint: str,
 ) -> str:
     lineage = ",".join(item.element_id for item in elements)
     payload = "|".join(
@@ -186,6 +252,7 @@ def _chunk_id(
             level.value,
             str(index),
             parent_id,
+            tokenizer_fingerprint,
             lineage,
             hashlib.sha256(text.encode("utf-8")).hexdigest(),
         )

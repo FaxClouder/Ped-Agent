@@ -53,7 +53,12 @@ CREATE TABLE IF NOT EXISTS chunks (
     parent_chunk_id TEXT,
     heading_path TEXT NOT NULL DEFAULT '[]',
     policy_version TEXT NOT NULL DEFAULT 'legacy-v1',
-    element_ids TEXT NOT NULL DEFAULT '[]'
+    element_ids TEXT NOT NULL DEFAULT '[]',
+    token_count INTEGER NOT NULL DEFAULT 0,
+    tokenizer_fingerprint TEXT NOT NULL DEFAULT 'regex-token-v1',
+    character_start INTEGER,
+    character_end INTEGER,
+    hard_split INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_chunks_resource ON chunks(resource_id, version_id, ordinal);
 CREATE TABLE IF NOT EXISTS chunk_builds (
@@ -254,8 +259,10 @@ class Catalog:
                 INSERT INTO chunks
                     (chunk_id, resource_id, version_id, ordinal, text, page_start,
                      page_end, locator, section, parser_version, chunk_level,
-                     parent_chunk_id, heading_path, policy_version, element_ids)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     parent_chunk_id, heading_path, policy_version, element_ids,
+                     token_count, tokenizer_fingerprint, character_start,
+                     character_end, hard_split)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 [
                     (
@@ -274,6 +281,11 @@ class Catalog:
                         json.dumps(list(getattr(item, "heading_path", ())), ensure_ascii=False),
                         str(getattr(item, "policy_version", "legacy-v1")),
                         json.dumps(list(getattr(item, "element_ids", ())), ensure_ascii=False),
+                        int(getattr(item, "token_count", 0)),
+                        str(getattr(item, "tokenizer_fingerprint", "regex-token-v1")),
+                        getattr(item, "character_start", None),
+                        getattr(item, "character_end", None),
+                        int(bool(getattr(item, "hard_split", False))),
                     )
                     for item in chunks
                 ],
@@ -549,6 +561,11 @@ class Catalog:
                 "heading_path": "TEXT NOT NULL DEFAULT '[]'",
                 "policy_version": "TEXT NOT NULL DEFAULT 'legacy-v1'",
                 "element_ids": "TEXT NOT NULL DEFAULT '[]'",
+                "token_count": "INTEGER NOT NULL DEFAULT 0",
+                "tokenizer_fingerprint": "TEXT NOT NULL DEFAULT 'regex-token-v1'",
+                "character_start": "INTEGER",
+                "character_end": "INTEGER",
+                "hard_split": "INTEGER NOT NULL DEFAULT 0",
             },
         }
         for table, columns in additions.items():
