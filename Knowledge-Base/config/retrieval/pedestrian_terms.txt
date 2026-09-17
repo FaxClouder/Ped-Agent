@@ -1,0 +1,21 @@
+# Pedestrian-domain terms pinned for jieba-lexical-v1.
+社会力模型
+行人流基本图
+行人流
+人群疏散
+瓶颈流动
+瓶颈宽度
+拥挤传播
+通行能力
+步行速度
+密度速度关系
+速度密度关系
+流量密度关系
+拱塞
+死锁
+对向流
+交叉流
+单向流
+BGE-M3
+YOLOX
+DeepSORT

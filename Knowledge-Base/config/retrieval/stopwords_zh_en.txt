@@ -1,0 +1,22 @@
+# Conservative bilingual stopwords for evidence recall.
+的
+了
+和
+与
+及
+在
+是
+为
+对
+中
+and
+or
+the
+a
+an
+of
+to
+in
+for
+is
+are

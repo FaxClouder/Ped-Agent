@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from pathlib import Path
 from typing import Protocol
@@ -88,8 +89,76 @@ class HuggingFaceTokenCounter:
         return len(self.encode(text))
 
 
+class JiebaLexicalAnalyzer:
+    """Versioned bilingual analyzer with isolated jieba state."""
+
+    def __init__(
+        self,
+        *,
+        domain_terms_path: Path | None = None,
+        stopwords_path: Path | None = None,
+        version: str = "jieba-lexical-v1",
+    ) -> None:
+        try:
+            import jieba
+        except ImportError as exc:
+            raise RuntimeError("jieba is required for multilingual FTS tokenization") from exc
+
+        self.version = version
+        self.domain_terms_path = domain_terms_path
+        self.stopwords_path = stopwords_path
+        self._tokenizer = jieba.Tokenizer()
+        self._domain_terms = _word_list(domain_terms_path)
+        self._stopwords = set(_word_list(stopwords_path))
+        for term in self._domain_terms:
+            self._tokenizer.add_word(term, freq=10_000_000)
+        payload = {
+            "version": version,
+            "domain_terms_sha256": _file_hash(domain_terms_path),
+            "stopwords_sha256": _file_hash(stopwords_path),
+        }
+        normalized = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        self._fingerprint = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+    @property
+    def fingerprint(self) -> str:
+        return f"{self.version}:{self._fingerprint}"
+
+    def analyze(self, text: str) -> list[str]:
+        normalized = re.sub(r"\s+", " ", text.strip().lower())
+        tokens: list[str] = []
+        for token in self._tokenizer.cut(normalized):
+            cleaned = token.strip()
+            if (
+                cleaned
+                and cleaned not in self._stopwords
+                and re.search(r"[0-9a-z\u3400-\u9fff]", cleaned)
+            ):
+                tokens.append(cleaned)
+        return tokens
+
+
+def _word_list(path: Path | None) -> list[str]:
+    if path is None:
+        return []
+    if not path.is_file():
+        raise FileNotFoundError(f"lexical resource not found: {path}")
+    return [
+        line.strip().lower()
+        for line in path.read_text(encoding="utf-8-sig").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+
+
+def _file_hash(path: Path | None) -> str:
+    if path is None:
+        return hashlib.sha256(b"").hexdigest()
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 __all__ = [
     "HuggingFaceTokenCounter",
+    "JiebaLexicalAnalyzer",
     "RegexTokenCounter",
     "TOKEN_PATTERN",
     "TokenCounter",

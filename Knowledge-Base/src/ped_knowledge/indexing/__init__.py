@@ -4,31 +4,26 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 import sqlite3
 from contextlib import closing
 from pathlib import Path
 
 from ped_knowledge.contracts import EmbeddingGateway, IndexHit
+from ped_knowledge.tokenization import JiebaLexicalAnalyzer
 
 
 def tokenize_for_search(text: str) -> str:
-    try:
-        import jieba
-    except ImportError as exc:
-        raise RuntimeError("jieba is required for multilingual FTS tokenization") from exc
-    normalized = re.sub(r"\s+", " ", text.strip().lower())
-    tokens: list[str] = []
-    for token in jieba.cut(normalized):
-        cleaned = token.strip()
-        if cleaned and re.search(r"[0-9a-z\u4e00-\u9fff]", cleaned):
-            tokens.append(cleaned)
-    return " ".join(tokens)
+    return " ".join(JiebaLexicalAnalyzer().analyze(text))
 
 
 class FTSIndex:
-    def __init__(self, path: Path) -> None:
+    def __init__(
+        self,
+        path: Path,
+        analyzer: JiebaLexicalAnalyzer | None = None,
+    ) -> None:
         self.path = path
+        self.analyzer = analyzer or JiebaLexicalAnalyzer()
 
     def connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.path)
@@ -41,7 +36,12 @@ class FTSIndex:
         temporary.unlink(missing_ok=True)
         try:
             with closing(sqlite3.connect(temporary)) as connection, connection:
-                self._create_index(connection, chunks, source_fingerprint)
+                self._create_index(
+                    connection,
+                    chunks,
+                    source_fingerprint,
+                    self.analyzer,
+                )
             temporary.replace(self.path)
         finally:
             temporary.unlink(missing_ok=True)
@@ -51,6 +51,7 @@ class FTSIndex:
         connection: sqlite3.Connection,
         chunks: list[dict[str, object]],
         source_fingerprint: str,
+        analyzer: JiebaLexicalAnalyzer,
     ) -> None:
         connection.execute(
             """
@@ -73,9 +74,9 @@ class FTSIndex:
                     item["chunk_id"],
                     item["resource_id"],
                     item.get("version_id", ""),
-                    tokenize_for_search(str(item["title"])),
-                    tokenize_for_search(_heading_text(item.get("heading_path"))),
-                    tokenize_for_search(str(item["text"])),
+                    " ".join(analyzer.analyze(str(item["title"]))),
+                    " ".join(analyzer.analyze(_heading_text(item.get("heading_path")))),
+                    " ".join(analyzer.analyze(str(item["text"]))),
                     item["locator"],
                 )
                 for item in chunks
@@ -88,13 +89,18 @@ class FTSIndex:
             "INSERT INTO index_metadata VALUES ('source_fingerprint', ?)",
             (source_fingerprint,),
         )
+        connection.execute(
+            "INSERT INTO index_metadata VALUES ('lexical_analyzer_fingerprint', ?)",
+            (analyzer.fingerprint,),
+        )
 
     def search(self, query: str, *, limit: int = 5) -> list[IndexHit]:
-        tokenized = tokenize_for_search(query)
-        if not tokenized:
+        self._validate_analyzer_fingerprint()
+        tokens = self.analyzer.analyze(query)
+        if not tokens:
             return []
-        match_query = " AND ".join(
-            f'"{token.replace(chr(34), chr(34) * 2)}"' for token in tokenized.split()
+        match_query = " OR ".join(
+            f'"{token.replace(chr(34), chr(34) * 2)}"' for token in tokens
         )
         with closing(self.connect()) as connection:
             rows = connection.execute(
@@ -116,6 +122,30 @@ class FTSIndex:
             with closing(self.connect()) as connection:
                 row = connection.execute(
                     "SELECT value FROM index_metadata WHERE key = 'source_fingerprint'"
+                ).fetchone()
+        except sqlite3.OperationalError:
+            return ""
+        return "" if row is None else str(row["value"])
+
+    def lexical_analyzer_fingerprint(self) -> str:
+        return self._metadata_value("lexical_analyzer_fingerprint")
+
+    def _validate_analyzer_fingerprint(self) -> None:
+        stored = self.lexical_analyzer_fingerprint()
+        if stored != self.analyzer.fingerprint:
+            raise ValueError(
+                "lexical analyzer fingerprint mismatch: "
+                f"index has {stored or '<missing>'}, active analyzer has "
+                f"{self.analyzer.fingerprint}"
+            )
+
+    def _metadata_value(self, key: str) -> str:
+        if not self.path.exists():
+            return ""
+        try:
+            with closing(self.connect()) as connection:
+                row = connection.execute(
+                    "SELECT value FROM index_metadata WHERE key = ?", (key,)
                 ).fetchone()
         except sqlite3.OperationalError:
             return ""
