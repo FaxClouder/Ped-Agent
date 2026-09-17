@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from dataclasses import dataclass
 
 from ped_knowledge.contracts import (
@@ -30,6 +31,31 @@ class _ChildText:
     character_start: int
     character_end: int
     hard_split: bool = False
+
+
+@dataclass(frozen=True)
+class _BoundaryUnit:
+    text: str
+    character_start: int
+    character_end: int
+    token_count: int
+    hard_split: bool = False
+
+
+_ABBREVIATIONS = {
+    "dr",
+    "e.g",
+    "et al",
+    "fig",
+    "i.e",
+    "mr",
+    "mrs",
+    "ms",
+    "prof",
+    "ref",
+    "sec",
+    "vs",
+}
 
 
 class HierarchicalChunker:
@@ -151,9 +177,143 @@ class HierarchicalChunker:
         return groups
 
     def _child_texts(self, text: str) -> list[_ChildText]:
+        if self.policy.policy_version == "parent-child-v2":
+            return self._boundary_child_texts(text)
         if isinstance(self.token_counter, RegexTokenCounter):
             return self._regex_child_texts(text)
         return self._token_child_texts(text)
+
+    def _boundary_child_texts(self, text: str) -> list[_ChildText]:
+        units: list[_BoundaryUnit] = []
+        for character_start, character_end in _sentence_spans(text):
+            unit_text = text[character_start:character_end]
+            token_count = self.token_counter.count(unit_text)
+            if token_count <= self.policy.child_max_tokens:
+                units.append(
+                    _BoundaryUnit(
+                        text=unit_text,
+                        character_start=character_start,
+                        character_end=character_end,
+                        token_count=token_count,
+                    )
+                )
+            else:
+                units.extend(
+                    self._split_oversized_unit(
+                        text,
+                        character_start=character_start,
+                        character_end=character_end,
+                    )
+                )
+        return self._merge_boundary_units(text, units)
+
+    def _split_oversized_unit(
+        self,
+        source_text: str,
+        *,
+        character_start: int,
+        character_end: int,
+    ) -> list[_BoundaryUnit]:
+        unit_text = source_text[character_start:character_end]
+        token_ids = self.token_counter.encode(unit_text)
+        window = min(self.policy.child_target_tokens, self.policy.child_max_tokens)
+        overlap = min(self.policy.child_overlap_tokens, max(0, window - 1))
+        output: list[_BoundaryUnit] = []
+        start = 0
+        search_start = 0
+        while start < len(token_ids):
+            end = min(len(token_ids), start + window)
+            decoded = self.token_counter.decode(token_ids[start:end]).strip()
+            local_start = unit_text.find(decoded, search_start)
+            if local_start < 0:
+                local_start = unit_text.find(decoded)
+            if local_start < 0:
+                raise ValueError("decoded child text cannot be located in source text")
+            local_end = local_start + len(decoded)
+            output.append(
+                _BoundaryUnit(
+                    text=decoded,
+                    character_start=character_start + local_start,
+                    character_end=character_start + local_end,
+                    token_count=self.token_counter.count(decoded),
+                    hard_split=True,
+                )
+            )
+            if end == len(token_ids):
+                break
+            search_start = local_start + 1
+            start = end - overlap
+        return output
+
+    def _merge_boundary_units(
+        self,
+        source_text: str,
+        units: list[_BoundaryUnit],
+    ) -> list[_ChildText]:
+        if not units:
+            return []
+        output: list[_ChildText] = []
+        current: list[_BoundaryUnit] = []
+        current_tokens = 0
+
+        def emit() -> None:
+            if not current:
+                return
+            start = current[0].character_start
+            end = current[-1].character_end
+            if output and (
+                output[-1].character_start == start
+                and output[-1].character_end == end
+            ):
+                return
+            output.append(
+                _ChildText(
+                    text=source_text[start:end].strip(),
+                    character_start=start,
+                    character_end=end,
+                    hard_split=any(unit.hard_split for unit in current),
+                )
+            )
+
+        for index, unit in enumerate(units):
+            if unit.hard_split:
+                emit()
+                current = []
+                current_tokens = 0
+                output.append(
+                    _ChildText(
+                        text=unit.text,
+                        character_start=unit.character_start,
+                        character_end=unit.character_end,
+                        hard_split=True,
+                    )
+                )
+                continue
+            if current and current_tokens + unit.token_count > self.policy.child_max_tokens:
+                emit()
+                current = _overlap_units(current, self.policy.child_overlap_tokens)
+                current_tokens = sum(item.token_count for item in current)
+                while current and current_tokens + unit.token_count > self.policy.child_max_tokens:
+                    current_tokens -= current.pop(0).token_count
+            current.append(unit)
+            current_tokens += unit.token_count
+            if current_tokens >= self.policy.child_target_tokens:
+                emit()
+                if index == len(units) - 1:
+                    current = []
+                    current_tokens = 0
+                else:
+                    current = _overlap_units(current, self.policy.child_overlap_tokens)
+                    current_tokens = sum(item.token_count for item in current)
+        if current:
+            candidate_start = current[0].character_start
+            candidate_end = current[-1].character_end
+            if not output or (
+                output[-1].character_start != candidate_start
+                or output[-1].character_end != candidate_end
+            ):
+                emit()
+        return output
 
     def _regex_child_texts(self, text: str) -> list[_ChildText]:
         matches = list(TOKEN_PATTERN.finditer(text))
@@ -222,6 +382,57 @@ def _render_elements(elements: tuple[DocumentElement, ...]) -> str:
     heading = " > ".join(elements[0].heading_path)
     body = "\n\n".join(item.text.strip() for item in elements if item.text.strip())
     return f"{heading}\n\n{body}".strip() if heading else body
+
+
+def _sentence_spans(text: str) -> list[tuple[int, int]]:
+    """Return deterministic paragraph/sentence spans without external models."""
+    spans: list[tuple[int, int]] = []
+    start = 0
+    for index, character in enumerate(text):
+        boundary = character in "。！？!?"
+        if character == ".":
+            prefix = text[start:index].rstrip()
+            word_match = re.search(r"([A-Za-z]+(?:\s+[A-Za-z]+)?)$", prefix)
+            abbreviation = word_match.group(1).lower() if word_match else ""
+            next_character = text[index + 1 : index + 2]
+            boundary = abbreviation not in _ABBREVIATIONS and (
+                not next_character or next_character.isspace()
+            )
+        paragraph_break = character == "\n" and text[index : index + 2] == "\n\n"
+        if boundary or paragraph_break:
+            end = index + 1 if boundary else index
+            unit_start, unit_end = _trim_span(text, start, end)
+            if unit_start < unit_end:
+                spans.append((unit_start, unit_end))
+            start = index + 1 if boundary else index + 2
+    unit_start, unit_end = _trim_span(text, start, len(text))
+    if unit_start < unit_end:
+        spans.append((unit_start, unit_end))
+    return spans
+
+
+def _trim_span(text: str, start: int, end: int) -> tuple[int, int]:
+    while start < end and text[start].isspace():
+        start += 1
+    while end > start and text[end - 1].isspace():
+        end -= 1
+    return start, end
+
+
+def _overlap_units(
+    units: list[_BoundaryUnit],
+    overlap_tokens: int,
+) -> list[_BoundaryUnit]:
+    if overlap_tokens <= 0:
+        return []
+    overlap: list[_BoundaryUnit] = []
+    token_count = 0
+    for unit in reversed(units):
+        overlap.insert(0, unit)
+        token_count += unit.token_count
+        if token_count >= overlap_tokens:
+            break
+    return overlap
 
 
 def _group_locator(elements: tuple[DocumentElement, ...]) -> str:

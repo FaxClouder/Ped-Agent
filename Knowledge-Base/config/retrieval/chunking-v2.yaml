@@ -1,0 +1,25 @@
+policy_version: parent-child-v2
+status: candidate
+
+tokenizer:
+  model_id: BAAI/bge-m3
+  local_path: memPed/knowledge/models/bge-m3/tokenizer.json
+  sha256: 21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08
+
+parent:
+  target_tokens: 1200
+  max_tokens: 1800
+
+child:
+  target_tokens: 320
+  max_tokens: 450
+  overlap_tokens: 48
+
+boundaries:
+  hierarchy:
+    - element
+    - paragraph
+    - sentence
+    - tokenizer_window
+  sentence_rule: deterministic-zh-en-v1
+  hard_split_only_for_oversized_atomic_units: true

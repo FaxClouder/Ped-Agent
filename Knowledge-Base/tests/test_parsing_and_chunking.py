@@ -131,3 +131,92 @@ def test_injected_counter_controls_child_limit_and_provenance() -> None:
     assert all(item.tokenizer_fingerprint == counter.fingerprint for item in children)
     assert children[0].character_start == 0
     assert children[-1].character_end == len(text)
+
+
+def test_v2_prefers_complete_sentences_and_overlaps_whole_units() -> None:
+    sentences = [
+        " ".join(f"s{sentence}w{word}" for word in range(30)) + "."
+        for sentence in range(4)
+    ]
+    text = " ".join(sentences)
+    document = CanonicalDocument(
+        resource_id="paper-sentence-boundaries",
+        version_id="d" * 64,
+        source_hash="d" * 64,
+        parser_version="test",
+        pages=[CanonicalPage(page_number=1, width=100, height=100, element_ids=("e1",))],
+        elements=[
+            DocumentElement(
+                element_id="e1",
+                element_type=ElementType.PARAGRAPH,
+                text=text,
+                page_number=1,
+                order=0,
+                locator="p.1",
+            )
+        ],
+    )
+    chunker = HierarchicalChunker(
+        ChunkingPolicy(
+            policy_version="parent-child-v2",
+            parent_target_tokens=200,
+            parent_max_tokens=250,
+            child_target_tokens=50,
+            child_max_tokens=80,
+            child_overlap_tokens=10,
+        ),
+        token_counter=WordTokenCounter(),
+    )
+
+    children = [
+        item for item in chunker.chunk(document) if item.chunk_level is ChunkLevel.CHILD
+    ]
+
+    assert len(children) == 3
+    assert all(child.text.endswith(".") for child in children)
+    assert all(child.token_count <= 80 for child in children)
+    assert sentences[1] in children[0].text
+    assert children[1].text.startswith(sentences[1])
+    assert all(child.locator == "p.1" for child in children)
+
+
+def test_v2_marks_token_fallback_for_oversized_sentence() -> None:
+    text = " ".join(f"oversized{index}" for index in range(100)) + "."
+    document = CanonicalDocument(
+        resource_id="paper-hard-split",
+        version_id="e" * 64,
+        source_hash="e" * 64,
+        parser_version="test",
+        pages=[CanonicalPage(page_number=2, width=100, height=100, element_ids=("e1",))],
+        elements=[
+            DocumentElement(
+                element_id="e1",
+                element_type=ElementType.PARAGRAPH,
+                text=text,
+                page_number=2,
+                order=0,
+                locator="p.2",
+            )
+        ],
+    )
+    chunker = HierarchicalChunker(
+        ChunkingPolicy(
+            policy_version="parent-child-v2",
+            parent_target_tokens=200,
+            parent_max_tokens=250,
+            child_target_tokens=60,
+            child_max_tokens=80,
+            child_overlap_tokens=10,
+        ),
+        token_counter=WordTokenCounter(),
+    )
+
+    children = [
+        item for item in chunker.chunk(document) if item.chunk_level is ChunkLevel.CHILD
+    ]
+
+    assert len(children) == 2
+    assert all(child.token_count <= 80 for child in children)
+    assert all(child.hard_split for child in children)
+    assert children[0].character_start == 0
+    assert children[-1].character_end == len(text)
