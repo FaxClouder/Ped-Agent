@@ -15,7 +15,8 @@ memPed/
 │  │  └─ records/     # 来源、版本、筛选和 Manifest
 │  ├─ knowledge.sqlite3
 │  ├─ fts.sqlite3
-│  ├─ vectors/
+│  ├─ models/       # 本地 tokenizer 与模型权重；不提交 Git
+│  ├─ indexes/      # 按策略单独命名的稠密/混合索引；不提交 Git
 │  ├─ derived/      # Canonical Document、结构元素、表格/图片、Chunk 和解析报告
 │  └─ reports/
 ├─ conversations/
@@ -35,12 +36,13 @@ memPed/
 - `literature/records/`：候选清单、检索日志、期刊与引用快照、筛选记录、例外审批和 pilot/core Manifest。
 - `regulations/files/`：法规、标准和规范原文。
 - `regulations/records/`：官方来源核验、版本历史、筛选记录和 pilot/core Manifest。
-- `knowledge.sqlite3`：正式资源、版本、正文切块和资源关系的权威 Catalog。
-- `fts.sqlite3`、`vectors/`：从 Catalog 派生、可以重建的检索索引。
+- `knowledge.sqlite3`：正式资源、版本、正文切块、资源关系和 chunk build provenance 的权威 Catalog；不同 `policy_version` 的 Chunk 可并存。
+- `fts.sqlite3`、`indexes/`：从 Catalog 派生、可以重建的检索索引。V2 必须使用单独命名的候选路径，不能覆盖现有基线。
+- `models/`：本地 tokenizer 和模型权重。Git 只保存模型配置及 tokenizer/权重哈希。
 - `derived/`：按 `resource_id/version_id` 保存规范文档、结构元素、表格、图片、
   Parent-child Chunk 和解析报告；可从原文与配置重建，不提交 Git。
 - `reports/`：本地导入、解析、检索和评测报告。
-- 根目录 YAML/JSONL：分类、配额、质量规则、Gold Questions 和评测配置。
+- 根目录 YAML/JSONL：分类、配额、质量规则、Gold Questions 和评测配置。`pilot_gold.jsonl` 当前包含 31 条规范化问题，配置使用最小问题数门槛。
 
 资料选择在上传前完成。`memPed` 从准备入库的资料开始，只承接技术预检、版本登记、
 解析、Chunking、Catalog、索引和评测数据。技术预检检查文件、哈希、重复、元数据、
@@ -86,31 +88,20 @@ memPed/
 - 候选方法；
 - 本地原始报告。
 
-## 常用命令
+## 当前验证入口
 
-技术预检与导入：
+仓库当前通过 Python 模块 API 执行导入、索引和评测，没有独立服务或产品 CLI。先运行知识模块测试：
 
 ```powershell
-uv run --project backend ped-agent library preflight `
-  memPed/knowledge/literature/records/import_manifest.jsonl
-
-uv run --project backend ped-agent library import-manifest `
-  memPed/knowledge/literature/records/import_manifest.jsonl
-
-uv run --project backend ped-agent library build-index
-
-uv run --project backend ped-agent evaluate `
-  memPed/knowledge/pilot_gold.jsonl `
-  memPed/knowledge/reports/pilot-evaluation.json `
-  --config memPed/knowledge/pilot_config.json `
-  --pipeline hybrid
+$env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src"
+.\.venv\Scripts\python -m pytest Knowledge-Base/tests -q
 ```
 
-历史质量与配额规则可继续通过 `library validate-manifest` 做离线审计，但该命令不在
-活动导入链中。
+V2 配置位于 `Knowledge-Base/config/retrieval/`。正式实验应新建候选索引与报告目录，记录
+policy、tokenizer、词法分析器、embedding、Gold 和代码版本指纹，再通过发布门禁激活；
+不要原地覆盖 `fts.sqlite3`、已有索引或报告。
 
-知识业务代码位于 `Knowledge-Base/src/ped_knowledge/`。后端的同名旧模块只提供兼容导出，
-`src/ped_agent/knowledge/` 仍是冻结的早期占位代码；新实现不应写入 `memPed/`，也不应
-继续扩展旧目录。当前程序边界见
+知识业务代码位于 `Knowledge-Base/src/ped_knowledge/`；`memPed/` 只保存数据、配置和本地
+衍生产物，不放业务代码。当前程序边界见
 [`Knowledge-Base/README.md`](../Knowledge-Base/README.md)；数据与知识工程总览见
 [`docs/project-architecture.md`](../docs/project-architecture.md)。

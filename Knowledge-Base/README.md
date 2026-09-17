@@ -29,7 +29,6 @@ Knowledge-Base/
 ├── config/
 │   ├── embeddings/
 │   └── retrieval/
-├── examples/
 └── tests/
 ```
 

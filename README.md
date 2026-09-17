@@ -34,6 +34,9 @@ $env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src
 ```
 
 视频真实推理需要本地权重；知识 Dense 检索和 Rerank 需要对应本地模型或外部适配器。
+知识检索当前保留 `parent-child-v1` 默认策略，并提供已实现但尚未激活的
+`parent-child-v2` 候选；候选使用 BGE-M3 tokenizer 计数、双语句子边界和版本化词法分析，
+状态与复现入口见 [`Knowledge-Base/README.md`](Knowledge-Base/README.md)。
 
 ## 研究开发顺序
 

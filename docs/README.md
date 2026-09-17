@@ -4,7 +4,7 @@
 
 - [`../README.md`](../README.md)：项目目的、模块清单、验证命令和研究开发顺序。
 - [`../AGENTS.md`](../AGENTS.md)：Agent 与贡献者的边界、验证和安全规则。
-- [`project-architecture.md`](project-architecture.md)：当前架构、模块依赖、数据边界和工程原则。
+- [`project-architecture.md`](project-architecture.md)：当前架构、模块依赖、数据边界，以及 V1/V2 知识检索链路和发布状态。
 
 ## 模块与数据
 
