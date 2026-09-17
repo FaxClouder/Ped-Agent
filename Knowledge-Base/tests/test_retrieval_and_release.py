@@ -79,7 +79,11 @@ def _catalog_with_chunks(tmp_path: Path) -> tuple[Catalog, list[str]]:
         for index in range(2)
     ]
     catalog.upsert_resource(record, version_id=record.sha256, vault_path="objects/paper.pdf")
-    catalog.replace_chunks(record.sha256, chunks)
+    catalog.replace_chunks(
+        record.sha256,
+        chunks,
+        policy_version="parent-child-v1",
+    )
     return catalog, [item.chunk_id for item in chunks]
 
 

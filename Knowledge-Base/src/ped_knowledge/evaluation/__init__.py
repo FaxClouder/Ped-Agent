@@ -220,9 +220,9 @@ def publish_retrieval_config(
     return activate
 
 
-def audit_catalog(catalog: Catalog) -> CatalogAuditReport:
+def audit_catalog(catalog: Catalog, *, policy_version: str) -> CatalogAuditReport:
     resources = catalog.list_resources()
-    chunks = catalog.list_official_chunks()
+    chunks = catalog.list_official_chunks(policy_version=policy_version)
     hashes: list[str] = []
     official = 0
     for resource in resources:

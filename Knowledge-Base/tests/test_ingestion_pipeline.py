@@ -8,7 +8,7 @@ from pathlib import Path
 
 import fitz
 
-from ped_knowledge.contracts import IngestionManifest
+from ped_knowledge.contracts import IngestionManifest, KnowledgeChunk
 from ped_knowledge.ingestion import ImportService, preflight_manifest
 from ped_knowledge.storage import Catalog
 
@@ -96,7 +96,7 @@ def test_minimal_selected_document_imports_without_academic_quality_fields(
     resource = catalog.get_resource("paper-minimal-2026")
     assert resource is not None
     assert resource["active_version_id"] == preflight.records[0].sha256
-    assert catalog.list_official_chunks()
+    assert catalog.list_official_chunks(policy_version="parent-child-v1")
     derived = (
         tmp_path
         / "memPed"
@@ -136,7 +136,10 @@ def test_new_version_becomes_active_and_old_chunks_leave_official_index(tmp_path
     assert resource["active_version_id"] == second_hash
     assert versions[first_hash] == "superseded"
     assert versions[second_hash] == "active"
-    assert {item["version_id"] for item in catalog.list_official_chunks()} == {second_hash}
+    assert {
+        item["version_id"]
+        for item in catalog.list_official_chunks(policy_version="parent-child-v1")
+    } == {second_hash}
 
     failed = IngestionManifest(
         resource_id="paper-minimal-2026",
@@ -223,4 +226,67 @@ def test_catalog_migrates_existing_phase_one_schema_in_place(tmp_path: Path) -> 
     catalog.initialize()
 
     assert catalog.get_resource("legacy-paper")["active_version_id"] == "e" * 64
-    assert [item["chunk_id"] for item in catalog.list_official_chunks()] == ["legacy-child"]
+    assert [
+        item["chunk_id"]
+        for item in catalog.list_official_chunks(policy_version="legacy-v1")
+    ] == ["legacy-child"]
+
+
+def test_chunk_policies_coexist_for_the_same_resource_version(tmp_path: Path) -> None:
+    catalog = Catalog(tmp_path / "catalog.sqlite3")
+    catalog.initialize()
+    record = IngestionManifest(
+        resource_id="paper-policies",
+        resource_type="literature",
+        title="Policy comparison paper",
+        language="en",
+        source_path=tmp_path / "paper.pdf",
+        sha256="f" * 64,
+    )
+    catalog.upsert_resource(record, version_id=record.sha256, vault_path="objects/paper.pdf")
+
+    def chunk(chunk_id: str, policy_version: str) -> KnowledgeChunk:
+        return KnowledgeChunk(
+            chunk_id=chunk_id,
+            resource_id=record.resource_id,
+            version_id=record.sha256,
+            ordinal=0,
+            text=f"Evidence from {policy_version}",
+            page_start=1,
+            page_end=1,
+            locator="p.1",
+            parser_version="test",
+            policy_version=policy_version,
+        )
+
+    catalog.replace_chunks(
+        record.sha256,
+        [chunk("v1-child", "parent-child-v1")],
+        policy_version="parent-child-v1",
+    )
+    catalog.replace_chunks(
+        record.sha256,
+        [chunk("v2-child", "parent-child-v2")],
+        policy_version="parent-child-v2",
+    )
+    catalog.record_chunk_build(
+        record.sha256,
+        policy_version="parent-child-v2",
+        tokenizer_fingerprint="tokenizer-sha256",
+        source_fingerprint="source-sha256",
+        chunk_count=1,
+    )
+
+    assert [
+        item["chunk_id"]
+        for item in catalog.list_official_chunks(policy_version="parent-child-v1")
+    ] == ["v1-child"]
+    assert [
+        item["chunk_id"]
+        for item in catalog.list_official_chunks(policy_version="parent-child-v2")
+    ] == ["v2-child"]
+    with sqlite3.connect(catalog.path) as connection:
+        build = connection.execute(
+            "SELECT tokenizer_fingerprint, chunk_count, status FROM chunk_builds"
+        ).fetchone()
+    assert build == ("tokenizer-sha256", 1, "complete")

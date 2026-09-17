@@ -160,7 +160,11 @@ class ImportService:
                     source_path=vault_path,
                 )
                 derived_path = self.paths.derived_dir / record.resource_id / version_id
-                catalog.replace_chunks(version_id, chunks)
+                catalog.replace_chunks(
+                    version_id,
+                    chunks,
+                    policy_version=self.chunker.policy.policy_version,
+                )
                 catalog.set_version_derivation(
                     version_id,
                     derived_path=str(derived_path.relative_to(self.paths.memped_root)),
