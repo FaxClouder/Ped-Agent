@@ -1,6 +1,6 @@
 # RAG Tokenization V2 Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build a reproducible `parent-child-v2` retrieval candidate with valid Gold evaluation, policy-isolated chunks, BGE-compatible token accounting, sentence-aware boundaries, and deterministic bilingual BM25 analysis.
 
@@ -32,7 +32,7 @@
 - Produces: `validate_gold_resources(questions, available_resource_ids) -> None`
 - Preserves: `load_gold(path) -> list[GoldQuestion]`
 
-- [ ] **Step 1: Write failing tests for minimum count and resource validation**
+- [x] **Step 1: Write failing tests for minimum count and resource validation**
 
 ```python
 def test_acceptance_uses_a_minimum_question_count():
@@ -59,13 +59,13 @@ def test_gold_resource_validation_reports_missing_ids():
         validate_gold_resources(questions, {"present"})
 ```
 
-- [ ] **Step 2: Run the tests and confirm they fail because the new API is absent**
+- [x] **Step 2: Run the tests and confirm they fail because the new API is absent**
 
 Run: `python -m pytest Knowledge-Base/tests/test_evaluation.py -q`
 
 Expected: import or validation failures for `minimum_question_count` and `validate_gold_resources`.
 
-- [ ] **Step 3: Implement the new acceptance and validation behavior**
+- [x] **Step 3: Implement the new acceptance and validation behavior**
 
 ```python
 class EvaluationAcceptanceConfig(BaseModel):
@@ -82,17 +82,17 @@ def validate_gold_resources(
 
 Change `audit_evaluation()` to reject only when `report.question_count < minimum_question_count`.
 
-- [ ] **Step 4: Normalize all 31 Gold records and configs**
+- [x] **Step 4: Normalize all 31 Gold records and configs**
 
 Use `expected_resource_ids`, `expected_locators`, lowercase normal IDs, and the three explicit legacy mappings in the design. Set both configs to `"minimum_question_count": 30`.
 
-- [ ] **Step 5: Run evaluation and Knowledge-Base tests**
+- [x] **Step 5: Run evaluation and Knowledge-Base tests**
 
 Run: `python -m pytest Knowledge-Base/tests/test_evaluation.py Knowledge-Base/tests/test_retrieval_and_release.py -q`
 
 Expected: all selected tests pass and `load_gold(memPed/knowledge/pilot_gold.jsonl)` returns 31 questions.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add Knowledge-Base/tests/test_evaluation.py Knowledge-Base/src/ped_knowledge/evaluation/__init__.py memPed/knowledge/pilot_gold.jsonl memPed/knowledge/pilot_config.json memPed/knowledge/core_config.json
@@ -113,7 +113,7 @@ git commit -m "fix: restore reproducible retrieval evaluation baseline"
 - Produces: `Catalog.official_fingerprint(*, policy_version)`
 - Produces: `Catalog.record_chunk_build(...)`
 
-- [ ] **Step 1: Write failing coexistence and migration tests**
+- [x] **Step 1: Write failing coexistence and migration tests**
 
 ```python
 def test_chunk_policies_coexist_for_the_same_resource_version(tmp_path):
@@ -124,13 +124,13 @@ def test_chunk_policies_coexist_for_the_same_resource_version(tmp_path):
     assert [c["chunk_id"] for c in catalog.list_official_chunks(policy_version="parent-child-v2")] == ["v2"]
 ```
 
-- [ ] **Step 2: Run the focused test and confirm the signature fails**
+- [x] **Step 2: Run the focused test and confirm the signature fails**
 
 Run: `python -m pytest Knowledge-Base/tests/test_ingestion_pipeline.py -q`
 
 Expected: failure because Catalog methods do not accept `policy_version`.
 
-- [ ] **Step 3: Add `chunk_builds` schema and policy-scoped operations**
+- [x] **Step 3: Add `chunk_builds` schema and policy-scoped operations**
 
 ```sql
 CREATE TABLE IF NOT EXISTS chunk_builds (
@@ -147,17 +147,17 @@ CREATE TABLE IF NOT EXISTS chunk_builds (
 
 Delete and select chunks using both `version_id` and `policy_version`. Require policy arguments at index-building call sites.
 
-- [ ] **Step 4: Update ingestion and test fixtures to pass explicit policy versions**
+- [x] **Step 4: Update ingestion and test fixtures to pass explicit policy versions**
 
 Pass `self.chunker.policy.policy_version` to `replace_chunks()`. Existing callers that represent V1 use `parent-child-v1`.
 
-- [ ] **Step 5: Run storage, ingestion, and retrieval tests**
+- [x] **Step 5: Run storage, ingestion, and retrieval tests**
 
 Run: `python -m pytest Knowledge-Base/tests/test_ingestion_pipeline.py Knowledge-Base/tests/test_retrieval_and_release.py -q`
 
 Expected: all selected tests pass, including legacy-schema migration.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add Knowledge-Base/src/ped_knowledge/storage/__init__.py Knowledge-Base/src/ped_knowledge/ingestion/__init__.py Knowledge-Base/tests
@@ -177,7 +177,7 @@ git commit -m "feat: isolate chunks by policy version"
 - Extends: `KnowledgeChunk.token_count`, `tokenizer_fingerprint`, character offsets, `hard_split`
 - Changes: `HierarchicalChunker(policy=None, token_counter=None)`
 
-- [ ] **Step 1: Write failing counter and provenance tests**
+- [x] **Step 1: Write failing counter and provenance tests**
 
 ```python
 def test_fake_counter_controls_child_hard_limit():
@@ -191,23 +191,23 @@ def test_fake_counter_controls_child_hard_limit():
     assert all(item.tokenizer_fingerprint == counter.fingerprint for item in children)
 ```
 
-- [ ] **Step 2: Run focused tests and confirm missing APIs fail**
+- [x] **Step 2: Run focused tests and confirm missing APIs fail**
 
 Run: `python -m pytest Knowledge-Base/tests/test_tokenization.py Knowledge-Base/tests/test_parsing_and_chunking.py -q`
 
-- [ ] **Step 3: Implement counters and fail-fast fingerprint checking**
+- [x] **Step 3: Implement counters and fail-fast fingerprint checking**
 
 `RegexTokenCounter` wraps the V1 regex. `HuggingFaceTokenCounter.from_local_path()` loads `tokenizer.json`, verifies its SHA-256, and uses `encode`/`decode` without network access.
 
-- [ ] **Step 4: Populate provenance fields from the counter**
+- [x] **Step 4: Populate provenance fields from the counter**
 
 Keep V1 behavior when no counter is supplied. V2 requires an injected model counter and includes its fingerprint in chunk IDs.
 
-- [ ] **Step 5: Run tokenization and chunking tests**
+- [x] **Step 5: Run tokenization and chunking tests**
 
 Run: `python -m pytest Knowledge-Base/tests/test_tokenization.py Knowledge-Base/tests/test_parsing_and_chunking.py -q`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add Knowledge-Base/src/ped_knowledge/tokenization Knowledge-Base/src/ped_knowledge/contracts Knowledge-Base/src/ped_knowledge/chunking Knowledge-Base/tests
@@ -225,7 +225,7 @@ git commit -m "feat: add reproducible chunk token counters"
 - Produces: deterministic element → paragraph → sentence → token fallback splitting
 - Guarantees: every V2 child is at most `child_max_tokens`
 
-- [ ] **Step 1: Write failing tests for Chinese/English sentences, oversized units, overlap, and locators**
+- [x] **Step 1: Write failing tests for Chinese/English sentences, oversized units, overlap, and locators**
 
 ```python
 def test_v2_prefers_complete_bilingual_sentences():
@@ -238,21 +238,21 @@ def test_v2_marks_token_fallback_for_an_oversized_atomic_unit():
     assert any(child.hard_split for child in children)
 ```
 
-- [ ] **Step 2: Run tests and confirm V1 fixed-window behavior fails the new assertions**
+- [x] **Step 2: Run tests and confirm V1 fixed-window behavior fails the new assertions**
 
-- [ ] **Step 3: Implement boundary units and token-budget merging**
+- [x] **Step 3: Implement boundary units and token-budget merging**
 
 Carry element ID, page, locator, and character offsets on every internal unit. Use a fixed bilingual sentence rule and a tracked abbreviation set; use tokenizer slicing only for oversized atomic units.
 
-- [ ] **Step 4: Add the tracked V2 YAML configuration**
+- [x] **Step 4: Add the tracked V2 YAML configuration**
 
 Record policy name, tokenizer identity, targets, maxima, overlap, and boundary strategy. Resolve and record the tokenizer hash from the configured local asset during each build.
 
-- [ ] **Step 5: Run chunking and ingestion tests**
+- [x] **Step 5: Run chunking and ingestion tests**
 
 Run: `python -m pytest Knowledge-Base/tests/test_parsing_and_chunking.py Knowledge-Base/tests/test_ingestion_pipeline.py -q`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add Knowledge-Base/src/ped_knowledge/chunking Knowledge-Base/tests Knowledge-Base/config/retrieval/chunking-v2.yaml
@@ -274,7 +274,7 @@ git commit -m "feat: preserve sentence boundaries in v2 chunks"
 - Produces: `JiebaLexicalAnalyzer.fingerprint: str`
 - Changes: `FTSIndex(path, analyzer=None)` and FTS metadata
 
-- [ ] **Step 1: Write failing domain-term, stopword, and OR-query tests**
+- [x] **Step 1: Write failing domain-term, stopword, and OR-query tests**
 
 ```python
 def test_domain_analyzer_preserves_pedestrian_terms(analyzer):
@@ -286,21 +286,21 @@ def test_fts_query_recalls_a_document_when_only_one_term_matches(tmp_path, analy
     assert index.search("社会力模型 不存在的附加词")
 ```
 
-- [ ] **Step 2: Run indexing tests and confirm default jieba/AND behavior fails**
+- [x] **Step 2: Run indexing tests and confirm default jieba/AND behavior fails**
 
-- [ ] **Step 3: Implement the analyzer and tracked configuration**
+- [x] **Step 3: Implement the analyzer and tracked configuration**
 
 Load jieba terms and stopwords without changing global jieba state. Hash normalized config and file bytes. Preserve alphanumeric identifiers, years, model names, and DOI components.
 
-- [ ] **Step 4: Inject the analyzer into FTS rebuild/search and persist its fingerprint**
+- [x] **Step 4: Inject the analyzer into FTS rebuild/search and persist its fingerprint**
 
 Build query syntax with quoted terms joined by `OR`; keep BM25 weights unchanged. Reject an index whose stored lexical fingerprint differs from the active analyzer.
 
-- [ ] **Step 5: Run indexing and hybrid-retrieval tests**
+- [x] **Step 5: Run indexing and hybrid-retrieval tests**
 
 Run: `python -m pytest Knowledge-Base/tests/test_indexing.py Knowledge-Base/tests/test_retrieval_and_release.py -q`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add Knowledge-Base/src/ped_knowledge/tokenization Knowledge-Base/src/ped_knowledge/indexing Knowledge-Base/config/retrieval Knowledge-Base/tests
@@ -320,21 +320,21 @@ git commit -m "feat: add versioned domain lexical retrieval"
 - Produces: versioned index metadata including policy and lexical fingerprints
 - Produces: chunk length/truncation audit fields in evaluation artifacts
 
-- [ ] **Step 1: Write failing tests for stale-policy rejection and audit fields**
+- [x] **Step 1: Write failing tests for stale-policy rejection and audit fields**
 
 Test that HybridRetriever rejects a candidate whose Catalog, chunk-policy, embedding, or lexical fingerprints differ, and that the audit reports oversize/hard-split counts.
 
-- [ ] **Step 2: Run focused tests and confirm metadata is missing**
+- [x] **Step 2: Run focused tests and confirm metadata is missing**
 
-- [ ] **Step 3: Implement manifest metadata and audits**
+- [x] **Step 3: Implement manifest metadata and audits**
 
 Include policy, tokenizer, lexical analyzer, embedding max length/normalization, Catalog fingerprint, Gold hash, and code revision. Do not create or overwrite a release directory from unit tests.
 
-- [ ] **Step 4: Update current documentation**
+- [x] **Step 4: Update current documentation**
 
 Document V1/V2 status accurately, mark V2 as candidate until a real local index and Gold run are executed, and add maintained-document links.
 
-- [ ] **Step 5: Run module and repository verification**
+- [x] **Step 5: Run module and repository verification**
 
 ```powershell
 $env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src"
@@ -344,7 +344,7 @@ E:\F_Workspace\F-Agent-Paper\.venv\Scripts\python.exe -m pytest Contracts/tests 
 
 Expected: zero failures. Real BGE, Chroma, and Gold metrics are reported only if the local assets are explicitly run against a new candidate directory.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add Knowledge-Base docs

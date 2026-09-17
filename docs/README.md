@@ -22,8 +22,8 @@
 - [`superpowers/specs/2026-09-15-pytorch-cuda-unification-design.md`](superpowers/specs/2026-09-15-pytorch-cuda-unification-design.md)：PyTorch CUDA 版本统一计划。
 - [`vision-module-design.md`](vision-module-design.md)：视觉分析目标设计。
 - [`superpowers/specs/2026-09-07-bge-m3-local-deployment-design.md`](superpowers/specs/2026-09-07-bge-m3-local-deployment-design.md)：BGE-M3 本地部署配置计划。
-- [`superpowers/specs/2026-09-17-rag-tokenization-v2-design.md`](superpowers/specs/2026-09-17-rag-tokenization-v2-design.md)：RAG 分词、切块、词法检索与版本化发布设计。
+- [`superpowers/specs/2026-09-17-rag-tokenization-v2-design.md`](superpowers/specs/2026-09-17-rag-tokenization-v2-design.md)：RAG 分词、切块、词法检索与版本化发布设计；实现状态见 Knowledge-Base README。
 - [`superpowers/plans/2026-09-07-bge-m3-local-deployment.md`](superpowers/plans/2026-09-07-bge-m3-local-deployment.md)：BGE-M3 本地部署实施步骤。
-- [`superpowers/plans/2026-09-17-rag-tokenization-v2.md`](superpowers/plans/2026-09-17-rag-tokenization-v2.md)：RAG 分词、切块、词法检索与版本化发布实施计划。
+- [`superpowers/plans/2026-09-17-rag-tokenization-v2.md`](superpowers/plans/2026-09-17-rag-tokenization-v2.md)：RAG 分词、切块、词法检索与版本化发布实施计划（代码已完成，候选索引与实测待执行）。
 
 模块 README 是当前实现边界；设计文档只描述目标深度，是否完成必须以代码和测试为准。

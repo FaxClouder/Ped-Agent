@@ -30,7 +30,16 @@ class FTSIndex:
         connection.row_factory = sqlite3.Row
         return connection
 
-    def rebuild(self, chunks: list[dict[str, object]], *, source_fingerprint: str) -> None:
+    def rebuild(
+        self,
+        chunks: list[dict[str, object]],
+        *,
+        source_fingerprint: str,
+        policy_version: str = "parent-child-v1",
+        tokenizer_fingerprint: str = "regex-token-v1",
+        gold_sha256: str = "",
+        code_revision: str = "",
+    ) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = self.path.with_suffix(self.path.suffix + ".tmp")
         temporary.unlink(missing_ok=True)
@@ -41,6 +50,10 @@ class FTSIndex:
                     chunks,
                     source_fingerprint,
                     self.analyzer,
+                    policy_version,
+                    tokenizer_fingerprint,
+                    gold_sha256,
+                    code_revision,
                 )
             temporary.replace(self.path)
         finally:
@@ -52,6 +65,10 @@ class FTSIndex:
         chunks: list[dict[str, object]],
         source_fingerprint: str,
         analyzer: JiebaLexicalAnalyzer,
+        policy_version: str,
+        tokenizer_fingerprint: str,
+        gold_sha256: str,
+        code_revision: str,
     ) -> None:
         connection.execute(
             """
@@ -93,6 +110,15 @@ class FTSIndex:
             "INSERT INTO index_metadata VALUES ('lexical_analyzer_fingerprint', ?)",
             (analyzer.fingerprint,),
         )
+        connection.executemany(
+            "INSERT INTO index_metadata VALUES (?, ?)",
+            [
+                ("policy_version", policy_version),
+                ("tokenizer_fingerprint", tokenizer_fingerprint),
+                ("gold_sha256", gold_sha256),
+                ("code_revision", code_revision),
+            ],
+        )
 
     def search(self, query: str, *, limit: int = 5) -> list[IndexHit]:
         self._validate_analyzer_fingerprint()
@@ -129,6 +155,12 @@ class FTSIndex:
 
     def lexical_analyzer_fingerprint(self) -> str:
         return self._metadata_value("lexical_analyzer_fingerprint")
+
+    def policy_version(self) -> str:
+        return self._metadata_value("policy_version")
+
+    def tokenizer_fingerprint(self) -> str:
+        return self._metadata_value("tokenizer_fingerprint")
 
     def _validate_analyzer_fingerprint(self) -> None:
         stored = self.lexical_analyzer_fingerprint()
@@ -174,6 +206,14 @@ class ChromaVectorIndex:
     def embedding_fingerprint(self) -> str:
         return str(self._metadata().get("embedding_fingerprint", ""))
 
+    @property
+    def policy_version(self) -> str:
+        return str(self._metadata().get("policy_version", ""))
+
+    @property
+    def tokenizer_fingerprint(self) -> str:
+        return str(self._metadata().get("tokenizer_fingerprint", ""))
+
     async def search(self, query: str, *, limit: int = 20) -> list[IndexHit]:
         vector = (await self.embedding_gateway.embed([query]))[0]
         result = self._collection().query(query_embeddings=[vector], n_results=limit)
@@ -190,6 +230,13 @@ class ChromaVectorIndex:
         *,
         catalog_fingerprint: str,
         embedding_fingerprint: str,
+        policy_version: str = "parent-child-v1",
+        tokenizer_fingerprint: str = "regex-token-v1",
+        embedding_max_length: int | None = None,
+        normalize_embeddings: bool = True,
+        lexical_analyzer_fingerprint: str = "",
+        gold_sha256: str = "",
+        code_revision: str = "",
     ) -> None:
         client = self._client()
         existing = {collection.name for collection in client.list_collections()}
@@ -200,6 +247,13 @@ class ChromaVectorIndex:
             metadata={
                 "catalog_fingerprint": catalog_fingerprint,
                 "embedding_fingerprint": embedding_fingerprint,
+                "policy_version": policy_version,
+                "tokenizer_fingerprint": tokenizer_fingerprint,
+                "embedding_max_length": embedding_max_length or 0,
+                "normalize_embeddings": normalize_embeddings,
+                "lexical_analyzer_fingerprint": lexical_analyzer_fingerprint,
+                "gold_sha256": gold_sha256,
+                "code_revision": code_revision,
             },
         )
         for start in range(0, len(chunks), self.batch_size):

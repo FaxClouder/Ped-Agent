@@ -67,6 +67,10 @@ class CatalogAuditReport(BaseModel):
     official_chunk_count: int
     locator_coverage: float
     duplicate_sha256_count: int
+    maximum_child_tokens: int
+    oversized_child_count: int
+    hard_split_child_count: int
+    tokenizer_fingerprints: tuple[str, ...]
 
 
 class AsyncRetriever(Protocol):
@@ -220,7 +224,12 @@ def publish_retrieval_config(
     return activate
 
 
-def audit_catalog(catalog: Catalog, *, policy_version: str) -> CatalogAuditReport:
+def audit_catalog(
+    catalog: Catalog,
+    *,
+    policy_version: str,
+    child_max_tokens: int | None = None,
+) -> CatalogAuditReport:
     resources = catalog.list_resources()
     chunks = catalog.list_official_chunks(policy_version=policy_version)
     hashes: list[str] = []
@@ -235,12 +244,24 @@ def audit_catalog(catalog: Catalog, *, policy_version: str) -> CatalogAuditRepor
     locator_coverage = (
         0.0 if not chunks else sum(bool(item["locator"]) for item in chunks) / len(chunks)
     )
+    token_counts = [int(item.get("token_count", 0)) for item in chunks]
+    oversized_count = (
+        0
+        if child_max_tokens is None
+        else sum(token_count > child_max_tokens for token_count in token_counts)
+    )
     return CatalogAuditReport(
         resource_count=len(resources),
         official_resource_count=official,
         official_chunk_count=len(chunks),
         locator_coverage=locator_coverage,
         duplicate_sha256_count=duplicate_count,
+        maximum_child_tokens=max(token_counts, default=0),
+        oversized_child_count=oversized_count,
+        hard_split_child_count=sum(bool(item.get("hard_split", False)) for item in chunks),
+        tokenizer_fingerprints=tuple(
+            sorted({str(item.get("tokenizer_fingerprint", "")) for item in chunks})
+        ),
     )
 
 

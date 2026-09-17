@@ -8,7 +8,6 @@ import re
 from pathlib import Path
 from typing import Protocol
 
-
 TOKEN_PATTERN = re.compile(r"[A-Za-z0-9]+|[\u3400-\u9fff]|[^\s]")
 
 
@@ -61,7 +60,7 @@ class HuggingFaceTokenCounter:
         path: Path,
         *,
         expected_sha256: str | None = None,
-    ) -> "HuggingFaceTokenCounter":
+    ) -> HuggingFaceTokenCounter:
         tokenizer_path = path / "tokenizer.json" if path.is_dir() else path
         if not tokenizer_path.is_file():
             raise FileNotFoundError(f"tokenizer file not found: {tokenizer_path}")

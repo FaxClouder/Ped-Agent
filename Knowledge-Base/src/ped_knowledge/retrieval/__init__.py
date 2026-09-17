@@ -89,6 +89,7 @@ class HybridRetriever:
         rrf_k: int = 60,
         max_chunks_per_resource: int = 2,
         chunk_policy_version: str = "parent-child-v1",
+        tokenizer_fingerprint: str | None = None,
     ) -> None:
         self.catalog = catalog
         self.fts_index = fts_index
@@ -100,13 +101,14 @@ class HybridRetriever:
         self.rrf_k = rrf_k
         self.max_chunks_per_resource = max_chunks_per_resource
         self.chunk_policy_version = chunk_policy_version
+        self.tokenizer_fingerprint = tokenizer_fingerprint
 
     async def retrieve(self, query: str, *, limit: int = 8) -> HybridRetrievalResult:
         ranked_lists: list[list[IndexHit]] = []
         reasons: list[str] = []
         try:
             ranked_lists.append(self._fts_hits(query))
-        except (IndexStaleError, OSError, RuntimeError):
+        except (IndexStaleError, OSError, RuntimeError, ValueError):
             reasons.append("fts_index_unavailable")
         vector_reason = self._vector_degradation()
         if vector_reason is None and self.vector_index is not None:
@@ -152,6 +154,16 @@ class HybridRetriever:
                 policy_version=self.chunk_policy_version
             ):
                 raise IndexStaleError("FTS index fingerprint is stale")
+        policy_method = getattr(self.fts_index, "policy_version", None)
+        if callable(policy_method) and policy_method() != self.chunk_policy_version:
+            raise IndexStaleError("FTS chunk policy is stale")
+        tokenizer_method = getattr(self.fts_index, "tokenizer_fingerprint", None)
+        if (
+            self.tokenizer_fingerprint is not None
+            and callable(tokenizer_method)
+            and tokenizer_method() != self.tokenizer_fingerprint
+        ):
+            raise IndexStaleError("FTS tokenizer fingerprint is stale")
         return self.fts_index.search(query, limit=self.recall_limit)
 
     def _vector_degradation(self) -> str | None:
@@ -163,6 +175,16 @@ class HybridRetriever:
             return "vector_index_stale"
         if self.vector_index.embedding_fingerprint != self.embedding_fingerprint:
             return "embedding_fingerprint_changed"
+        vector_policy = getattr(self.vector_index, "policy_version", "")
+        if vector_policy and vector_policy != self.chunk_policy_version:
+            return "vector_chunk_policy_stale"
+        vector_tokenizer = getattr(self.vector_index, "tokenizer_fingerprint", "")
+        if (
+            self.tokenizer_fingerprint is not None
+            and vector_tokenizer
+            and vector_tokenizer != self.tokenizer_fingerprint
+        ):
+            return "vector_tokenizer_fingerprint_changed"
         return None
 
     async def _rerank(

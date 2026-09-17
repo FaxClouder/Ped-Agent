@@ -109,8 +109,20 @@ def test_minimal_selected_document_imports_without_academic_quality_fields(
         assert (derived / filename).is_file()
     with sqlite3.connect(catalog.path) as connection:
         levels = dict(connection.execute("SELECT chunk_level, COUNT(*) FROM chunks GROUP BY 1"))
+        build = connection.execute(
+            """
+            SELECT policy_version, tokenizer_fingerprint, source_fingerprint, chunk_count
+            FROM chunk_builds
+            """
+        ).fetchone()
     assert levels["parent"] >= 1
     assert levels["child"] >= 1
+    assert build == (
+        "parent-child-v1",
+        "regex-token-v1",
+        preflight.records[0].sha256,
+        sum(levels.values()),
+    )
 
 
 def test_new_version_becomes_active_and_old_chunks_leave_official_index(tmp_path: Path) -> None:

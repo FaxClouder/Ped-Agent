@@ -14,7 +14,7 @@ from ped_knowledge.contracts import (
     ElementType,
     KnowledgeChunk,
 )
-from ped_knowledge.tokenization import RegexTokenCounter, TOKEN_PATTERN, TokenCounter
+from ped_knowledge.tokenization import TOKEN_PATTERN, RegexTokenCounter, TokenCounter
 
 SKIPPED_TYPES = {ElementType.IMAGE}
 
