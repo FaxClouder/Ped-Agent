@@ -139,7 +139,7 @@ def test_failed_candidate_config_does_not_replace_active_baseline(tmp_path: Path
     catalog = Catalog(tmp_path / "catalog.sqlite3")
     catalog.initialize()
     config = EvaluationAcceptanceConfig(
-        question_count=1,
+        minimum_question_count=1,
         k=5,
         minimum_recall_at_k=0.8,
         minimum_mrr=0.7,

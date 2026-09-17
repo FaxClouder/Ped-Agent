@@ -29,7 +29,7 @@ class EvaluationReport(BaseModel):
 
 
 class EvaluationAcceptanceConfig(BaseModel):
-    question_count: int = Field(ge=1)
+    minimum_question_count: int = Field(ge=1)
     k: int = Field(ge=1)
     minimum_recall_at_k: float = Field(ge=0, le=1)
     minimum_mrr: float = Field(ge=0, le=1)
@@ -157,8 +157,8 @@ def audit_evaluation(
     non_official_leakage: float,
 ) -> EvaluationAcceptanceReport:
     errors: list[str] = []
-    if report.question_count != config.question_count:
-        errors.append(f"Gold Question count must equal {config.question_count}")
+    if report.question_count < config.minimum_question_count:
+        errors.append(f"Gold Question count is below {config.minimum_question_count}")
     if report.k != config.k:
         errors.append(f"evaluation k must equal {config.k}")
     if report.recall_at_k < config.minimum_recall_at_k:
@@ -244,6 +244,24 @@ def audit_catalog(catalog: Catalog) -> CatalogAuditReport:
     )
 
 
+def validate_gold_resources(
+    questions: list[GoldQuestion],
+    available_resource_ids: set[str],
+) -> None:
+    missing = sorted(
+        {
+            resource_id
+            for question in questions
+            for resource_id in question.expected_resource_ids
+        }
+        - available_resource_ids
+    )
+    if missing:
+        raise ValueError(
+            f"Gold Questions reference missing resources: {', '.join(missing)}"
+        )
+
+
 __all__ = [
     "CatalogAuditReport",
     "EvaluationAcceptanceConfig",
@@ -258,4 +276,5 @@ __all__ = [
     "evaluate_retriever",
     "load_gold",
     "publish_retrieval_config",
+    "validate_gold_resources",
 ]
