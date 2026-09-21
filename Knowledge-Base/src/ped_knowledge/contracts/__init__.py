@@ -179,6 +179,11 @@ class KnowledgeChunk(BaseModel):
     heading_path: tuple[str, ...] = ()
     policy_version: str = "parent-child-v1"
     element_ids: tuple[str, ...] = ()
+    token_count: int = Field(default=0, ge=0)
+    tokenizer_fingerprint: str = "regex-token-v1"
+    character_start: int | None = Field(default=None, ge=0)
+    character_end: int | None = Field(default=None, ge=0)
+    hard_split: bool = False
 
 
 class EvidenceHit(BaseModel):

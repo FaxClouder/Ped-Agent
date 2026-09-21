@@ -1,0 +1,14 @@
+analyzer_version: jieba-lexical-v1
+status: candidate
+implementation: isolated-jieba-tokenizer
+domain_terms_path: Knowledge-Base/config/retrieval/pedestrian_terms.txt
+stopwords_path: Knowledge-Base/config/retrieval/stopwords_zh_en.txt
+query_operator: OR
+normalization:
+  lowercase_latin: true
+  collapse_whitespace: true
+  preserve_alphanumeric_identifiers: true
+fingerprint_inputs:
+  - analyzer_version
+  - domain_terms_file_bytes
+  - stopwords_file_bytes

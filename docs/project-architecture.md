@@ -66,12 +66,37 @@ flowchart LR
 | Evidence orchestration and QA | `Agent/`, `Agent/README.md` | Evidence graph, citation rules, model adapters, research answers | FastAPI, SSE, sessions, task queues |
 | Reproducible studies | `experiments/`, `experiments/README.md` | Inputs, hypotheses, versions, seeds, commands, metrics, outputs | Core reusable module implementation |
 
+### Knowledge retrieval pipeline
+
+```mermaid
+flowchart LR
+    source["governed source files"] --> parse["canonical parsing"]
+    parse --> chunk["policy-scoped chunking"]
+    chunk --> catalog[("Catalog\nchunks + build provenance")]
+    catalog --> sparse["versioned jieba analyzer\nFTS5 / BM25"]
+    catalog --> dense["BGE-M3 embeddings\nChroma"]
+    sparse --> hybrid["RRF + optional rerank"]
+    dense --> hybrid
+    hybrid --> evidence["child evidence\nparent context"]
+```
+
+`parent-child-v1` remains the default policy. `parent-child-v2` is an implemented candidate that
+uses the pinned BGE-M3 tokenizer for token accounting, preserves bilingual sentence boundaries,
+and falls back to token windows only for oversized atomic units. The Catalog keeps policies side by
+side and records tokenizer, source, and chunk-build provenance. Sparse indexes also record their
+lexical analyzer fingerprint; retrieval rejects or degrades stale policy, tokenizer, lexical, Catalog,
+or embedding combinations.
+
+V2 is not an active retrieval release until a separately named local index is built and the 31-question
+Gold set passes the configured acceptance and baseline-comparison gates. Current implementation and
+configuration paths are listed in [`Knowledge-Base/README.md`](../Knowledge-Base/README.md).
+
 ## 💾 Data boundaries
 
 [`memPed/README.md`](../memPed/README.md) is the data-root guide. In short:
 
 - `memPed/knowledge/` stores governed literature/regulation assets, catalogs, derived documents,
-  indexes, and reports
+  policy-scoped indexes, Gold questions, chunk-build records, and reports
 - `memPed/conversations/` stores conversation artifacts when a research workflow needs them
 - `memPed/methods/` stores method candidates and approved methods
 - `outputs/` stores local experiment outputs; it is not the source of truth for code or methods

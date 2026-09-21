@@ -53,9 +53,24 @@ CREATE TABLE IF NOT EXISTS chunks (
     parent_chunk_id TEXT,
     heading_path TEXT NOT NULL DEFAULT '[]',
     policy_version TEXT NOT NULL DEFAULT 'legacy-v1',
-    element_ids TEXT NOT NULL DEFAULT '[]'
+    element_ids TEXT NOT NULL DEFAULT '[]',
+    token_count INTEGER NOT NULL DEFAULT 0,
+    tokenizer_fingerprint TEXT NOT NULL DEFAULT 'regex-token-v1',
+    character_start INTEGER,
+    character_end INTEGER,
+    hard_split INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_chunks_resource ON chunks(resource_id, version_id, ordinal);
+CREATE TABLE IF NOT EXISTS chunk_builds (
+    version_id TEXT NOT NULL REFERENCES resource_versions(version_id),
+    policy_version TEXT NOT NULL,
+    tokenizer_fingerprint TEXT NOT NULL,
+    source_fingerprint TEXT NOT NULL,
+    chunk_count INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (version_id, policy_version)
+);
 CREATE TABLE IF NOT EXISTS resource_relations (
     source_resource_id TEXT NOT NULL REFERENCES resources(resource_id),
     relation_type TEXT NOT NULL,
@@ -218,16 +233,36 @@ class Catalog:
             if activate:
                 self._activate_version(connection, resource_id, version_id)
 
-    def replace_chunks(self, version_id: str, chunks: Sequence[Any]) -> None:
+    def replace_chunks(
+        self,
+        version_id: str,
+        chunks: Sequence[Any],
+        *,
+        policy_version: str,
+    ) -> None:
+        mismatched = [
+            str(item.chunk_id)
+            for item in chunks
+            if str(getattr(item, "policy_version", "legacy-v1")) != policy_version
+        ]
+        if mismatched:
+            raise ValueError(
+                f"chunks do not match policy {policy_version}: {', '.join(mismatched)}"
+            )
         with self.connect() as connection:
-            connection.execute("DELETE FROM chunks WHERE version_id = ?", (version_id,))
+            connection.execute(
+                "DELETE FROM chunks WHERE version_id = ? AND policy_version = ?",
+                (version_id, policy_version),
+            )
             connection.executemany(
                 """
                 INSERT INTO chunks
                     (chunk_id, resource_id, version_id, ordinal, text, page_start,
                      page_end, locator, section, parser_version, chunk_level,
-                     parent_chunk_id, heading_path, policy_version, element_ids)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     parent_chunk_id, heading_path, policy_version, element_ids,
+                     token_count, tokenizer_fingerprint, character_start,
+                     character_end, hard_split)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 [
                     (
@@ -246,9 +281,48 @@ class Catalog:
                         json.dumps(list(getattr(item, "heading_path", ())), ensure_ascii=False),
                         str(getattr(item, "policy_version", "legacy-v1")),
                         json.dumps(list(getattr(item, "element_ids", ())), ensure_ascii=False),
+                        int(getattr(item, "token_count", 0)),
+                        str(getattr(item, "tokenizer_fingerprint", "regex-token-v1")),
+                        getattr(item, "character_start", None),
+                        getattr(item, "character_end", None),
+                        int(bool(getattr(item, "hard_split", False))),
                     )
                     for item in chunks
                 ],
+            )
+
+    def record_chunk_build(
+        self,
+        version_id: str,
+        *,
+        policy_version: str,
+        tokenizer_fingerprint: str,
+        source_fingerprint: str,
+        chunk_count: int,
+        status: str = "complete",
+    ) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO chunk_builds
+                    (version_id, policy_version, tokenizer_fingerprint,
+                     source_fingerprint, chunk_count, status)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(version_id, policy_version) DO UPDATE SET
+                    tokenizer_fingerprint=excluded.tokenizer_fingerprint,
+                    source_fingerprint=excluded.source_fingerprint,
+                    chunk_count=excluded.chunk_count,
+                    status=excluded.status,
+                    created_at=CURRENT_TIMESTAMP
+                """,
+                (
+                    version_id,
+                    policy_version,
+                    tokenizer_fingerprint,
+                    source_fingerprint,
+                    chunk_count,
+                    status,
+                ),
             )
 
     def set_version_derivation(
@@ -358,7 +432,7 @@ class Catalog:
                 )
             ]
 
-    def list_official_chunks(self) -> list[dict[str, Any]]:
+    def list_official_chunks(self, *, policy_version: str) -> list[dict[str, Any]]:
         with self.connect() as connection:
             return [
                 _hydrate_chunk_row(row)
@@ -371,8 +445,10 @@ class Catalog:
                     WHERE r.retrieval_eligibility = 'official'
                       AND c.version_id = r.active_version_id
                       AND c.chunk_level = 'child'
+                      AND c.policy_version = ?
                     ORDER BY c.resource_id, c.ordinal
-                    """
+                    """,
+                    (policy_version,),
                 )
             ]
 
@@ -413,9 +489,9 @@ class Catalog:
                 )
             ]
 
-    def official_fingerprint(self) -> str:
+    def official_fingerprint(self, *, policy_version: str) -> str:
         digest = hashlib.sha256()
-        for chunk in self.list_official_chunks():
+        for chunk in self.list_official_chunks(policy_version=policy_version):
             digest.update(str(chunk["chunk_id"]).encode("utf-8"))
             digest.update(str(chunk["text"]).encode("utf-8"))
         return digest.hexdigest()
@@ -485,6 +561,11 @@ class Catalog:
                 "heading_path": "TEXT NOT NULL DEFAULT '[]'",
                 "policy_version": "TEXT NOT NULL DEFAULT 'legacy-v1'",
                 "element_ids": "TEXT NOT NULL DEFAULT '[]'",
+                "token_count": "INTEGER NOT NULL DEFAULT 0",
+                "tokenizer_fingerprint": "TEXT NOT NULL DEFAULT 'regex-token-v1'",
+                "character_start": "INTEGER",
+                "character_end": "INTEGER",
+                "hard_split": "INTEGER NOT NULL DEFAULT 0",
             },
         }
         for table, columns in additions.items():

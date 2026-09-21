@@ -14,12 +14,13 @@ from ped_knowledge.contracts import (
 from ped_knowledge.evaluation import (
     EvaluationAcceptanceConfig,
     EvaluationReport,
+    audit_catalog,
     audit_evaluation,
     compare_with_baseline,
     publish_retrieval_config,
 )
 from ped_knowledge.reranking import CrossEncoderReranker
-from ped_knowledge.retrieval import HybridRetriever
+from ped_knowledge.retrieval import HybridRetriever, IndexStaleError
 from ped_knowledge.storage import Catalog
 
 
@@ -29,6 +30,30 @@ class FakeFTS:
 
     def search(self, query: str, *, limit: int) -> list[IndexHit]:
         return self.hits[:limit]
+
+
+class ManifestFTS(FakeFTS):
+    def __init__(
+        self,
+        hits: list[IndexHit],
+        *,
+        source_fingerprint: str,
+        policy_version: str,
+        tokenizer_fingerprint: str,
+    ) -> None:
+        super().__init__(hits)
+        self._source_fingerprint = source_fingerprint
+        self._policy_version = policy_version
+        self._tokenizer_fingerprint = tokenizer_fingerprint
+
+    def source_fingerprint(self) -> str:
+        return self._source_fingerprint
+
+    def policy_version(self) -> str:
+        return self._policy_version
+
+    def tokenizer_fingerprint(self) -> str:
+        return self._tokenizer_fingerprint
 
 
 class ReverseReranker:
@@ -79,7 +104,11 @@ def _catalog_with_chunks(tmp_path: Path) -> tuple[Catalog, list[str]]:
         for index in range(2)
     ]
     catalog.upsert_resource(record, version_id=record.sha256, vault_path="objects/paper.pdf")
-    catalog.replace_chunks(record.sha256, chunks)
+    catalog.replace_chunks(
+        record.sha256,
+        chunks,
+        policy_version="parent-child-v1",
+    )
     return catalog, [item.chunk_id for item in chunks]
 
 
@@ -139,7 +168,7 @@ def test_failed_candidate_config_does_not_replace_active_baseline(tmp_path: Path
     catalog = Catalog(tmp_path / "catalog.sqlite3")
     catalog.initialize()
     config = EvaluationAcceptanceConfig(
-        question_count=1,
+        minimum_question_count=1,
         k=5,
         minimum_recall_at_k=0.8,
         minimum_mrr=0.7,
@@ -173,3 +202,46 @@ def test_failed_candidate_config_does_not_replace_active_baseline(tmp_path: Path
         comparison=compare_with_baseline(candidate, baseline, config),
     )
     assert catalog.active_retrieval_config()["config_id"] == "baseline"
+
+
+@pytest.mark.asyncio
+async def test_hybrid_retriever_rejects_a_stale_chunk_policy(tmp_path: Path) -> None:
+    catalog, chunk_ids = _catalog_with_chunks(tmp_path)
+    index = ManifestFTS(
+        [IndexHit(chunk_ids[0], 1.0)],
+        source_fingerprint=catalog.official_fingerprint(
+            policy_version="parent-child-v1"
+        ),
+        policy_version="parent-child-v2",
+        tokenizer_fingerprint="regex-token-v1",
+    )
+    retriever = HybridRetriever(
+        catalog,
+        index,
+        None,
+        embedding_fingerprint="unused",
+        chunk_policy_version="parent-child-v1",
+        tokenizer_fingerprint="regex-token-v1",
+    )
+
+    with pytest.raises(IndexStaleError, match="no current"):
+        await retriever.retrieve("evidence")
+
+
+def test_catalog_audit_reports_token_budget_and_hard_splits(tmp_path: Path) -> None:
+    catalog, _ = _catalog_with_chunks(tmp_path)
+    with catalog.connect() as connection:
+        connection.execute(
+            "UPDATE chunks SET token_count = 12, hard_split = 1 WHERE chunk_id = 'child-1'"
+        )
+
+    report = audit_catalog(
+        catalog,
+        policy_version="parent-child-v1",
+        child_max_tokens=8,
+    )
+
+    assert report.maximum_child_tokens == 12
+    assert report.oversized_child_count == 1
+    assert report.hard_split_child_count == 1
+    assert report.tokenizer_fingerprints == ("regex-token-v1",)

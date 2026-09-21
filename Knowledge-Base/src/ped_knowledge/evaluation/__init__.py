@@ -29,7 +29,7 @@ class EvaluationReport(BaseModel):
 
 
 class EvaluationAcceptanceConfig(BaseModel):
-    question_count: int = Field(ge=1)
+    minimum_question_count: int = Field(ge=1)
     k: int = Field(ge=1)
     minimum_recall_at_k: float = Field(ge=0, le=1)
     minimum_mrr: float = Field(ge=0, le=1)
@@ -67,6 +67,10 @@ class CatalogAuditReport(BaseModel):
     official_chunk_count: int
     locator_coverage: float
     duplicate_sha256_count: int
+    maximum_child_tokens: int
+    oversized_child_count: int
+    hard_split_child_count: int
+    tokenizer_fingerprints: tuple[str, ...]
 
 
 class AsyncRetriever(Protocol):
@@ -157,8 +161,8 @@ def audit_evaluation(
     non_official_leakage: float,
 ) -> EvaluationAcceptanceReport:
     errors: list[str] = []
-    if report.question_count != config.question_count:
-        errors.append(f"Gold Question count must equal {config.question_count}")
+    if report.question_count < config.minimum_question_count:
+        errors.append(f"Gold Question count is below {config.minimum_question_count}")
     if report.k != config.k:
         errors.append(f"evaluation k must equal {config.k}")
     if report.recall_at_k < config.minimum_recall_at_k:
@@ -220,9 +224,14 @@ def publish_retrieval_config(
     return activate
 
 
-def audit_catalog(catalog: Catalog) -> CatalogAuditReport:
+def audit_catalog(
+    catalog: Catalog,
+    *,
+    policy_version: str,
+    child_max_tokens: int | None = None,
+) -> CatalogAuditReport:
     resources = catalog.list_resources()
-    chunks = catalog.list_official_chunks()
+    chunks = catalog.list_official_chunks(policy_version=policy_version)
     hashes: list[str] = []
     official = 0
     for resource in resources:
@@ -235,13 +244,43 @@ def audit_catalog(catalog: Catalog) -> CatalogAuditReport:
     locator_coverage = (
         0.0 if not chunks else sum(bool(item["locator"]) for item in chunks) / len(chunks)
     )
+    token_counts = [int(item.get("token_count", 0)) for item in chunks]
+    oversized_count = (
+        0
+        if child_max_tokens is None
+        else sum(token_count > child_max_tokens for token_count in token_counts)
+    )
     return CatalogAuditReport(
         resource_count=len(resources),
         official_resource_count=official,
         official_chunk_count=len(chunks),
         locator_coverage=locator_coverage,
         duplicate_sha256_count=duplicate_count,
+        maximum_child_tokens=max(token_counts, default=0),
+        oversized_child_count=oversized_count,
+        hard_split_child_count=sum(bool(item.get("hard_split", False)) for item in chunks),
+        tokenizer_fingerprints=tuple(
+            sorted({str(item.get("tokenizer_fingerprint", "")) for item in chunks})
+        ),
     )
+
+
+def validate_gold_resources(
+    questions: list[GoldQuestion],
+    available_resource_ids: set[str],
+) -> None:
+    missing = sorted(
+        {
+            resource_id
+            for question in questions
+            for resource_id in question.expected_resource_ids
+        }
+        - available_resource_ids
+    )
+    if missing:
+        raise ValueError(
+            f"Gold Questions reference missing resources: {', '.join(missing)}"
+        )
 
 
 __all__ = [
@@ -258,4 +297,5 @@ __all__ = [
     "evaluate_retriever",
     "load_gold",
     "publish_retrieval_config",
+    "validate_gold_resources",
 ]
