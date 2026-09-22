@@ -18,6 +18,9 @@
 
 ## 研究设计与工程规范
 
+- [`superpowers/specs/2026-09-22-memped-knowledge-update-design.md`](superpowers/specs/2026-09-22-memped-knowledge-update-design.md)：memPed/知识库目标设计，包含流程前后对比、数据身份、模块边界、研究卡与发布规则（target）。
+- [`superpowers/plans/2026-09-22-memped-knowledge-update.md`](superpowers/plans/2026-09-22-memped-knowledge-update.md)：分阶段更新计划、文件变更清单、迁移/回滚、固定验收样例与可选 memU 旁路实验（plan）。
+
 - [`data-analysis-module-design.md`](data-analysis-module-design.md)：数据分析目标设计。
 - [`superpowers/specs/2026-09-15-pytorch-cuda-unification-design.md`](superpowers/specs/2026-09-15-pytorch-cuda-unification-design.md)：PyTorch CUDA 版本统一计划。
 - [`vision-module-design.md`](vision-module-design.md)：视觉分析目标设计。
