@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from ped_knowledge.contracts import VersionStatus, normalize_doi
+from ped_knowledge.storage.builds import BuildManifest, BuildStatus
 
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -765,4 +766,11 @@ def _hydrate_chunk_row(row: sqlite3.Row) -> dict[str, Any]:
     return result
 
 
-__all__ = ["Catalog", "ContentVault", "SCHEMA", "sha256_file"]
+__all__ = [
+    "BuildManifest",
+    "BuildStatus",
+    "Catalog",
+    "ContentVault",
+    "SCHEMA",
+    "sha256_file",
+]
