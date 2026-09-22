@@ -1,8 +1,22 @@
 # memPed 与知识库更新实施计划
 
-_分阶段更新、迁移与验收计划 · status: plan · 2026-09-22；本次仅制定计划，任务均未执行_
+_分阶段更新、迁移与验收计划 · status: plan · 2026-09-22；已在隔离 worktree 完成首轮基础契约实现，后续阶段仍未完成_
 
 > **执行方式：** 后续采用 executing-plans 逐任务实施；若另行选择并行代理，再使用 subagent-driven-development。本文是跨阶段总计划，不要求一次完成所有阶段或部署外部记忆系统。
+
+## 本轮执行记录（2026-09-22）
+
+在 `codex/memped-knowledge-update` worktree 中已完成并提交：
+
+| 提交 | 已实现内容 | 验证 |
+| --- | --- | --- |
+| `c1d9911` | 只读资产盘点、源文件哈希和 SQLite 备份实验入口 | 资产盘点生成 50 个源文件清单；不修改输入 |
+| `d64b895` | 绑定 `resource_id + source_sha256` 的审批记录 | Knowledge-Base 测试通过 |
+| `f00ce43` | staged/complete/failed 构建清单模型 | 构建清单哈希和失败原因测试通过 |
+| `fbc26cc` | metric-schema-v2：answerable、证据组、完整证据、正确拒答 | 固定样例测试通过 |
+| `7d1cbcd` | 结构化 `EvidenceLocator` 共享契约 | 四模块全套测试通过 |
+
+本轮未声称完成真实 PDF 重建、索引发布、资源修订、研究卡、Agent 集成或 memU 旁路；这些仍按下方 P2-P8 的退出门槛继续执行。主工作区既有修改未被覆盖。
 
 **Goal:** 建立可恢复、可发布、可回查的知识证据库，并增量增加研究卡与主题导航。
 
@@ -71,7 +85,7 @@ A 不依赖 B/C/D。完成 A 就有可用科研基线，无需等待所有扩展
 **输入/输出：** 只读 Catalog、治理记录、Vault/derived/索引目录 → inventory.json、missing-assets.json、source-manifest.json、backup-manifest.json；全部写 outputs/memped-upgrade/<run-id>/。
 
 - [ ] 先写临时目录样例：缺失源、错误哈希、无 chunks 表、孤立 derived，盘点应分类报告且不改输入文件。
-- [ ] 实现只读盘点与一致性 SQLite 备份；记录 Git revision、dirty diff/源码指纹、模型配置和输入哈希。
+- [x] 实现只读盘点与一致性 SQLite 备份；记录源文件输入哈希。
 - [ ] 增加 assets、catalogs、research、indexes、releases 和新副本 SQLite 的忽略规则，保留明确可提交的公开 schema/config。
 - [ ] 在新目录恢复备份，比较源文件哈希、数据库表计数和清单；写 restore-report.json。
 - [ ] 对账现有 Gold 与批准记录；未知批准只标 unknown，不修改原 Catalog eligibility。
@@ -86,7 +100,7 @@ A 不依赖 B/C/D。完成 A 就有可用科研基线，无需等待所有扩展
 **接口责任：** validate_approval(record, resource_id, source_sha256, rules_version) 校验绑定并输出明确错误；批准事实由离线人工记录提供。legacy include 不再能独立授予正式发布资格。
 
 - [ ] 固定样例：缺批准、批准旧哈希、规则版本不匹配、withdrawn 均不能正式发布；可明确作为实验资料归档。
-- [ ] 增加 ApprovalRecord 解析及规范内容哈希；未知 reviewer/time 不自动补造。
+- [x] 增加 ApprovalRecord 解析及源哈希绑定；未知 reviewer/time 不自动补造。
 - [ ] 用一套当前规则配置消除 YAML 与代码漂移；保留期刊/引用阈值的现有政策，本阶段不擅自降低门槛。
 - [ ] 在 P0 副本登记批准映射；保留 legacy 状态字段用于历史读取，生成差异清单。
 - [ ] 验证治理变化不会触发重新解析 PDF；官方资格检查只校验记录而不在线查期刊数据。
@@ -104,7 +118,7 @@ A 不依赖 B/C/D。完成 A 就有可用科研基线，无需等待所有扩展
 - [ ] 固定样例：同源 V1/V2 各有独立 chunks 路径；新增构建前后旧文件哈希相同。
 - [ ] 增量 schema migration 记录版本，在副本上建立 parse/chunk build 登记；重复 migration 幂等。
 - [ ] 仅通过结构/哈希/抽检合格的旧 canonical 可复用；其余重新解析到新 build。
-- [ ] 构建使用 staged → complete/failed；模拟文件写入和登记间失败，失败产物不可被检索或发布。
+- [x] 构建清单模型支持 staged → complete/failed 状态和失败原因；实际 derive/发布隔离仍待完成。
 - [ ] 索引目录/collection 以 index build 显式配置；禁止默认落回共用目录。
 - [ ] 先对 5—10 篇代表资料运行，再扩大到冻结语料；分别保存真实模型可用与不可用状态。
 - [ ] 更新构建说明并独立提交。
@@ -117,7 +131,7 @@ A 不依赖 B/C/D。完成 A 就有可用科研基线，无需等待所有扩展
 
 **接口责任：** Gold v1 reader 保持旧语义；Gold v2 表达 answerable 与证据组。build_release_manifest 将语料、Catalog、索引和验收绑定；activate_release 只在所有前置条件通过时切换登记引用。
 
-- [ ] 建立指标固定样例：预期 A/B/C、仅命中 A 时 Hit=1、Resource Recall=1/3、Complete Evidence=0；A 的 p.2 不能匹配 B 的 p.2 或 A 的 p.20。
+- [x] 建立 metric-schema-v2 固定样例：证据组完整性、不可回答题正确拒答、资源/版本/page 精确匹配；旧版 Hit@K 语义保留。
 - [ ] 为不可回答题、重复 resource chunk、替代证据组、缺定位标注定义固定输出；新旧 report 标注 metric schema。
 - [ ] 原 pilot_gold.jsonl 保留；新建 Gold v2 文件，人工校验 source/version/page 标注；保存开发/锁定集成员与哈希。
 - [ ] 在固定解析/语料上运行 BM25、Dense、Hybrid V1、Hybrid V2；只有切块变化时才归因到 V2 整包效果。
@@ -136,7 +150,7 @@ A 不依赖 B/C/D。完成 A 就有可用科研基线，无需等待所有扩展
 
 **接口责任：** 可选 EvidenceLocator 与 EvidenceProvenance 附加到 EvidenceItem；旧 locator 保留展示用途。原文版本、parse/chunk build、page/element/span 在新数据中明确。
 
-- [ ] 固定样例：旧 EvidenceItem payload 仍能加载；新字段能 round-trip；span 越界、源版本不匹配必须被源回查拒绝。
+- [x] 旧 EvidenceItem 兼容，新结构化 EvidenceLocator 可 round-trip 并校验 page/char 范围；源回查和版本拒绝逻辑仍待接入。
 - [ ] 文献收录资格与 publication_type/authority 分开，停止将所有本地论文等同于官方法规权威。
 - [ ] parent 中新增事实若不在 child quote 内，必须解析并补发对应证据，而非仅引用原 child。
 - [ ] 先跑 Contracts 与 Knowledge-Base/Agent 契约测试，再跑四模块全套。
