@@ -7,7 +7,8 @@ _五批 PDF 文献从内容初筛转入逐篇准入核查的设计 · status: pl
 为五批文献建立可复核、可重建的 Manifest 准备表。当前
 [`screening.csv`](../../../memPed/knowledge/literature/records/screening.csv) 中 108 篇
 有 104 篇高于 65 分，4 篇已标记为 `temporarily_not_used`。准备表只覆盖前 104 篇；
-4 篇保留在候选与筛选记录中，并在构建报告中列为排除项，不删除 PDF。
+4 篇只保留在现有候选与筛选记录中，不生成准备表行或任何 Manifest 条目，
+不删除 PDF。构建核对仅统计排除数量，不为这 4 篇另建逐篇清单。
 
 准备表不是 `ped_knowledge.contracts.IngestionManifest` JSONL，不含 `include` 字段，
 不得交给 `ImportService.import_manifest`。当前活动导入程序即使遇到 `include=false`
@@ -45,7 +46,8 @@ inventory SHA-256、实测 SHA-256 是否一致、PDF 技术检查结果、内�
 
 ## 验证
 
-构建器以固定输入文件和 SHA-256 记录 provenance。测试覆盖 108→104+4 分流、
+构建器以固定输入文件和 SHA-256 记录 provenance。测试覆盖 108 篇输入中仅为
+104 篇生成准备表行、4 篇只计数不输出条目、
 DOI/`resource_id` 唯一性、五批 inventory 与候选表一对一匹配、原评分不变、
 缺项不被伪装成通过、路径与哈希验证、技术 Manifest 不会在准备阶段生成。
 构建后核对 104 行和每类阻断数量；再运行知识模块测试，若触及共享契约则运行
