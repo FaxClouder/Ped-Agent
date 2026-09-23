@@ -59,3 +59,18 @@ BGE-M3 的固定参数和复现命令见
 [`config/embeddings/bge-m3/README.md`](config/embeddings/bge-m3/README.md)。模型权重保存在
 `memPed/knowledge/models/bge-m3/`，后续独立 Chroma 索引保存在
 `memPed/knowledge/indexes/bge-m3-1024/`；两者均不提交 Git。
+
+## Adobe PDF Extract 可选解析
+
+默认导入仍使用 PyMuPDF。需要对双栏阅读顺序、表格和图形做结构化对照时，可以安装可选依赖 `ped-knowledge[adobe]`，并显式使用 `ImportService(paths, parser_backend="adobe")`。Adobe 调用会将所选 PDF 上传到 Adobe 云端；只有对确定允许上传的文献才选择该解析器。
+
+本地凭据有两种配置方式：设置 `PDF_SERVICES_CLIENT_ID` 和 `PDF_SERVICES_CLIENT_SECRET` 环境变量，或将 Adobe 下载包中的 `pdfservices-api-credentials.json` 放在 `Knowledge-Base/local/`。该目录被 Git 忽略，凭据不应提交。缺少凭据时调用会报错；不会自动切换解析器。
+
+先做独立对照，避免改变已有 Catalog、索引或派生产物：
+
+```powershell
+$env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src"
+.\.venv\Scripts\python -m ped_knowledge.parsing.compare "路径\文献.pdf" --output "outputs\adobe-compare-唯一名称" --resource-id paper-id
+```
+
+输出目录必须不存在。对照保留原文 SHA-256、两种解析器版本、逐元素文本、表格行、解析摘要和 Adobe 原始 ZIP。数量差异不等于准确率提升；需人工核对阅读顺序和表格单元格。正式导入时，Adobe 派生文件存入 `memPed/knowledge/derived/<resource-id>/<sha>/adobe/`，Catalog 记录解析器版本和派生文件哈希。已经有相同 SHA-256 活动版本的文献会按既有规则跳过；用上述对照入口评估这类文献。

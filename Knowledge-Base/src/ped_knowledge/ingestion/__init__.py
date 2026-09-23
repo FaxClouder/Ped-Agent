@@ -13,6 +13,7 @@ from pydantic import ValidationError
 from ped_knowledge.chunking import HierarchicalChunker
 from ped_knowledge.contracts import ChunkingPolicy, IngestionManifest, OCRGateway
 from ped_knowledge.parsing import parse_document, write_derived_assets
+from ped_knowledge.parsing.adobe import extract_adobe_pdf, parse_adobe_zip
 from ped_knowledge.storage import Catalog, ContentVault, sha256_file
 
 
@@ -111,7 +112,11 @@ class ImportService:
         *,
         chunking_policy: ChunkingPolicy | None = None,
         ocr_gateway: OCRGateway | None = None,
+        parser_backend: str = "pymupdf",
     ) -> None:
+        if parser_backend not in {"pymupdf", "adobe"}:
+            raise ValueError(f"unknown parser backend: {parser_backend}")
+        self.parser_backend = parser_backend
         self.paths = paths
         self.chunker = HierarchicalChunker(chunking_policy)
         self.ocr_gateway = ocr_gateway
@@ -144,13 +149,28 @@ class ImportService:
                     vault_path=str(vault_path.relative_to(self.paths.memped_root)),
                 )
                 staged = True
-                canonical, parse_report = parse_document(
-                    vault_path,
-                    resource_id=record.resource_id,
-                    version_id=version_id,
-                    detect_clauses=record.resource_type.value in {"regulation", "standard"},
-                    ocr_gateway=self.ocr_gateway,
-                )
+                binary_assets = None
+                if self.parser_backend == "adobe":
+                    saved_response = (
+                        self.paths.derived_dir / record.resource_id / version_id
+                        / "adobe" / "extract.zip"
+                    )
+                    adobe_zip = (
+                        saved_response.read_bytes()
+                        if saved_response.is_file()
+                        else extract_adobe_pdf(vault_path)
+                    )
+                    canonical, parse_report, binary_assets = parse_adobe_zip(
+                        adobe_zip, resource_id=record.resource_id, version_id=version_id
+                    )
+                else:
+                    canonical, parse_report = parse_document(
+                        vault_path,
+                        resource_id=record.resource_id,
+                        version_id=version_id,
+                        detect_clauses=record.resource_type.value in {"regulation", "standard"},
+                        ocr_gateway=self.ocr_gateway,
+                    )
                 chunks = self.chunker.chunk(canonical)
                 assets = write_derived_assets(
                     self.paths.derived_dir,
@@ -158,6 +178,7 @@ class ImportService:
                     parse_report,
                     chunks,
                     source_path=vault_path,
+                    binary_assets=binary_assets,
                 )
                 derived_path = self.paths.derived_dir / record.resource_id / version_id
                 catalog.replace_chunks(

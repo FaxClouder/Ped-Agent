@@ -568,13 +568,18 @@ class Catalog:
                 "hard_split": "INTEGER NOT NULL DEFAULT 0",
             },
         }
+        legacy_versions_without_status = False
         for table, columns in additions.items():
             existing = {
                 row["name"] for row in connection.execute(f"PRAGMA table_info({table})").fetchall()
             }
+            if table == "resource_versions" and "status" not in existing:
+                legacy_versions_without_status = True
             for name, declaration in columns.items():
                 if name not in existing:
                     connection.execute(f"ALTER TABLE {table} ADD COLUMN {name} {declaration}")
+        if legacy_versions_without_status:
+            connection.execute("UPDATE resource_versions SET status = 'active'")
 
     def _backfill_doi_identifiers(self, connection: sqlite3.Connection) -> None:
         for row in connection.execute(
@@ -600,7 +605,8 @@ class Catalog:
             version = connection.execute(
                 """
                 SELECT version_id FROM resource_versions
-                WHERE resource_id = ? ORDER BY created_at DESC, version_id DESC LIMIT 1
+                WHERE resource_id = ? AND status = 'active'
+                ORDER BY created_at DESC, version_id DESC LIMIT 1
                 """,
                 (resource["resource_id"],),
             ).fetchone()

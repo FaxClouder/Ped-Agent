@@ -6,9 +6,9 @@ import hashlib
 import json
 import re
 from collections import Counter
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from statistics import median
-from typing import Any, cast
+from typing import Any, Mapping, cast
 
 from ped_knowledge.contracts import (
     AssetRef,
@@ -242,43 +242,80 @@ def write_derived_assets(
     chunks: list[KnowledgeChunk],
     *,
     source_path: Path,
+    binary_assets: Mapping[str, bytes] | None = None,
 ) -> list[tuple[str, str, str]]:
-    target = root / document.resource_id / document.version_id
-    target.mkdir(parents=True, exist_ok=True)
-    assets: list[tuple[str, str, str]] = []
-    assets.append(_write_text(target, "document.json", document.model_dump_json(indent=2)))
-    assets.append(
-        _write_text(
-            target,
-            "elements.jsonl",
-            "\n".join(item.model_dump_json() for item in document.elements) + "\n",
-        )
-    )
-    assets.append(
-        _write_text(
-            target,
-            "chunks.jsonl",
-            "\n".join(item.model_dump_json() for item in chunks) + "\n",
-        )
-    )
-    assets.append(_write_text(target, "parse_report.json", report.model_dump_json(indent=2)))
-    table_dir = target / "tables"
+    """Write missing files and reuse matching files without overwriting results."""
+    contents: dict[str, bytes] = {
+        "document.json": document.model_dump_json(indent=2).encode("utf-8"),
+        "elements.jsonl": (
+            "\n".join(item.model_dump_json() for item in document.elements) + "\n"
+        ).encode("utf-8"),
+        "chunks.jsonl": (
+            "\n".join(item.model_dump_json() for item in chunks) + "\n"
+        ).encode("utf-8"),
+        "parse_report.json": report.model_dump_json(indent=2).encode("utf-8"),
+    }
+    asset_types = {
+        "document.json": "document",
+        "elements.jsonl": "elements",
+        "chunks.jsonl": "chunks",
+        "parse_report.json": "parse_report",
+    }
     for element in document.elements:
         if element.element_type is not ElementType.TABLE or element.table_data is None:
             continue
-        table_dir.mkdir(parents=True, exist_ok=True)
-        json_name = f"{element.element_id}.json"
-        html_name = f"{element.element_id}.html"
-        assets.append(
-            _write_text(
-                target,
-                f"tables/{json_name}",
-                json.dumps(element.table_data, ensure_ascii=False, indent=2),
+        for extension, data in (
+            ("json", json.dumps(element.table_data, ensure_ascii=False, indent=2)),
+            ("html", _table_html(element.table_data)),
+        ):
+            relative_path = f"tables/{element.element_id}.{extension}"
+            contents[relative_path] = data.encode("utf-8")
+            asset_types[relative_path] = element.element_id
+    if binary_assets is None:
+        image_assets = _extract_images(document, source_path)
+        contents.update(image_assets)
+        asset_types.update({path: "image" for path in image_assets})
+    else:
+        for relative_path, data in binary_assets.items():
+            safe_path = PurePosixPath(relative_path)
+            if (
+                "\\" in relative_path
+                or safe_path.is_absolute()
+                or not safe_path.parts
+                or ".." in safe_path.parts
+                or safe_path.parts[0] != "adobe"
+            ):
+                raise ValueError(f"unsafe derived asset path: {relative_path}")
+            contents[relative_path] = data
+            asset_types[relative_path] = (
+                "adobe_extract" if relative_path == "adobe/extract.zip"
+                else "image" if relative_path.startswith("adobe/figures/")
+                else "table_rendition"
             )
-        )
-        assets.append(_write_text(target, f"tables/{html_name}", _table_html(element.table_data)))
-    assets.extend(_write_images(target, document, source_path))
-    return assets
+    target = root / document.resource_id / document.version_id
+    if target.exists():
+        existing_paths = {
+            path.relative_to(target).as_posix() for path in target.rglob("*") if path.is_file()
+        }
+        unexpected = existing_paths - contents.keys()
+        if unexpected:
+            raise ValueError(f"derived directory has unexpected assets: {sorted(unexpected)}")
+        for relative_path, data in contents.items():
+            destination = target / relative_path
+            if destination.exists() and destination.read_bytes() != data:
+                raise ValueError(
+                    f"derived asset already exists with different content: {relative_path}"
+                )
+    target.mkdir(parents=True, exist_ok=True)
+    for relative_path, data in contents.items():
+        destination = target / relative_path
+        if not destination.exists():
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(data)
+    return [
+        (asset_types[path], path, hashlib.sha256(data).hexdigest())
+        for path, data in contents.items()
+    ]
 
 
 def parse_pdf(
@@ -509,24 +546,12 @@ def _escape_html(value: str) -> str:
     )
 
 
-def _write_text(root: Path, relative_path: str, content: str) -> tuple[str, str, str]:
-    path = root / relative_path
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
-    asset_type = Path(relative_path).stem.split(".")[0]
-    return asset_type, relative_path, hashlib.sha256(content.encode("utf-8")).hexdigest()
-
-
-def _write_images(
-    target: Path,
-    document: CanonicalDocument,
-    source_path: Path,
-) -> list[tuple[str, str, str]]:
+def _extract_images(document: CanonicalDocument, source_path: Path) -> dict[str, bytes]:
     image_elements = [item for item in document.elements if item.element_type is ElementType.IMAGE]
     if not image_elements:
-        return []
+        return {}
     fitz = _fitz()
-    assets: list[tuple[str, str, str]] = []
+    assets: dict[str, bytes] = {}
     with fitz.open(source_path) as source:
         for element in image_elements:
             xref = int(element.metadata["xref"])
@@ -535,11 +560,7 @@ def _write_images(
             if not isinstance(data, bytes):
                 continue
             extension = str(extracted.get("ext", "bin"))
-            relative_path = f"images/{element.element_id}.{extension}"
-            path = target / relative_path
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(data)
-            assets.append(("image", relative_path, hashlib.sha256(data).hexdigest()))
+            assets[f"images/{element.element_id}.{extension}"] = data
     return assets
 
 

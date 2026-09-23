@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import fitz
+import pytest
 
 from ped_knowledge.contracts import IngestionManifest, KnowledgeChunk
 from ped_knowledge.ingestion import ImportService, preflight_manifest
@@ -302,3 +303,275 @@ def test_chunk_policies_coexist_for_the_same_resource_version(tmp_path: Path) ->
             "SELECT tokenizer_fingerprint, chunk_count, status FROM chunk_builds"
         ).fetchone()
     assert build == ("tokenizer-sha256", 1, "complete")
+
+
+def test_optional_adobe_import_writes_provider_assets_and_parser_provenance(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    import io
+    import zipfile
+
+    source = tmp_path / "paper.pdf"
+    manifest = tmp_path / "manifest.jsonl"
+    source_hash = _create_pdf(source, "1 Introduction\nPedestrian evidence.")
+    _manifest(manifest, source, source_hash)
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr(
+            "structuredData.json",
+            json.dumps(
+                {
+                    "version": "1.1.0",
+                    "pages": [{"page_number": 0, "width": 595, "height": 842, "is_scanned": False}],
+                    "elements": [
+                        {"Path": "//Document/Title", "Page": 0, "Text": "Pedestrian evidence"},
+                        {"Path": "//Document/Sect/P", "Page": 0, "Text": "1 Introduction"},
+                        {"Path": "//Document/Sect/Figure", "Page": 0, "filePaths": ["figures/f.png"]},
+                    ],
+                }
+            ),
+        )
+        archive.writestr("figures/f.png", b"adobe-figure")
+    adobe_zip = output.getvalue()
+    monkeypatch.setattr("ped_knowledge.ingestion.extract_adobe_pdf", lambda path: adobe_zip)
+
+    paths = KnowledgeTestPaths.create(tmp_path)
+    report = ImportService(paths, parser_backend="adobe").import_manifest(manifest)
+
+    assert report.imported == 1
+    assert report.failures == ()
+    derived = paths.derived_dir / "paper-minimal-2026" / source_hash
+    assert (derived / "adobe" / "extract.zip").read_bytes() == adobe_zip
+    assert (derived / "adobe" / "figures" / "f.png").read_bytes() == b"adobe-figure"
+    canonical = json.loads((derived / "document.json").read_text(encoding="utf-8"))
+    assert canonical["parser_version"] == "adobe-pdf-extract-v1"
+    assert canonical["source_hash"] == source_hash
+    with sqlite3.connect(paths.catalog_path) as connection:
+        asset_types = {row[0] for row in connection.execute("SELECT asset_type FROM derived_assets")}
+    assert {"adobe_extract", "image"}.issubset(asset_types)
+
+
+def test_corrupt_adobe_zip_marks_staged_version_failed(tmp_path: Path, monkeypatch) -> None:
+    import io
+    import zipfile
+
+    source = tmp_path / "paper.pdf"
+    manifest = tmp_path / "manifest.jsonl"
+    source_hash = _create_pdf(source, "Pedestrian evidence.")
+    _manifest(manifest, source, source_hash)
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_STORED) as archive:
+        archive.writestr("structuredData.json", json.dumps({"pages": [], "elements": []}))
+    damaged = output.getvalue().replace(b'"pages"', b'"PAGES"', 1)
+    monkeypatch.setattr("ped_knowledge.ingestion.extract_adobe_pdf", lambda path: damaged)
+    paths = KnowledgeTestPaths.create(tmp_path)
+
+    result = ImportService(paths, parser_backend="adobe").import_manifest(manifest)
+
+    assert result.imported == 0
+    assert len(result.failures) == 1
+    catalog = Catalog(paths.catalog_path)
+    versions = catalog.list_versions("paper-minimal-2026")
+    assert versions[0]["status"] == "failed"
+
+
+def test_derived_writer_refuses_existing_directory_before_writing(tmp_path: Path) -> None:
+    from ped_knowledge.chunking import HierarchicalChunker
+    from ped_knowledge.parsing import parse_document, write_derived_assets
+
+    source = tmp_path / "paper.pdf"
+    source_hash = _create_pdf(source, "Pedestrian evidence.")
+    canonical, report = parse_document(
+        source, resource_id="paper-existing", version_id=source_hash
+    )
+    chunks = HierarchicalChunker().chunk(canonical)
+    derived = tmp_path / "derived"
+    existing = derived / "paper-existing" / source_hash
+    existing.mkdir(parents=True)
+    (existing / "document.json").write_text("original", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="different content"):
+        write_derived_assets(derived, canonical, report, chunks, source_path=source)
+
+    assert (existing / "document.json").read_text(encoding="utf-8") == "original"
+    assert not (existing / "elements.jsonl").exists()
+
+
+def test_derived_writer_rejects_binary_path_escape(tmp_path: Path) -> None:
+    from ped_knowledge.chunking import HierarchicalChunker
+    from ped_knowledge.parsing import parse_document, write_derived_assets
+
+    source = tmp_path / "paper.pdf"
+    source_hash = _create_pdf(source, "Pedestrian evidence.")
+    canonical, report = parse_document(source, resource_id="paper-escape", version_id=source_hash)
+    chunks = HierarchicalChunker().chunk(canonical)
+    derived = tmp_path / "derived"
+
+    with pytest.raises(ValueError, match="unsafe derived asset path"):
+        write_derived_assets(
+            derived, canonical, report, chunks, source_path=source,
+            binary_assets={r"adobe\\..\\..\\outside.bin": b"bad"},
+        )
+
+    assert not (tmp_path / "outside.bin").exists()
+
+
+def test_malformed_adobe_page_returns_import_failure(tmp_path: Path, monkeypatch) -> None:
+    import io
+    import zipfile
+
+    source = tmp_path / "paper.pdf"
+    manifest = tmp_path / "manifest.jsonl"
+    source_hash = _create_pdf(source, "Pedestrian evidence.")
+    _manifest(manifest, source, source_hash)
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr("structuredData.json", json.dumps({
+            "pages": [{"page_number": 0, "height": 842}],
+            "elements": [{"Path": "//Document/P", "Page": 0, "Text": "Evidence"}],
+        }))
+    monkeypatch.setattr("ped_knowledge.ingestion.extract_adobe_pdf", lambda path: output.getvalue())
+
+    result = ImportService(KnowledgeTestPaths.create(tmp_path), parser_backend="adobe").import_manifest(manifest)
+
+    assert result.imported == 0
+    assert len(result.failures) == 1
+
+
+def test_import_retries_after_catalog_failure_without_overwriting_derived(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    source = tmp_path / "paper.pdf"
+    manifest = tmp_path / "manifest.jsonl"
+    source_hash = _create_pdf(source, "Pedestrian evidence.")
+    _manifest(manifest, source, source_hash)
+    paths = KnowledgeTestPaths.create(tmp_path)
+    service = ImportService(paths)
+    original_activate = Catalog.activate_version
+
+    def fail_activate(self, resource_id, version_id):
+        raise sqlite3.OperationalError("simulated Catalog failure")
+
+    monkeypatch.setattr(Catalog, "activate_version", fail_activate)
+    first = service.import_manifest(manifest)
+    assert first.imported == 0
+    derived_document = paths.derived_dir / "paper-minimal-2026" / source_hash / "document.json"
+    original_bytes = derived_document.read_bytes()
+
+    monkeypatch.setattr(Catalog, "activate_version", original_activate)
+    second = service.import_manifest(manifest)
+
+    assert second.imported == 1
+    assert second.failures == ()
+    assert derived_document.read_bytes() == original_bytes
+
+
+def test_null_adobe_filepaths_returns_import_failure(tmp_path: Path, monkeypatch) -> None:
+    import io
+    import zipfile
+
+    source = tmp_path / "paper.pdf"
+    manifest = tmp_path / "manifest.jsonl"
+    _manifest(manifest, source, _create_pdf(source, "Pedestrian evidence."))
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr("structuredData.json", json.dumps({
+            "pages": [{"page_number": 0, "width": 595, "height": 842}],
+            "elements": [
+                {"Path": "//Document/P", "Page": 0, "Text": "Evidence"},
+                {"Path": "//Document/Figure", "Page": 0, "filePaths": None},
+            ],
+        }))
+    monkeypatch.setattr("ped_knowledge.ingestion.extract_adobe_pdf", lambda path: output.getvalue())
+
+    result = ImportService(KnowledgeTestPaths.create(tmp_path), parser_backend="adobe").import_manifest(manifest)
+
+    assert result.imported == 0
+    assert len(result.failures) == 1
+
+
+def test_catalog_initialize_does_not_activate_failed_version(tmp_path: Path) -> None:
+    paths = KnowledgeTestPaths.create(tmp_path)
+    catalog = Catalog(paths.catalog_path)
+    catalog.initialize()
+    record = IngestionManifest(
+        resource_id="paper-failed-only", resource_type="literature", title="Failed paper",
+        language="en", source_path=tmp_path / "paper.pdf", sha256="a" * 64,
+    )
+    catalog.stage_resource(record, version_id=record.sha256, vault_path="literature/files/a.pdf")
+    catalog.mark_version_failed(record.sha256)
+
+    catalog.initialize()
+
+    resource = catalog.get_resource(record.resource_id)
+    assert resource is not None
+    assert resource["active_version_id"] is None
+    assert catalog.list_versions(record.resource_id)[0]["status"] == "failed"
+
+
+def test_malformed_adobe_bounds_returns_import_failure(tmp_path: Path, monkeypatch) -> None:
+    import io
+    import zipfile
+
+    source = tmp_path / "paper.pdf"
+    manifest = tmp_path / "manifest.jsonl"
+    _manifest(manifest, source, _create_pdf(source, "Pedestrian evidence."))
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr("structuredData.json", json.dumps({
+            "pages": [{"page_number": 0, "width": 595, "height": 842}],
+            "elements": [{"Path": "//Document/P", "Page": 0, "Text": "Evidence", "Bounds": [None, 1, 2, 3]}],
+        }))
+    monkeypatch.setattr("ped_knowledge.ingestion.extract_adobe_pdf", lambda path: output.getvalue())
+
+    result = ImportService(KnowledgeTestPaths.create(tmp_path), parser_backend="adobe").import_manifest(manifest)
+
+    assert result.imported == 0
+    assert len(result.failures) == 1
+
+
+def test_adobe_retry_reuses_saved_response_after_catalog_failure(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    import io
+    import zipfile
+
+    source = tmp_path / "paper.pdf"
+    manifest = tmp_path / "manifest.jsonl"
+    source_hash = _create_pdf(source, "Pedestrian evidence.")
+    _manifest(manifest, source, source_hash)
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr("structuredData.json", json.dumps({
+            "pages": [{"page_number": 0, "width": 595, "height": 842}],
+            "elements": [{"Path": "//Document/P", "Page": 0, "Text": "Evidence"}],
+        }))
+    adobe_zip = output.getvalue()
+    calls = 0
+
+    def provider(path):
+        nonlocal calls
+        calls += 1
+        if calls > 1:
+            raise RuntimeError("Adobe must not be called again for an identical failed attempt")
+        return adobe_zip
+
+    monkeypatch.setattr("ped_knowledge.ingestion.extract_adobe_pdf", provider)
+    original_activate = Catalog.activate_version
+    monkeypatch.setattr(
+        Catalog, "activate_version",
+        lambda self, resource_id, version_id: (_ for _ in ()).throw(
+            sqlite3.OperationalError("simulated Catalog failure")
+        ),
+    )
+    paths = KnowledgeTestPaths.create(tmp_path)
+    service = ImportService(paths, parser_backend="adobe")
+    first = service.import_manifest(manifest)
+    assert first.imported == 0
+
+    monkeypatch.setattr(Catalog, "activate_version", original_activate)
+    second = service.import_manifest(manifest)
+
+    assert second.imported == 1
+    assert second.failures == ()
+    assert calls == 1

@@ -16,6 +16,9 @@
 - [`../memPed/README.md`](../memPed/README.md)：研究数据目录。
 - [`../memPed/knowledge/collection_standard.md`](../memPed/knowledge/collection_standard.md)：文献与法规入库标准。
 
+- [`superpowers/specs/2026-09-23-adobe-pdf-extract-design.md`](superpowers/specs/2026-09-23-adobe-pdf-extract-design.md)：Adobe PDF Extract 可选解析器设计（target）。
+- [`superpowers/plans/2026-09-23-adobe-pdf-extract.md`](superpowers/plans/2026-09-23-adobe-pdf-extract.md)：Adobe 解析器实施清单（plan）。
+
 ## 研究设计与工程规范
 
 - [`data-analysis-module-design.md`](data-analysis-module-design.md)：数据分析目标设计。
