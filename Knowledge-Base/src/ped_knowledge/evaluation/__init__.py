@@ -16,6 +16,12 @@ from ped_knowledge.evaluation.metrics_v2 import (
     RetrievedEvidence,
     evaluate_rankings_v2,
 )
+from ped_knowledge.evaluation.metrics_v2_solution_b import (
+    EvidenceGroup as EvidenceGroupV2B,
+    EvaluationReportV2 as EvaluationReportV2B,
+    GoldQuestionV2 as GoldQuestionV2B,
+    evaluate_rankings_v2 as evaluate_rankings_v2_solution_b,
+)
 from ped_knowledge.storage import Catalog
 
 
@@ -297,14 +303,18 @@ __all__ = [
     "EvaluationComparisonReport",
     "EvaluationReport",
     "EvaluationReportV2",
+    "EvaluationReportV2B",
     "EvidenceGroup",
+    "EvidenceGroupV2B",
     "GoldQuestion",
     "GoldQuestionV2",
+    "GoldQuestionV2B",
     "audit_catalog",
     "audit_evaluation",
     "compare_with_baseline",
     "evaluate_rankings",
     "evaluate_rankings_v2",
+    "evaluate_rankings_v2_solution_b",
     "evaluate_retriever",
     "load_gold",
     "publish_retrieval_config",

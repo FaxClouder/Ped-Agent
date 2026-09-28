@@ -48,6 +48,21 @@ V2 策略保存在
 指纹、token 数、父文本字符偏移和 `hard_split` 标记。Catalog 按 `policy_version` 并存 V1/V2，
 索引构建记录 policy、tokenizer、词法分析器、模型和实验来源指纹，读取时拒绝不匹配的候选。
 
+## 评估指标状态
+
+| 版本 | 证据结构 | 评分器 | 状态 |
+|---|---|---|---|
+| V1 | 单资源列表 + locator | `evaluate_rankings` | 已发布 |
+| V2 | 单层证据组（AND 逻辑） | `evaluate_rankings_v2` | 已发布 |
+| V2 Solution B | 双层结构：`evidence_groups` (OR) + `required_evidence` (AND) | `evaluate_rankings_v2_solution_b` | 已发布 |
+
+**Solution B 设计**：
+- 支持复杂证据逻辑：(A1 AND A2) OR (B1 AND B2) OR (C)
+- 向后兼容单组样本（`evidence_groups` 只有一个组时等价于 V2）
+- 正确评分 rgq-073（Moussaid-2016 OR Haghani-2020）和 14 个多证据 AND 题
+- 通过 105 样本回归测试（0 分数差异）
+- 详见 [`src/ped_knowledge/evaluation/metrics_v2_solution_b.py`](src/ped_knowledge/evaluation/metrics_v2_solution_b.py)
+
 `memPed/knowledge/pilot_gold.jsonl` 目前包含 31 条已规范化问题；配置使用最小问题数门槛，
 避免新增 Gold 后因精确计数而使评测失效。V2 只有在新建独立索引、完成真实 BGE-M3 与 Gold
 评测，并通过现有发布门禁后才可激活。现有 `memPed/knowledge/` 数据库和索引不会由代码变更
