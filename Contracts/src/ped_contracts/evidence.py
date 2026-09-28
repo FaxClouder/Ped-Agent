@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class RunStatus(StrEnum):
@@ -40,6 +40,7 @@ class EvidenceItem(BaseModel):
     title: str
     quote: str
     locator: str | None = None
+    structured_locator: EvidenceLocator | None = None
     url: str | None = None
     doi: str | None = None
     document_number: str | None = None
@@ -51,6 +52,34 @@ class EvidenceItem(BaseModel):
     retrieved_at: datetime
     content_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     score: float = 0.0
+
+
+class EvidenceLocator(BaseModel):
+    """Stable locator fields used for exact citation and retrieval evaluation."""
+
+    page: int | None = Field(default=None, ge=1)
+    page_end: int | None = Field(default=None, ge=1)
+    element_id: str | None = None
+    char_start: int | None = Field(default=None, ge=0)
+    char_end: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def validate_ranges(self) -> EvidenceLocator:
+        if self.page_end is not None and self.page is None:
+            raise ValueError("page_end requires page")
+        if self.page is not None and self.page_end is not None and self.page_end < self.page:
+            raise ValueError("page_end must be greater than or equal to page")
+        if self.char_end is not None and self.char_start is None:
+            raise ValueError("char_end requires char_start")
+        if (
+            self.char_start is not None
+            and self.char_end is not None
+            and self.char_end < self.char_start
+        ):
+            raise ValueError("char_end must be greater than or equal to char_start")
+        if all(value is None for value in (self.page, self.element_id, self.char_start)):
+            raise ValueError("locator requires page, element_id, or char_start")
+        return self
 
 
 class CitationRef(BaseModel):

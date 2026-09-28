@@ -14,3 +14,7 @@
 
 大体积输入、模型和运行结果分别放在 `memPed/`、模块本地模型目录和 Git 忽略的
 `outputs/` 中。跨模块组合代码先留在具体实验目录，只有接口稳定后才下沉到模块公共 API。
+
+## 计划中的实验入口
+
+- [`benchmark-knowledge-rebuild-20260922/README.md`](benchmark-knowledge-rebuild-20260922/README.md)：知识库更新的只读资产盘点与恢复演练入口。

@@ -1,0 +1,6 @@
+experiment: benchmark-knowledge-rebuild-20260922
+status: plan
+purpose: read-only asset inventory and recovery rehearsal
+source_root: memPed
+output_root: outputs/memped-upgrade
+mutates_source: false
