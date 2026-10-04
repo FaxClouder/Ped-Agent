@@ -30,3 +30,18 @@
 - [`superpowers/plans/2026-09-17-rag-tokenization-v2.md`](superpowers/plans/2026-09-17-rag-tokenization-v2.md)：RAG 分词、切块、词法检索与版本化发布实施计划（代码已完成，候选索引与实测待执行）。
 
 模块 README 是当前实现边界；设计文档只描述目标深度，是否完成必须以代码和测试为准。
+
+## Agentic / Harness 研究（2026-10-04）
+
+| 文档 | 内容 | 状态 |
+| --- | --- | --- |
+| [Agent-Harness 入口](../Agent-Harness/README.md) | 实现边界与推荐阅读顺序 | current |
+| [模块接入评估](../Agent/docs/harness-integration-assessment.md) | 当前调用链、契约与接入缺口 | current |
+| [AGI-Saber 设计研究](../Agent-Harness/docs/agi-saber-design-study.md) | 本地 Go 路由、图执行与移植边界 | current |
+| [DeepSeek Harness 设计研究](../Agent-Harness/docs/deepseek-harness-design-study.md) | 固定提交的配置、执行与 SDK | current |
+| [配置设计](../Agent-Harness/docs/configuration-design.md) | Agent / Harness / 模块分层配置 | target |
+| [研究开发计划](../Agent-Harness/docs/agentic-research-plan.md) | 分阶段实施、消融、停止与成本评价 | plan |
+| [旧内容整理](../Agent-Harness/docs/legacy-content-review.md) | 历史身份与保留资产 | current |
+| [交付核验](../Agent-Harness/docs/delivery-verification.md) | 文档检查与代码保全范围 | current |
+
+以上为后续 Agentic 的研究准备，不表示动态 Harness、真实模型对照或 Layer 3–6 实验已经完成。

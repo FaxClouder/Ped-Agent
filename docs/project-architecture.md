@@ -122,3 +122,9 @@ New cross-module behavior starts as an experiment. Only move it into a public mo
 data contract, reproducibility requirements, and tests are stable. If a future change needs a
 Web/API integration layer, record that as a new architecture decision instead of reviving the
 archived product-integration tree implicitly.
+
+## Agentic research extension status — 2026-10-04
+
+Agent-Harness is execution support for the Agent research capability, not an additional product capability. Its existing models and Protocol definitions do not implement a registry, executor, dynamic agent loop, or durable run recording. The current EvidenceGraph remains a fixed conditional workflow; `final_persist` constructs an answer without filesystem persistence.
+
+The [module integration assessment](../Agent/docs/harness-integration-assessment.md) records current contracts and gaps. The [configuration design](../Agent-Harness/docs/configuration-design.md) is a target, and the [Agentic research plan](../Agent-Harness/docs/agentic-research-plan.md) is unexecuted. Initial adapters and cross-module combinations belong in experiments; reusable interfaces move to modules only after validation. Neither knowledge nor video modules should import Harness internals.
