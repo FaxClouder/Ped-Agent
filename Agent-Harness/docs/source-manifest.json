@@ -1,0 +1,245 @@
+{
+  "status": "current",
+  "recorded_at_utc": "2026-10-04T08:43:36.461889+00:00",
+  "purpose": "documentation source snapshot; no model or algorithm performance validation",
+  "local_projects": [
+    {
+      "root": "E:\\F_Workspace\\F-Agent-Paper",
+      "head": "b0e07788060c84c3dd3680ac30814f162d198761",
+      "head_covers_worktree": false,
+      "sources": [
+        {
+          "path": "README.md",
+          "sha256_before_delivery": "9f206d3c9f006582b2f0a81cffdbeb85ebd82dc23d3fa9bace563d055c6fbd32"
+        },
+        {
+          "path": "AGENTS.md",
+          "sha256_before_delivery": "2627d78f5d2631e8d6fc1860a2f17c4dd7a4a6883fbbb37bf91275ad34e36c9e"
+        },
+        {
+          "path": "docs/project-architecture.md",
+          "sha256_before_delivery": "b0bb28256a814653997deaad0b8c227c641081611fd5e868f3125081eb11e5bb"
+        },
+        {
+          "path": "docs/README.md",
+          "sha256_before_delivery": "86e1d99da05ba3a4e8d0b453dcb175f39bb5fc64d8ec681c3988fdde1438dbdd"
+        },
+        {
+          "path": "docs/research-review-standard.md",
+          "sha256_before_delivery": "1f1bcc5c171b2ba3b69c2b0d383096ff1937e005f64a6c8a8076ecce35e001cb"
+        },
+        {
+          "path": "Agent/README.md",
+          "sha256_before_delivery": "c4a672eb19ac955afdd3ebf936e41bbe3a71eb64c11af1bf6af4232f5397aa42"
+        },
+        {
+          "path": "Knowledge-Base/README.md",
+          "sha256_before_delivery": "341a28d91a8f36254dea2832f202234310f67d3938b6bccb91634386b92db2e1"
+        },
+        {
+          "path": "Video-Analysis/README.md",
+          "sha256_before_delivery": "f396eb1a22c00d909034b88339ab7e589ffdb416fb0375eff2b4b84ddfb4474b"
+        },
+        {
+          "path": "Contracts/README.md",
+          "sha256_before_delivery": "eb1b68a4b8f69feca7f8c015afa61baf4e0fd849479aa1bc49269e19a6193cc3"
+        },
+        {
+          "path": "experiments/README.md",
+          "sha256_before_delivery": "c08ecd899754fc977b1a27212341b7a74af7385085f9d7ab589e8c7c984e1737"
+        },
+        {
+          "path": "paper/pearl-framework/README.md",
+          "sha256_before_delivery": "3dfc2398f5dcde06cd7044c54471163aaeb33691493de04b66d42d92a58364c3"
+        },
+        {
+          "path": "paper/pearl-framework/layer-5-agentic/README.md",
+          "sha256_before_delivery": "d7ea70c9e0b2423bbaeb86dcda9a47fd0240cdbdb66bd77bd4537d89fcad5e0d"
+        },
+        {
+          "path": "paper/pearl-framework/layer-6-efficiency/README.md",
+          "sha256_before_delivery": "e8ae1d0f773bd2bece03100cea272c02596d38f8d6bb4efeba33396ec0e82893"
+        },
+        {
+          "path": "Agent/src/ped_research_agent/config.py",
+          "sha256_before_delivery": "b700c86865bb5d5bc546b0f5bc73bd7372d5882b2224335fe78d631745ca074a"
+        },
+        {
+          "path": "Agent/src/ped_research_agent/ports.py",
+          "sha256_before_delivery": "77db1ae2c24a95d482dcbe31de4aee7438e561593d15d22cb9de974582bfb93d"
+        },
+        {
+          "path": "Agent/src/ped_research_agent/evidence_graph.py",
+          "sha256_before_delivery": "4e80b19efd15a89353e13e6d5a859a0353097f23b8b50a9b55f777abfca402dd"
+        },
+        {
+          "path": "Agent/src/ped_research_agent/policy.py",
+          "sha256_before_delivery": "d77ade915bc4d31c4b531699f31fe08eee603560409cd545fd0ba594ed7e804c"
+        },
+        {
+          "path": "Agent/src/ped_research_agent/model_gateway.py",
+          "sha256_before_delivery": "fcde55567902062e2ac2ba00fb9dc55d0617ede6feca1990a255c2d2635fa56e"
+        },
+        {
+          "path": "Agent/src/ped_research_agent/external_search.py",
+          "sha256_before_delivery": "5e73ff357988d6e005d487c6e743e0f12eae5812fbfd1ac01a6eb42842757223"
+        },
+        {
+          "path": "Knowledge-Base/src/ped_knowledge/retrieval/__init__.py",
+          "sha256_before_delivery": "81d364bd4d1f95f1c335a9863f04e7a068cc4f2b6b436925fb1b3df72e010023"
+        },
+        {
+          "path": "Contracts/src/ped_contracts/evidence.py",
+          "sha256_before_delivery": "45a2838086882d6563a997e483233c0cf9becbcc7c74b6f7cebce009cc0594ab"
+        },
+        {
+          "path": "Contracts/src/ped_contracts/trajectory.py",
+          "sha256_before_delivery": "10e022ab94348babe564f6dfb29c1d4162089fe058a515ef7facc095c86e1594"
+        },
+        {
+          "path": "Video-Analysis/src/ped_video_analysis/api.py",
+          "sha256_before_delivery": "388b8ff3b81f2aa9820af445fb37b6460a7ff234590286335476ed8e1869983a"
+        },
+        {
+          "path": "Video-Analysis/src/ped_video_analysis/analysis/vision_exports.py",
+          "sha256_before_delivery": "3dfac16ce3f86be739c72be860246be2dd22f6d7f3d4371f666d4dd5d1376a35"
+        },
+        {
+          "path": "Agent-Harness/README.md",
+          "sha256_before_delivery": "466ca19993051ae2a4460a4d9e86fa1c69ba5f0fa0a1736824d804854b923e6d"
+        },
+        {
+          "path": "Agent-Harness/SETUP_SUMMARY.md",
+          "sha256_before_delivery": "ec199deee4a941289eb5ea1b3dabf3336a732f54168fb797a300b7d7ed26e850"
+        },
+        {
+          "path": "Agent-Harness/src/ped_agent_harness/protocols.py",
+          "sha256_before_delivery": "1160dc23e3e8e3c1d7f0a2e6b13db5d3c118532855b65e66f4ae8190f953cb35"
+        },
+        {
+          "path": "Agent-Harness/tests/test_protocols.py",
+          "sha256_before_delivery": "febd6ae4d43cc2587791c2cd7e3f3f35d044455ff41b663bce623d9203eb1eb6"
+        },
+        {
+          "path": "Agent-Harness/examples/tool_calling_demo.py",
+          "sha256_before_delivery": "b24b2213564b078cf25527d6e304dfe3c0096305de2ddd98743d35885b68f2b5"
+        },
+        {
+          "path": "Agent-Harness/docs/design-notes.md",
+          "sha256_before_delivery": "75eff5fe3baab456a96c6e30cc49371ffc508069dad7071f58dcec980945235d"
+        },
+        {
+          "path": "Agent-Harness/docs/dsh-research-and-integration.md",
+          "sha256_before_delivery": "3a9f5c0c9f9224d2334f647f0524966a575b3650bc272b6cb6b5a5531f54b71a"
+        }
+      ]
+    },
+    {
+      "root": "E:\\F_Workspace\\AGI-Saber",
+      "head": "43df15fa77143174909eb807156fd8c9a6a5009a",
+      "head_covers_worktree": "not established; source hashes are authoritative for inspected files",
+      "sources": [
+        {
+          "path": "internal/application/chat/runtime_process.go",
+          "sha256": "c355286a8ac652bd0550dfddb4bed085ffe6e375610836e4a54de36c4f164af8"
+        },
+        {
+          "path": "internal/application/chat/mode_react.go",
+          "sha256": "5c6406489363a7e2405851f1ae285a4405058231527ce7d6fabb99f7f2acdcdd"
+        },
+        {
+          "path": "internal/application/chat/plan_graph.go",
+          "sha256": "a83ce38a8731405edbd9659bcb700fb777ab1826293361f6829bb3282236dff9"
+        },
+        {
+          "path": "internal/application/chat/runtime_graph.go",
+          "sha256": "e4c9656455a02330b347459dc9fdbd040a973e8d9d86d51d958e6c88abb2bf78"
+        },
+        {
+          "path": "internal/domain/graph/graph.go",
+          "sha256": "5b1d72ca7d9939ed3e53b37fb45ff2f8e288b6f7016a8ae332bd1ef8fb6d8b7c"
+        },
+        {
+          "path": "internal/domain/rag/rag.go",
+          "sha256": "a271148a3dba0b57140b085bd8c15bb0359571c72af5c2891305390d29a4977f"
+        },
+        {
+          "path": "internal/domain/rag/hybrid.go",
+          "sha256": "1b81274dd793588ef516724e989df0afe4107ab998b116f1d5414aba6f8a9782"
+        },
+        {
+          "path": "config/config.yaml",
+          "sha256": "3595f60c865192f31b4c898eef92e0337da2cf378a8c57336faf54eb318fa095"
+        }
+      ]
+    },
+    {
+      "root": "C:\\Users\\11315\\orca\\workspaces\\F-Agent-Paper\\Agent-Harness",
+      "head": "f3b4621ef5c46e27d9db351dd1c930500464261d",
+      "role": "older read-only comparison and delivery staging"
+    }
+  ],
+  "upstream": {
+    "repository": "https://github.com/deepseek-ai/deepseek-harness",
+    "commit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+    "commit_time_utc": "2026-10-03T03:48:13Z",
+    "sources": [
+      {
+        "path": "README.md",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/README.md"
+      },
+      {
+        "path": "docs/architecture.md",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/architecture.md"
+      },
+      {
+        "path": "packages/boot/app-boot/README.md",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/boot/app-boot/README.md"
+      },
+      {
+        "path": "packages/core/agent-loop/README.md",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/README.md"
+      },
+      {
+        "path": "packages/core/agent-loop/src/index.ts",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/src/index.ts"
+      },
+      {
+        "path": "packages/core/agent-loop/src/agent.ts",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/src/agent.ts"
+      },
+      {
+        "path": "packages/core/agent-loop/src/tool-calls.ts",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/src/tool-calls.ts"
+      },
+      {
+        "path": "packages/core/tools/README.md",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/README.md"
+      },
+      {
+        "path": "packages/core/tools/src/index.ts",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/index.ts"
+      },
+      {
+        "path": "docs/cookbook/adding-a-tool.md",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/cookbook/adding-a-tool.md"
+      },
+      {
+        "path": "python/sdk/README.md",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/python/sdk/README.md"
+      },
+      {
+        "path": "packages/bundle/sdk-minimal/README.md",
+        "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/bundle/sdk-minimal/README.md"
+      }
+    ],
+    "validation": "GitHub API commit lookup and browser source reads; runtime not installed or executed"
+  },
+  "runtime_validation": {
+    "python_tests_run": false,
+    "go_tests_run": false,
+    "llm_run": false,
+    "ocr_embedding_reranker_run": false,
+    "video_inference_run": false
+  }
+}
