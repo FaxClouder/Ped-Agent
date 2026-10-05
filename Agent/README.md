@@ -1,15 +1,64 @@
 # Agent
 
-*Evidence orchestration and research QA module · status: current · 2026-10-04*
+*Evidence orchestration and research QA module · status: current · 2026-10-05*
 
-证据约束的科研问答模块。当前实现是固定条件 EvidenceGraph、引用规则、结构化模型适配和外部文献搜索；不具有动态工具选择、通用运行循环或持久化运行记录。
+证据约束的科研问答模块。当前实现是**固定条件 EvidenceGraph**：两次本地检索、可选外部搜索、结构化草稿、引用规则与语义验证、至多一次修订。没有动态工具选择、需求规划、跨轮预算、通用运行循环或持久化运行记录；Agentic RAG 处于开发准备阶段。
 
 本模块面向实验调用，不提供 FastAPI、会话数据库、SSE、任务队列或多用户能力。
 
-## 研究与接入入口
+## 代码地图
 
-- [模块接入评估](docs/harness-integration-assessment.md)：当前调用链、RAG/视频契约缺口及两份工作树差异（current）。
-- [Agent-Harness 研究入口](../Agent-Harness/README.md)：参考项目、配置设计、阶段计划与旧内容整理。
-- [Agentic 研究开发计划](../Agent-Harness/docs/agentic-research-plan.md)：先冻结基线和工具适配，再实现有预算的迭代取证（plan；未实现）。
+| 文件 | 职责 | 对 Agentic RAG 的角色 | 测试 |
+| --- | --- | --- | --- |
+| [`context.py`](src/ped_research_agent/context.py) | `ResearchQuery`：问题、run_id、实验提供的历史 | 运行输入；需补冻结 profile 引用 | 经 `test_evidence_graph.py` |
+| [`ports.py`](src/ped_research_agent/ports.py) | `ModelGateway` / `LocalEvidenceRetriever` / `ExternalEvidenceSearcher` 协议 | 适配器接入点，保持不变 | 经 `test_evidence_graph.py` |
+| [`evidence_graph.py`](src/ped_research_agent/evidence_graph.py) | LangGraph 固定图、证据规范化与打包、prompt、结构化修复 | 基线 `G-existing`；验证尾链待复用 | [`test_evidence_graph.py`](tests/test_evidence_graph.py) |
+| [`policy.py`](src/ped_research_agent/policy.py) | claim / citation / evidence 双向绑定与来源前缀规则 | 直接复用为答案规则检查 | [`test_policy.py`](tests/test_policy.py) |
+| [`model_gateway.py`](src/ped_research_agent/model_gateway.py) | OpenAI 兼容 / Anthropic 直连，原生结构化输出 | 答案与验证模型；无工具调用和 usage | [`test_model_gateway.py`](tests/test_model_gateway.py) |
+| [`config.py`](src/ped_research_agent/config.py) | `AgentSettings`：answer / verify 模型与继承 | 仅模型层配置；`.env` 只映射部分字段 | 无专门测试 |
+| [`external_search.py`](src/ped_research_agent/external_search.py) | Semantic Scholar、OpenAlex、Parallel 搜索与网页抽取 | 主消融中关闭；external-on 需冻结返回 | [`test_external_search.py`](tests/test_external_search.py) |
+| 共享契约 | [`ped_contracts.evidence`](../Contracts/src/ped_contracts/evidence.py) | EvidenceItem、RetrievalBatch、AnswerDocument 等 | [`test_contracts.py`](tests/test_contracts.py) |
 
-`load_conversation` 接收实验提供的历史，不读取数据库；`final_persist` 构造答案，不写入文件。历史名不能作为持久化能力依据。关闭语义 verifier 后显式允许的结果只标为 rules_only。
+仓库内尚无调用 `EvidenceGraph` 的实验入口，也没有把 `HybridRetriever` 适配为 `LocalEvidenceRetriever` 的代码。
+
+## 当前调用链
+
+```mermaid
+flowchart LR
+    Q[ResearchQuery] --> P[预检本地检索]
+    P -->|batch.sufficient=false| X[外部搜索]
+    P -->|sufficient| N[规范化 + 打包]
+    X --> N
+    N -->|无证据| R[insufficient_evidence]
+    N --> W[改写查询] --> L[再次本地检索] --> D[结构化草稿]
+    D --> V[规则 + 语义验证]
+    V -->|首次失败| F[修订一次] --> V
+    V -->|通过| A[AnswerDocument]
+    V -->|修订后仍失败| E[VerificationFailed]
+```
+
+需要特别区分以下名称与实际行为：
+
+- `load_conversation` 不读数据库，历史来自 `ResearchQuery`；`previous_evidence_ids` 写入状态但未使用。
+- `final_persist` 只构造答案、发出阶段事件，不写文件。
+- 取消只在阶段开始检查，不传入正在运行的模型/检索调用。
+- 关闭 verifier 需显式 `allow_rules_only=True`，结果标为 `rules_only`，不等于语义验证完成。
+- `batch.sufficient` 来自检索侧的启发式，不等于 PEARL Layer 2 充分性。
+
+## 文档
+
+| 文档 | 内容 | 状态 |
+| --- | --- | --- |
+| [Agentic RAG 开发准备](docs/agentic-rag-dev-prep.md) | 现有代码的复用分级、代码级缺口、拟定包结构与接口、固定案例与待决问题 | plan |
+| [模块接入评估](docs/harness-integration-assessment.md) | 2026-10-04 调用链、RAG/视频契约断点与路线选择 | current |
+| [Agent-Harness 研究入口](../Agent-Harness/README.md) | 参考项目、配置设计与旧内容整理 | current |
+| [Agentic 研究开发计划](../Agent-Harness/docs/agentic-research-plan.md) | P0–P8 阶段、A0–A4 消融、指标与停止口径 | plan |
+
+## 验证
+
+```powershell
+$env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src"
+.\.venv\Scripts\python -m pytest Agent/tests -q
+```
+
+全部测试用伪造 gateway / retriever / HTTP 客户端，不调用真实模型或网络。2026-10-05 在 E 盘 `.venv` 下执行，33 项全部通过。

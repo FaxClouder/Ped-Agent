@@ -78,6 +78,7 @@
 | --- | --- | --- |
 | [Agent-Harness 入口](../Agent-Harness/README.md) | 实现边界与推荐阅读顺序 | current |
 | [模块接入评估](../Agent/docs/harness-integration-assessment.md) | 当前调用链、契约与接入缺口 | current |
+| [Agentic RAG 开发准备](../Agent/docs/agentic-rag-dev-prep.md) | Agent 代码复用分级、代码级缺口、拟定结构与固定案例 | plan |
 | [AGI-Saber 设计研究](../Agent-Harness/docs/agi-saber-design-study.md) | 本地 Go 路由、图执行与移植边界 | current |
 | [DeepSeek Harness 设计研究](../Agent-Harness/docs/deepseek-harness-design-study.md) | 固定提交的配置、执行与 SDK | current |
 | [配置设计](../Agent-Harness/docs/configuration-design.md) | Agent / Harness / 模块分层配置 | target |
