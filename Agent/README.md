@@ -2,7 +2,7 @@
 
 *Evidence orchestration and research QA module · status: current · 2026-10-08*
 
-证据约束的科研问答模块。当前实现是**固定条件 EvidenceGraph**：两次本地检索、可选外部搜索、结构化草稿、引用规则与语义验证、至多一次修订。`agentic/` 另有证据需求 DAG、支持判断与有限重规划的动态取证控制器，生产集成通过 Harness 共享预算与事件记录。动态取证的答案尾链、通用运行入口和完整重放尚未接入。
+证据约束的科研问答模块。当前实现是**固定条件 EvidenceGraph**：两次本地检索、可选外部搜索、结构化草稿、引用规则与语义验证、至多一次修订。`agentic/` 另有证据需求 DAG、支持判断与有限重规划的动态取证控制器，生产集成通过 Harness 共享预算与事件记录。动态取证已通过 `agentic/answer.py` 复用 AnswerChain 完成答案验证；通用运行入口和完整重放尚未接入。
 
 本模块面向实验调用，不提供 FastAPI、会话数据库、SSE、任务队列或多用户能力。
 

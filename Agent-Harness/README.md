@@ -13,7 +13,7 @@
 | 3 | [DeepSeek Harness 设计研究](docs/deepseek-harness-design-study.md) | 固定提交的插件配置、执行链与 Python 边界；current |
 | 4 | [Agent 与 Harness 配置设计](docs/configuration-design.md) | 配置职责、字段、解析顺序与冻结要求；target |
 | 5 | [Agentic 研究开发计划](docs/agentic-research-plan.md) | 阶段任务、研究假设、对照与验收；plan |
-| 6 | [工具契约与控制器设计](docs/contract-and-controller-design.md) | 对齐 dsh 工具契约与 AGI-Saber 有限重规划的接口设计；步骤 1–3 与 5 已实现；独立答案尾链仍为 target |
+| 6 | [工具契约与控制器设计](docs/contract-and-controller-design.md) | 对齐 dsh 工具契约与 AGI-Saber 有限重规划的接口设计；步骤 1–5 已实现；通用运行入口和重放随后接入 |
 | 7 | [旧内容整理记录](docs/legacy-content-review.md) | 保留资产、纠正文档和清理边界；current |
 | 8 | [来源清单](docs/source-manifest.json) | 本地源码哈希、上游固定提交和验证范围 |
 
@@ -37,7 +37,7 @@
 阶段 3 已增加模型请求/回复、原生 tool-call 字段、usage/unknown 与预算执行器；新组合
 支持模型/工具共享预算和整图 deadline，SDK 隐藏重试禁用。
 阶段 4 的动态证据需求控制器及领域规划/判断端口位于 Agent，Harness 没有依赖领域状态。
-尚未实现：完整模型配置解析、动态答案尾链/运行入口和完整 run replay。
+尚未实现：完整模型配置解析、通用运行入口和完整 run replay。
 本模块没有运行真实模型、安装 DeepSeek SDK 或改变 RAG 基线。
 
 实验运行入口和实验配置仍位于 `experiments/`，可复用生产适配器位于 `Agent/integrations`。

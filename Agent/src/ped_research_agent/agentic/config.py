@@ -22,6 +22,8 @@ class AgentPolicy(ProfileModel):
     max_requirements: int = Field(default=12, gt=0, le=100, strict=True)
     max_new_requirements_per_replan: int = Field(default=3, gt=0, strict=True)
     no_gain_limit: int = Field(default=2, gt=0, strict=True)
+    max_context_items: int = Field(default=8, gt=0, strict=True)
+    max_context_tokens: int = Field(default=16000, gt=0, strict=True)
     external_policy: Literal["disabled"] = "disabled"
     invalid_plan: Literal["fail"] = "fail"
     non_quality_stop: Literal["gaps_only"] = "gaps_only"

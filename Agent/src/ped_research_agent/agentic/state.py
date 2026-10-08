@@ -33,6 +33,9 @@ class StopReason(StrEnum):
     ROUND_LIMIT = "round_limit"
     REPLAN_LIMIT = "replan_limit"
     EXECUTION_FAILED = "execution_failed"
+    CONTEXT_LIMIT = "context_limit"
+    SUPPORT_LOST = "support_lost"
+    VERIFICATION_FAILED = "verification_failed"
 
 
 class Requirement(DomainModel):
@@ -45,6 +48,13 @@ class Requirement(DomainModel):
     queries: list[str] = Field(default_factory=list)
     rationale: str | None = None
     contradictions: list[str] = Field(default_factory=list)
+
+
+class RequirementGap(DomainModel):
+    id: str
+    statement: str
+    status: RequirementStatus
+    reason: str
 
 
 class RoundRecord(DomainModel):
@@ -120,6 +130,7 @@ class AgenticResult(DomainModel):
     stop_reason: StopReason
     outcome: Literal["answered", "stopped", "failed"]
     answer: AnswerDocument | None = None
+    gaps: list[RequirementGap] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def consistent_stop(self) -> Self:

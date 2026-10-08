@@ -493,7 +493,7 @@ async def test_dynamic_failed_parent_replans_and_unblocks_child_with_metered_dec
     assert result.state.replans_used == 2
     assert meter.usage().model_calls == 6  # planner, two replans and three judgments
     assert meter.usage().tool_calls == 5  # failed search, search, read, two downstream searches
-    assert list(result.state.labels.values()) == ["E1"]
+    assert list(result.state.labels.values()) == ["L1"]
     assert result.state.rounds[-1].duplicate_ids and not result.state.rounds[-1].new_ids
     assert result.state.rounds[-1].support_gain_ids == ["child", "audit"]
 
@@ -527,7 +527,7 @@ async def test_dynamic_duplicate_evidence_and_changed_rationale_do_not_reset_no_
     assert result.stop_reason is StopReason.NO_GAIN_STOP and result.answer is None
     assert result.state.no_gain_rounds == 2
     assert len(result.state.evidence) == 1 and result.state.labels == {
-        next(iter(result.state.evidence)): "E1"
+        next(iter(result.state.evidence)): "L1"
     }
     assert result.state.first_seen_round == {next(iter(result.state.evidence)): 1}
     assert all(not r.support_gain_ids for r in result.state.rounds)
@@ -642,3 +642,165 @@ async def test_dynamic_cancel_and_deadline_drain_policy_and_report_stop(source, 
     result = await task
     assert result.stop_reason is reason and result.answer is None and policy.drained
     assert recorder.events[-1].type == "decision_end"
+
+
+class ScriptedTailPort:
+    """Scripted malformed draft plus semantic failure; not a provider quality check."""
+
+    def __init__(self, evidence_id, label, *, repair_revision=False):
+        self.draft = {
+            "answer_markdown": f"Synthetic conclusion [{label}]",
+            "claims": [
+                {"claim_id": "c1", "text": "Synthetic conclusion", "citation_labels": [label]}
+            ],
+            "citations": [{"label": label, "evidence_id": evidence_id, "claim_ids": ["c1"]}],
+            "inferences": [],
+            "limitations": ["Synthetic offline fixture"],
+        }
+        self.repair_revision = repair_revision
+        self.answers = self.verifies = 0
+
+    def capabilities(self, role):
+        return ModelCapabilities(structured=True)
+
+    async def invoke(self, request):
+        if request.role == "verify":
+            self.verifies += 1
+            data = {
+                "claims": [
+                    {
+                        "claim_id": "c1",
+                        "status": (
+                            "unsupported"
+                            if self.repair_revision and self.verifies == 1
+                            else "supported"
+                        ),
+                    }
+                ]
+            }
+        else:
+            self.answers += 1
+            data = self.draft
+            if self.repair_revision and self.answers == 1:
+                return ModelReply(
+                    content="malformed",
+                    model="script",
+                    usage=ModelUsage(input_tokens=10, output_tokens=5),
+                )
+        return ModelReply(
+            content=json.dumps(data),
+            model="script",
+            structured=data if request.response_schema else None,
+            usage=ModelUsage(input_tokens=10, output_tokens=5),
+        )
+
+
+async def _collected_tail(source):
+    controller, actions, meter, recorder, cancel = _decision_runtime(source, None)
+    items = (await actions.search("density", 1)).items
+    item = items[0]
+    state = DecisionState(
+        question="synthetic",
+        requirements={
+            "root": Requirement(
+                id="root",
+                statement="fixture fact",
+                status="satisfied",
+                support_evidence_ids=[item.evidence_id],
+                rationale="synthetic declaration",
+                queries=["density"],
+                queries_tried=["density"],
+            )
+        },
+        evidence={item.evidence_id: item},
+        labels={item.evidence_id: "L7"},
+        first_seen_round={item.evidence_id: 1},
+        stop_reason=StopReason.QUALITY_STOP,
+    )
+    collected = AgenticResult(state=state, stop_reason=StopReason.QUALITY_STOP, outcome="stopped")
+    return collected, controller, meter, recorder, cancel
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["retained", "cap", "lost"])
+async def test_dynamic_tail_context_cap_and_support_reconfirmation(source, mode):
+    from ped_agent_harness.models import ModelExecutor
+    from ped_research_agent.agentic.answer import DynamicAnswerChain
+    from ped_research_agent.agentic.config import AgentPolicy
+    from ped_research_agent.agentic.decisions import SupportJudgment
+
+    collected, controller, meter, recorder, cancel = await _collected_tail(source)
+    item = next(iter(collected.state.evidence.values()))
+    extra = item.model_copy(update={"evidence_id": "optional"})
+    collected.state.evidence[extra.evidence_id] = extra
+    collected.state.labels[extra.evidence_id] = "L8"
+    collected.state.first_seen_round[extra.evidence_id] = 1
+    decisions = ScriptedDecisions(
+        None,
+        judgments=[
+            SupportJudgment(
+                status="satisfied" if mode != "lost" else "unknown",
+                support_evidence_ids=[item.evidence_id] if mode != "lost" else [],
+                rationale="scripted retained support judgment",
+            )
+        ],
+    )
+    port = ScriptedTailPort(item.evidence_id, "L7")
+    tail = DynamicAnswerChain(
+        ModelExecutor(port, meter, recorder),
+        decisions,
+        AgentPolicy(max_context_items=1, max_context_tokens=1 if mode == "cap" else 16000),
+        recorder,
+        run_id=controller.run_id,
+        cancel_event=cancel,
+        max_output_tokens=32,
+    )
+    result = await tail.execute(collected)
+    selection = next(event for event in recorder.events if event.type == "context_selection")
+    assert "optional" in selection.payload["dropped_ids"]
+    assert collected.state.labels[item.evidence_id] == "L7"
+    if mode == "retained":
+        assert result.answer.verification.status == "verified"
+        assert result.answer.citations[0].label == "L7"
+        assert meter.usage().model_calls == 2
+    else:
+        assert result.answer is None and result.gaps
+        assert result.stop_reason is (
+            StopReason.CONTEXT_LIMIT if mode == "cap" else StopReason.SUPPORT_LOST
+        )
+        assert meter.usage().model_calls == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("model_budget", [3, 5])
+async def test_dynamic_tail_reuses_repair_revision_and_shared_budget(source, model_budget):
+    from ped_agent_harness.models import ModelExecutor
+    from ped_research_agent.agentic.answer import DynamicAnswerChain
+    from ped_research_agent.agentic.config import AgentPolicy
+
+    collected, controller, meter, recorder, cancel = await _collected_tail(source)
+    meter.budget = meter.budget.model_copy(update={"max_model_calls": model_budget})
+    key = next(iter(collected.state.evidence))
+    port = ScriptedTailPort(key, "L7", repair_revision=True)
+    tail = DynamicAnswerChain(
+        ModelExecutor(port, meter, recorder),
+        ScriptedDecisions(None),
+        AgentPolicy(),
+        recorder,
+        run_id=controller.run_id,
+        cancel_event=cancel,
+        max_output_tokens=32,
+    )
+    result = await tail.execute(collected)
+    assert meter.usage().model_calls == model_budget
+    if model_budget == 5:
+        assert (
+            result.answer.verification.status == "verified" and result.answer.verification.repaired
+        )
+        assert port.answers == 3 and port.verifies == 2
+    else:
+        assert (
+            result.stop_reason is StopReason.BUDGET_EXHAUSTED
+            and result.answer is None
+            and result.gaps
+        )

@@ -14,7 +14,7 @@
 | 2 | 生产 KB 适配、只读工具、事件桥接、固定图接通 | 已实现；人工合成 SQLite 语料经真实 FTS/HybridRetriever、Harness 工具执行和原图生成脚本化答案 |
 | 3 | 模型调用契约、工具调用、usage、预算与取消 | 已实现；新组合路径共享模型/工具预算，重试与 JSON repair 计量，整图 deadline 与协作取消 |
 | 4 | 证据需求图控制器、支持判断、失败替代和有限重规划 | 已实现；依赖 ready、阻塞传播、原子重规划、ID/标签稳定、增益与硬界限离线验证；答案尾链尚未接入 |
-| 5 | 动态证据标签/context cap、独立答案尾链入口 | plan；已有 AnswerChain 分步方法直接复用，基线标签/快照不改 |
+| 5 | 动态证据标签/context cap、独立答案尾链入口 | 已实现；稳定来源标签、必要支持优先、裁剪后确认、复用 AnswerChain；仅最终验证通过可 answered |
 | 6 | 运行入口、manifest/trace、离线状态重放及交付 | plan；当前 Recorder 已保存事件，尚无完整控制器重放器 |
 
 ## 模块落点与依赖
@@ -128,7 +128,7 @@ Ruff/mypy 检查通过。未请求真实模型服务，未安装新 provider 或
   都经过 ToolExecutor；首轮读取核对 snapshot/child 身份，重复证据沿用首次读取与标签。
   组合调用者须给两执行器注入相同 run_id、meter、recorder 和 cancel_event，并将
   meter.remaining_seconds 传给控制器；本阶段没有通用运行入口。
-- 以 evidence_id 去重，保留首次轮次及 E1/E2 标签；同 ID 的身份/内容冲突被丢弃并记录。
+- 以 evidence_id 去重，保留首次轮次及稳定标签（阶段 5 调整为来源前缀 L1/A2/W3）；同 ID 的身份/内容冲突被丢弃并记录。
   new_ids 表示新增取证，support_gain_ids 表示支持状态增强或已记录冲突解决。
   新引用 ID、重复检索或判断措辞变化本身不代表事实支持增益。判断必须引用已收集证据；
   satisfied/partial 须有支持，satisfied 不能有未解决冲突。其语义质量仍取决于注入的判断端口。
@@ -147,3 +147,28 @@ Ruff/mypy 检查通过。未请求真实模型服务，未安装新 provider 或
 脚本化判断仅证明状态转移与计量，不证明真实模型规划或证据判断质量。
 未调用收费模型、下载模型/PDF/完整 Gold 或修改冻结基线。
 阶段 5 的 context cap/最终答案尾链及阶段 6 的 runner/manifest/replay 仍为 plan。
+
+
+## 阶段 5 动态答案尾链
+
+起点 `1866e8e2172387e8bb77e4b58737ce880fe1daf0`。
+[agentic/answer.py](../Agent/src/ped_research_agent/agentic/answer.py) 的 DynamicAnswerChain
+接收控制器结果；非质量停止直接形成结构化 gaps，无模型生成。质量状态才进入 context
+选择与原有 AnswerChain 的 draft/validate/semantic_verify/revise/final_answer，默认只修订一次。
+原验证逻辑和 EvidenceGraph/冻结 prompt/快照未修改。
+
+动态标签采用来源前缀加首次出现的全局序号（L1/A2/W3），以兼容既有引用规则；
+同一证据在后续轮次与 context 筛选中不重新编号。动态绑定校验额外拒绝标签偷换。
+新增 max_context_items/max_context_tokens：保留完整 canonical 引文，以 UTF-8 字节数保守
+占据 token 额度（不是 provider tokenizer）。需求声明的全部支持证据先于可选证据保留；
+必要支持放不下返回 context_limit，记录 retained/dropped/missing_support_ids。
+丢弃可选证据后，针对裁剪后的证据集合重新调用 DecisionPolicy.judge；未保持 satisfied
+或引用了被丢弃的 ID 则 support_lost，不生成答案。这是保守策略，不尝试自动缩短原引文。
+生成、一次 JSON repair、语义验证和至多一次修订共用 ModelExecutor/meter/deadline/cancel。
+只有完整质量状态且最终规则和语义验证通过返回 verified；关闭 verifier 不能走 rules_only。
+context/支持/预算/验证失败均返回 stop_reason、gaps 和无答案结果。
+
+在既有集成文件增加 5 项检查：稳定 L7 标签经可选裁剪保留、context cap 停止、裁剪后
+支持丢失停止，以及 JSON 修复/语义失败/一次修订在充足和不足共享预算下的行为。
+核心 103 项；五模块 259 passed、1 skipped。仍只使用合成语料和脚本响应，无真实模型质量声明。
+阶段 6 的运行入口、manifest 和状态重放随后接入。

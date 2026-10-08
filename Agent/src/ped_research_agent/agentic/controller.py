@@ -28,6 +28,7 @@ from ped_research_agent.agentic.state import (
 from ped_research_agent.agentic.state import (
     RequirementStatus as Status,
 )
+from ped_research_agent.policy import ORIGIN_PREFIX
 
 
 def merge_plan(state: DecisionState, patch: Replan, policy: AgentPolicy) -> DecisionState:
@@ -211,7 +212,9 @@ class EvidenceController:
                         continue
                     state.evidence[item.evidence_id] = item.model_copy(deep=True)
                     state.first_seen_round[item.evidence_id] = state.round
-                    state.labels[item.evidence_id] = f"E{len(state.labels) + 1}"
+                    state.labels[item.evidence_id] = (
+                        f"{ORIGIN_PREFIX[item.origin]}{len(state.labels) + 1}"
+                    )
                     record.new_ids.append(item.evidence_id)
                 try:
                     judgment = SupportJudgment.model_validate(
