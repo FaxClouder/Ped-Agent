@@ -51,6 +51,7 @@ Git 按 `.gitattributes` 规范化为 LF；文档状态注释另外提交。
 | 整合工作树四模块测试 | 144 passed、1 failed；知识库测试引用快照超过 90 天 |
 | 未改动 main 独立复现 | 同一知识库测试失败；本次未改 Knowledge-Base、Contracts 或 Video-Analysis |
 | E 盘整合前四模块测试 | 190 passed、1 failed；同一引用快照过期问题 |
+| E 盘合并后四模块测试 | 191 passed、1 failed；同一已有失败，未新增失败 |
 | 独立代码审查 | 无可操作问题；独立运行 34 项 Agent 测试，并用原 EvidenceGraph 复核 5 个快照场景 |
 
 该已有失败不是本次抽取引入的回归；本报告不声称全套测试通过。
@@ -68,3 +69,14 @@ E 盘原有 PEARL、Knowledge-Base、Harness 和论文工作区改动不包含�
 
 [Agent 入口](../Agent/README.md)；
 [历史文献设计](superpowers/specs/2026-09-23-literature-manifest-readiness-design.md)。
+
+## 主线落地与清理结果
+
+2026-10-07 已将整合提交快进至 E 盘 main；原 docs 导航改动保留并补入本次入口。
+合并前的 12,908 个原文件中，只有 Agent README、graph 和 docs 导航属于本次合法变更；
+其余 12,905 个文件在落地后核对无哈希漂移。期间另有 3 份 PEARL 工作安排文档更新，
+已另存最新快照并保留；本次没有写入这些文档。
+
+`agent/agentic-rag-prep`、`codex/content-score-threshold` 已删除。
+C 盘 Agent 工作树及两份临时核验工作树已移除，临时整合分支也已删除。
+目前只保留 main 和 knowledge staging 的本地分支及工作树。GitHub 未推送。
