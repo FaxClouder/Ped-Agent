@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | 1 | 领域状态、停止原因、工具 IO、严格配置与快照引用 | 已实现；需求图拒绝环/悬空依赖；非质量停止无答案；JSON/TOML 继承、覆盖、哈希和路径校验 |
 | 2 | 生产 KB 适配、只读工具、事件桥接、固定图接通 | 已实现；人工合成 SQLite 语料经真实 FTS/HybridRetriever、Harness 工具执行和原图生成脚本化答案 |
-| 3 | 模型调用契约、工具调用、usage、预算与取消 | plan；当前仅工具调用计量生效，旧模型网关未接入全运行预算 |
+| 3 | 模型调用契约、工具调用、usage、预算与取消 | 已实现；新组合路径共享模型/工具预算，重试与 JSON repair 计量，整图 deadline 与协作取消 |
 | 4 | 证据需求图控制器、支持判断、失败替代和有限重规划 | plan；状态类型已实现，动态循环尚未实现 |
 | 5 | 动态证据标签/context cap、独立答案尾链入口 | plan；已有 AnswerChain 分步方法直接复用，基线标签/快照不改 |
 | 6 | 运行入口、manifest/trace、离线状态重放及交付 | plan；当前 Recorder 已保存事件，尚无完整控制器重放器 |
@@ -59,7 +59,7 @@
 
 本轮仅增加一个 [集成检查文件](../Agent/tests/test_agent_core_integration.py)，10 项参数化/闭环检查，
 不引入测试框架或覆盖率目标。64 项原核心回归未修改，冻结基线快照未重新生成。
-核心合计 74 passed；五模块 230 passed、1 skipped（可选 PedPy 未安装）。
+阶段 1–2 核心合计 74 passed；五模块 230 passed、1 skipped（可选 PedPy 未安装）。
 新增源码 Ruff/格式和针对性 mypy 检查通过；`uv lock --check --offline` 通过，
 锁文件仅同步已锁定 Harness 的可选集成依赖元数据，未更改模型或 Windows/CUDA 版本。
 
@@ -69,6 +69,39 @@
 ```
 
 没有真实 LLM、OCR、embedding/reranker、PDF、Gold、GPU 或真实研究索引效果验证。
-工具预算覆盖固定图检索，但模型/token 计量、模型执行取消与整个图的 deadline 均待阶段 3，
-不得将当前组合宣称为全运行受限的 Agentic 后端。下一轮先补模型执行边界，再开发控制器。
+阶段 3 已补全新组合路径的模型计量与整图 deadline；动态 Agentic 控制器仍未实现。
+后续进入阶段 4 的需求依赖、支持判断、有限重规划与停止逻辑。
 现有 CI 已补齐 Harness 安装/检查范围，触发条件仍只有 PR 与 main push；本分支 push 不触发。
+
+
+## 阶段 3 模型执行边界
+
+本阶段起点为 `e96cdd0d50b6ad3cc9829bc0daeef841cfe65626`。
+
+- Harness 的 `model_contracts.py` 定义 ModelRequest/Message/Reply/Usage/Capabilities，
+  原生工具提案包含 provider ID、名称和 JSON 参数，保留 finish_reason。
+  工具结果须对应先前 assistant 调用；工具模式与 JSON schema 模式分开。
+- `models.py::ModelExecutor` 对每次尝试预扣调用次数和 token 额度；timeout/retry
+  使用 profile 的 model_timeout_seconds/retry_model，默认不重试。
+  `execution.py` 负责协作取消和任务收敛，caller CancelledError 原样传播；取消不重试。
+  能力不支持、预算不足在调用前失败；Recorder 故障不作为网络错误重试。
+- usage 缺失字段保留 null，unknown_token_calls 单列。BudgetUsage 的 input/output_tokens
+  是**已知实际值之和**，不是完整成本；estimated_input/output_tokens 独立占额。
+  输入估算使用请求 UTF-8 字节长度与 framing allowance，未知输出按请求 cap 保守占额。
+  返回后真实 usage 替换 reservation；未知失败同样占估算额度，不按免费处理。
+  这是保守预算政策，不是真实 tokenizer/provider usage 验证；实际超额记录后停止。
+- Agent 的 `integrations/models.py` 提供 LangChainModelPort 与 MeteredModelGateway。
+  沿用已有 OpenAI 兼容/Anthropic 设置；新路径 SDK max_retries 必须为 0，由 Harness 重试。
+  planner/judge/replan 首版复用 verifier 路由，角色独立记录。
+  from_settings 的 capability 是路由声明，本轮未实测远端 provider 的实际支持程度。
+- 新 `build_baseline` 第三个参数须满足 ModelPort，可使用 LangChainModelPort.from_settings。
+  不再接受不可审计重试与 usage 的旧 gateway。旧 ModelGateway/DirectModelGateway/EvidenceGraph
+  接口和行为保留，直接使用时没有新增预算保证；新组合通过 metered gateway 适配旧端口。
+  query rewrite、answer、verify、一次 JSON repair 和可选答案修订均走同一 ModelExecutor。
+- `BaselineRuntime.execute` 对整图施加共享 deadline/cancel，覆盖非模型阶段；
+  超限、取消和异常不返回 verified 答案，不修改冻结基线的 prompt 或快照。
+  进程内取消仍依赖 provider 协作，不保证硬停止不可取消的同步 CPU/GPU 工作。
+
+本阶段新增一个小型 Harness 检查文件，在既有 Agent 检查中补 native response、repair
+和整图 deadline 案例。核心 84 passed；五模块 240 passed、1 skipped；新增源码针对性
+Ruff/mypy 检查通过。未请求真实模型服务，未安装新 provider 或下载模型资产。

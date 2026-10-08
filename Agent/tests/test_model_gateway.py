@@ -159,3 +159,56 @@ async def test_direct_gateway_translates_missing_structured_capability() -> None
 
     with pytest.raises(StructuredOutputUnsupported):
         await gateway.generate_structured("Return JSON", StructuredPayload)
+
+
+@pytest.mark.asyncio
+async def test_execution_port_preserves_native_tools_usage_and_rejects_sdk_retries():
+    from langchain_core.messages import AIMessage
+
+    from ped_agent_harness import ToolDefinition
+    from ped_agent_harness.model_contracts import ModelCapabilities, ModelMessage, ModelRequest
+    from ped_research_agent.integrations.models import LangChainModelPort
+
+    class Client:
+        max_retries = 0
+
+        def bind_tools(self, tools):
+            self.tools = tools
+            return self
+
+        def bind(self, **kwargs):
+            assert kwargs == {"max_tokens": 20}
+            return self
+
+        async def ainvoke(self, messages):
+            return AIMessage(
+                content="",
+                tool_calls=[
+                    {"id": "native-1", "name": "knowledge.search", "args": {"query": "density"}}
+                ],
+                usage_metadata={"input_tokens": 7, "output_tokens": 3, "total_tokens": 10},
+                response_metadata={"model_name": "synthetic", "finish_reason": "tool_calls"},
+            )
+
+    client = Client()
+    port = LangChainModelPort(
+        {"answer": client}, capabilities={"answer": ModelCapabilities(tools=True)}
+    )
+    reply = await port.invoke(
+        ModelRequest(
+            run_id="run",
+            role="answer",
+            messages=(ModelMessage(role="user", content="q"),),
+            max_output_tokens=20,
+            tools=(
+                ToolDefinition(
+                    name="knowledge.search", description="Search", parameters={"type": "object"}
+                ),
+            ),
+        )
+    )
+    assert reply.tool_calls[0].arguments == {"query": "density"}
+    assert reply.finish_reason == "tool_calls" and reply.usage.input_tokens == 7
+    client.max_retries = 1
+    with pytest.raises(ValueError, match="retries"):
+        LangChainModelPort({"answer": client}, capabilities={"answer": ModelCapabilities()})

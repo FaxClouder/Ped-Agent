@@ -1,7 +1,7 @@
 """Explicit production composition of the frozen graph and knowledge execution support.
 
-Only tools are budgeted here. Model metering and the dynamic controller are subsequent stages;
-this entry does not claim to enforce the configured model/token limits on the legacy gateway.
+Tool and model calls share the run budget. The frozen graph remains unchanged; the new
+composition requires an explicit ModelPort, not an unmetered legacy gateway.
 """
 
 from __future__ import annotations
@@ -22,6 +22,9 @@ from ped_agent_harness import (
     ToolScheduler,
     ToolSpec,
 )
+from ped_agent_harness.execution import ExecutionCancelled, ExecutionTimeout, run_cancellable
+from ped_agent_harness.model_contracts import ModelPort
+from ped_agent_harness.models import ModelErrorCode, ModelExecutionError, ModelExecutor
 from ped_contracts.evidence import RetrievalBatch
 from ped_research_agent.agentic.config import RunProfile
 from ped_research_agent.context import ResearchQuery
@@ -34,7 +37,7 @@ from ped_research_agent.integrations.knowledge import (
     SearchOutput,
     SnapshotIdentity,
 )
-from ped_research_agent.ports import ModelGateway
+from ped_research_agent.integrations.models import MeteredModelGateway
 
 
 class KnowledgeToolError(RuntimeError):
@@ -84,17 +87,31 @@ class BaselineRuntime:
     meter: BudgetMeter
     events: AgentEventBridge
     cancel_event: asyncio.Event
+    models: ModelExecutor
 
     async def execute(self, context: ResearchQuery) -> EvidenceGraphResult:
         if context.run_id != self.events.run_id:
             raise ValueError("query and recorder run identities differ")
-        return await self.graph.execute(context, self.events.emit, self.cancel_event.is_set)
+        try:
+            return await run_cancellable(
+                lambda: self.graph.execute(context, self.events.emit, self.cancel_event.is_set),
+                self.cancel_event,
+                self.meter.remaining_seconds(),
+            )
+        except ExecutionTimeout as exc:
+            await self.events.emit("run.stopped", {"code": "budget_exhausted"})
+            raise ModelExecutionError(
+                ModelErrorCode.BUDGET_EXHAUSTED, "run deadline reached"
+            ) from exc
+        except ExecutionCancelled as exc:
+            await self.events.emit("run.stopped", {"code": "cancelled"})
+            raise ModelExecutionError(ModelErrorCode.CANCELLED, str(exc)) from exc
 
 
 def build_baseline(
     profile: RunProfile,
     knowledge: KnowledgeAdapter,
-    gateway: ModelGateway,
+    gateway: ModelPort,
     recorder: Recorder,
     *,
     run_id: str,
@@ -127,10 +144,22 @@ def build_baseline(
         ToolRegistry(tools), meter, recorder, allowlist=profile.harness.tool_allowlist
     )
     cancel = asyncio.Event()
+    models = ModelExecutor(
+        gateway,
+        meter,
+        recorder,
+        timeout_seconds=profile.harness.model_timeout_seconds,
+        max_retries=profile.harness.retry_model,
+    )
     knowledge.bind_run(run_id)
     return BaselineRuntime(
         graph=EvidenceGraph(
-            gateway,
+            MeteredModelGateway(
+                models,
+                run_id=run_id,
+                cancel_event=cancel,
+                max_output_tokens=profile.harness.model_max_output_tokens,
+            ),
             ExecutedLocalRetriever(knowledge, executor, run_id=run_id, cancel_event=cancel),
             DisabledExternalSearch(),
         ),
@@ -138,4 +167,5 @@ def build_baseline(
         meter=meter,
         events=AgentEventBridge(recorder, run_id=run_id),
         cancel_event=cancel,
+        models=models,
     )

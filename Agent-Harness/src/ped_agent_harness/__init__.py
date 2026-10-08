@@ -1,7 +1,8 @@
 """Ped-Agent Harness: typed tool execution support for Agentic research runs.
 
 Implemented (2026-10-07): tool contracts, registry, executor, scheduler, run budget and
-event recording. Planned: tool-chat model port, config loader, Agent controller wiring.
+event recording. Model requests and budgeted execution added 2026-10-08.
+Planned: Agent controller wiring and full run replay.
 See ``docs/contract-and-controller-design.md``.
 """
 

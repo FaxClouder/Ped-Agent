@@ -24,6 +24,10 @@ class BudgetUsage(BaseModel):
     input_tokens: int = 0
     output_tokens: int = 0
     unknown_token_calls: int = 0
+    estimated_input_tokens: int = 0
+    estimated_output_tokens: int = 0
+    reserved_input_tokens: int = 0
+    reserved_output_tokens: int = 0
     elapsed_seconds: float = 0.0
 
 
@@ -39,6 +43,10 @@ class BudgetMeter:
         self._input_tokens = 0
         self._output_tokens = 0
         self._unknown_token_calls = 0
+        self._estimated_input = 0
+        self._estimated_output = 0
+        self._reserved_input = 0
+        self._reserved_output = 0
 
     def deadline_passed(self) -> bool:
         limit = self.budget.deadline_seconds
@@ -53,8 +61,8 @@ class BudgetMeter:
     def tokens_exhausted(self) -> bool:
         max_in = self.budget.max_total_input_tokens
         max_out = self.budget.max_total_output_tokens
-        return (max_in is not None and self._input_tokens >= max_in) or (
-            max_out is not None and self._output_tokens >= max_out
+        return (max_in is not None and self._input_tokens + self._estimated_input >= max_in) or (
+            max_out is not None and self._output_tokens + self._estimated_output >= max_out
         )
 
     def exhausted_reason(self, kind: str) -> str | None:
@@ -88,6 +96,59 @@ class BudgetMeter:
         self._input_tokens += input_tokens or 0
         self._output_tokens += output_tokens or 0
 
+    def reserve_model_attempt(self, input_estimate: int, output_cap: int) -> str | None:
+        if input_estimate < 0 or output_cap <= 0:
+            raise ValueError("invalid model token reservation")
+        refusal = self.exhausted_reason("model")
+        if refusal:
+            return refusal
+        for requested, used, estimated, reserved, maximum in (
+            (
+                input_estimate,
+                self._input_tokens,
+                self._estimated_input,
+                self._reserved_input,
+                self.budget.max_total_input_tokens,
+            ),
+            (
+                output_cap,
+                self._output_tokens,
+                self._estimated_output,
+                self._reserved_output,
+                self.budget.max_total_output_tokens,
+            ),
+        ):
+            if maximum is not None and used + estimated + reserved + requested > maximum:
+                return "insufficient remaining token budget"
+        self._model_calls += 1
+        self._reserved_input += input_estimate
+        self._reserved_output += output_cap
+        return None
+
+    def settle_model_attempt(
+        self,
+        input_estimate: int,
+        output_cap: int,
+        input_tokens: int | None,
+        output_tokens: int | None,
+    ) -> None:
+        self._reserved_input -= input_estimate
+        self._reserved_output -= output_cap
+        self.record_model_usage(input_tokens, output_tokens)
+        if input_tokens is None:
+            self._estimated_input += input_estimate
+        if output_tokens is None:
+            self._estimated_output += output_cap
+
+    def tokens_overrun(self) -> bool:
+        return any(
+            limit is not None and actual + estimated > limit
+            for actual, estimated, limit in (
+                (self._input_tokens, self._estimated_input, self.budget.max_total_input_tokens),
+                (self._output_tokens, self._estimated_output, self.budget.max_total_output_tokens),
+            )
+        )
+
     def usage(self) -> BudgetUsage:
         return BudgetUsage(
             tool_calls=self._tool_calls,
@@ -95,5 +156,9 @@ class BudgetMeter:
             input_tokens=self._input_tokens,
             output_tokens=self._output_tokens,
             unknown_token_calls=self._unknown_token_calls,
+            estimated_input_tokens=self._estimated_input,
+            estimated_output_tokens=self._estimated_output,
+            reserved_input_tokens=self._reserved_input,
+            reserved_output_tokens=self._reserved_output,
             elapsed_seconds=self._clock() - self._started,
         )

@@ -34,7 +34,9 @@
 
 2026-10-08 已在 `Agent` 的可选生产集成包接入知识检索工具和固定图事件，
 并提供阶段性严格 profile loader；适配器不放实验目录，见 [Agent core 开发进度](../docs/agent-core-development.md)。
-尚未实现：模型工具调用端口与全运行预算、完整模型配置解析、动态 Agent 控制器。
+阶段 3 已增加模型请求/回复、原生 tool-call 字段、usage/unknown 与预算执行器；新组合
+支持模型/工具共享预算和整图 deadline，SDK 隐藏重试禁用。
+尚未实现：完整模型配置解析、动态 Agent 控制器和完整 run replay。
 本模块没有运行真实模型、安装 DeepSeek SDK 或改变 RAG 基线。
 
 实验运行入口和实验配置仍位于 `experiments/`，可复用生产适配器位于 `Agent/integrations`。

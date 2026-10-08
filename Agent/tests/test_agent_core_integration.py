@@ -7,10 +7,15 @@ import json
 from uuid import uuid4
 
 import pytest
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from ped_agent_harness import MemoryRecorder, ToolCall, ToolFailure, ToolSuccess
-from ped_contracts.evidence import ModelOutput
+from ped_agent_harness.model_contracts import (
+    ModelCapabilities,
+    ModelReply,
+    ModelRequest,
+    ModelUsage,
+)
 from ped_knowledge.contracts import IngestionManifest, KnowledgeChunk
 from ped_knowledge.indexing import FTSIndex
 from ped_knowledge.retrieval import HybridRetriever, retrieval_is_sufficient
@@ -194,27 +199,26 @@ async def test_real_sparse_retrieval_preserves_identity_and_explicit_parent(sour
 
 
 class ScriptedGateway:
-    verification_enabled = True
+    def capabilities(self, role: str) -> ModelCapabilities:
+        return ModelCapabilities(structured=True, tools=True)
 
-    async def generate(self, prompt: str) -> ModelOutput:
-        return ModelOutput(content="density", model="synthetic")
-
-    async def verify(self, prompt: str) -> ModelOutput:
-        raise AssertionError("native structured verification is expected")
-
-    async def generate_structured(self, prompt: str, schema: type[BaseModel]):
-        value = schema.model_validate(
-            {
+    async def invoke(self, request: ModelRequest) -> ModelReply:
+        value = None
+        if request.response_schema and request.role == "answer":
+            value = {
                 "answer_markdown": "Density rises [L1]",
                 "claims": [{"claim_id": "c1", "text": "Density rises", "citation_labels": ["L1"]}],
                 "citations": [{"label": "L1", "evidence_id": "local:child", "claim_ids": ["c1"]}],
             }
+        elif request.response_schema:
+            value = {"claims": [{"claim_id": "c1", "status": "supported"}]}
+        return ModelReply(
+            content=json.dumps(value) if value else "density",
+            model="synthetic",
+            structured=value,
+            finish_reason="stop",
+            usage=ModelUsage(input_tokens=10, output_tokens=5),
         )
-        return value, ModelOutput(content=value.model_dump_json(), model="synthetic")
-
-    async def verify_structured(self, prompt: str, schema: type[BaseModel]):
-        value = schema.model_validate({"claims": [{"claim_id": "c1", "status": "supported"}]})
-        return value, ModelOutput(content=value.model_dump_json(), model="synthetic")
 
 
 @pytest.mark.asyncio
@@ -233,6 +237,8 @@ async def test_baseline_tools_events_and_budget_form_one_offline_run(source):
     assert result.answer.verification.status == "verified"
     assert result.metrics.retrieval_degraded
     assert runtime.meter.usage().tool_calls == 2
+    assert runtime.meter.usage().model_calls == 3
+    assert runtime.meter.usage().input_tokens == 30
     assert [e.seq for e in recorder.events] == list(range(1, len(recorder.events) + 1))
     assert {e.run_id for e in recorder.events} == {run_id}
     assert {e.type for e in recorder.events} >= {"tool_call", "tool_outcome", "stage.completed"}
@@ -263,3 +269,65 @@ async def test_baseline_tools_events_and_budget_form_one_offline_run(source):
     )[0]
     assert isinstance(failure, ToolFailure)
     assert failure.code == "tool_error" and "KnowledgeSnapshotError" in failure.message
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("allowed", [2, 4])
+async def test_json_repair_is_metered_and_call_limit_prevents_answer(source, allowed):
+    from ped_agent_harness.models import ModelErrorCode, ModelExecutionError
+
+    class RepairPort(ScriptedGateway):
+        repair_value = None
+
+        async def invoke(self, request):
+            reply = await super().invoke(request)
+            if request.response_schema and request.role == "answer":
+                self.repair_value = reply.structured
+                return reply.model_copy(update={"content": "invalid JSON", "structured": None})
+            if self.repair_value is not None:
+                value = self.repair_value
+                self.repair_value = None
+                return reply.model_copy(update={"content": json.dumps(value)})
+            return reply
+
+    adapter, _, path = source
+    run_id = str(uuid4())
+    profile = load_profile(path, overrides={"harness": {"max_model_calls": allowed}})
+    runtime = build_baseline(profile, adapter, RepairPort(), MemoryRecorder(), run_id=run_id)
+    if allowed == 2:
+        with pytest.raises(ModelExecutionError) as failure:
+            await runtime.execute(ResearchQuery(query="Density", run_id=run_id))
+        assert failure.value.code is ModelErrorCode.BUDGET_EXHAUSTED
+    else:
+        result = await runtime.execute(ResearchQuery(query="Density", run_id=run_id))
+        assert result.answer.verification.status == "verified"
+    assert runtime.meter.usage().model_calls == allowed
+
+
+@pytest.mark.asyncio
+async def test_run_deadline_drains_model_and_cannot_return_verified(source):
+    import asyncio
+
+    from ped_agent_harness.models import ModelErrorCode, ModelExecutionError
+
+    class BlockingPort(ScriptedGateway):
+        settled = False
+
+        async def invoke(self, request):
+            try:
+                await asyncio.Event().wait()
+            finally:
+                self.settled = True
+
+    adapter, _, path = source
+    run_id = str(uuid4())
+    profile = load_profile(path, overrides={"harness": {"deadline_seconds": 0.03}})
+    port = BlockingPort()
+    runtime = build_baseline(profile, adapter, port, MemoryRecorder(), run_id=run_id)
+    with pytest.raises(ModelExecutionError) as failure:
+        await runtime.execute(ResearchQuery(query="Density", run_id=run_id))
+    assert failure.value.code in (ModelErrorCode.BUDGET_EXHAUSTED, ModelErrorCode.TIMEOUT)
+    usage = runtime.meter.usage()
+    # A cold graph may consume the deadline before dispatch; that is also a valid hard stop.
+    assert port.settled or usage.model_calls == 0
+    assert usage.reserved_output_tokens == 0
