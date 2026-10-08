@@ -1,6 +1,6 @@
 # Agent core 开发进度与边界
 
-*云端原生 Python 后端实施记录 · status: current · 2026-10-08；未完成阶段为 plan*
+*云端原生 Python 后端实施记录 · status: current · 2026-10-08；六阶段最小后端已交付；真实能力验证另行开展*
 
 沿用 [dsh 工具契约与 AGI-Saber 有限重规划设计](../Agent-Harness/docs/contract-and-controller-design.md)，
 保留 `EvidenceGraph` 为 `G-existing`；不是 HTTP 服务或完整外部 Harness 移植。
@@ -13,9 +13,9 @@
 | 1 | 领域状态、停止原因、工具 IO、严格配置与快照引用 | 已实现；需求图拒绝环/悬空依赖；非质量停止无答案；JSON/TOML 继承、覆盖、哈希和路径校验 |
 | 2 | 生产 KB 适配、只读工具、事件桥接、固定图接通 | 已实现；人工合成 SQLite 语料经真实 FTS/HybridRetriever、Harness 工具执行和原图生成脚本化答案 |
 | 3 | 模型调用契约、工具调用、usage、预算与取消 | 已实现；新组合路径共享模型/工具预算，重试与 JSON repair 计量，整图 deadline 与协作取消 |
-| 4 | 证据需求图控制器、支持判断、失败替代和有限重规划 | 已实现；依赖 ready、阻塞传播、原子重规划、ID/标签稳定、增益与硬界限离线验证；答案尾链尚未接入 |
+| 4 | 证据需求图控制器、支持判断、失败替代和有限重规划 | 已实现；依赖 ready、阻塞传播、原子重规划、ID/标签稳定、增益与硬界限离线验证；尾链见阶段 5 |
 | 5 | 动态证据标签/context cap、独立答案尾链入口 | 已实现；稳定来源标签、必要支持优先、裁剪后确认、复用 AnswerChain；仅最终验证通过可 answered |
-| 6 | 运行入口、manifest/trace、离线状态重放及交付 | plan；当前 Recorder 已保存事件，尚无完整控制器重放器 |
+| 6 | 运行入口、manifest/trace、离线状态重放及交付 | 已实现；显式后端组合、离线 CLI、独立 run 归档、状态增量重建与损坏/版本拒绝 |
 
 ## 模块落点与依赖
 
@@ -70,7 +70,7 @@
 
 没有真实 LLM、OCR、embedding/reranker、PDF、Gold、GPU 或真实研究索引效果验证。
 阶段 3 已补全新组合路径的模型计量与整图 deadline；阶段 4 已接入动态取证控制器。
-后续阶段 5–6 接入独立答案尾链、运行入口与重放。
+阶段 5–6 已接入独立答案尾链、运行入口与重放，见下文。
 现有 CI 已补齐 Harness 安装/检查范围，触发条件仍只有 PR 与 main push；本分支 push 不触发。
 
 
@@ -127,7 +127,7 @@ Ruff/mypy 检查通过。未请求真实模型服务，未安装新 provider 或
   模型收到实际 AgentPolicy 上限。HarnessEvidenceActions 的 search 与首次 child read
   都经过 ToolExecutor；首轮读取核对 snapshot/child 身份，重复证据沿用首次读取与标签。
   组合调用者须给两执行器注入相同 run_id、meter、recorder 和 cancel_event，并将
-  meter.remaining_seconds 传给控制器；本阶段没有通用运行入口。
+  meter.remaining_seconds 传给控制器；阶段 6 的 run_research 已统一组合这些依赖。
 - 以 evidence_id 去重，保留首次轮次及稳定标签（阶段 5 调整为来源前缀 L1/A2/W3）；同 ID 的身份/内容冲突被丢弃并记录。
   new_ids 表示新增取证，support_gain_ids 表示支持状态增强或已记录冲突解决。
   新引用 ID、重复检索或判断措辞变化本身不代表事实支持增益。判断必须引用已收集证据；
@@ -146,7 +146,7 @@ Ruff/mypy 检查通过。未请求真实模型服务，未安装新 provider 或
 无效重规划计数、轮数/重规划/工具上限、all_blocked、取消与 deadline 清理。
 脚本化判断仅证明状态转移与计量，不证明真实模型规划或证据判断质量。
 未调用收费模型、下载模型/PDF/完整 Gold 或修改冻结基线。
-阶段 5 的 context cap/最终答案尾链及阶段 6 的 runner/manifest/replay 仍为 plan。
+阶段 4 交付时尚未接入 context/尾链和 runner/replay；它们现已在阶段 5–6 实现。
 
 
 ## 阶段 5 动态答案尾链
@@ -171,4 +171,81 @@ context/支持/预算/验证失败均返回 stop_reason、gaps 和无答案结�
 在既有集成文件增加 5 项检查：稳定 L7 标签经可选裁剪保留、context cap 停止、裁剪后
 支持丢失停止，以及 JSON 修复/语义失败/一次修订在充足和不足共享预算下的行为。
 核心 103 项；五模块 259 passed、1 skipped。仍只使用合成语料和脚本响应，无真实模型质量声明。
-阶段 6 的运行入口、manifest 和状态重放随后接入。
+阶段 6 已接入运行入口、manifest 和状态重放，见下文。
+
+
+## 阶段 6 后端入口、离线运行与状态重放
+
+起点 `bbefcd73285209e77d4f0bf5f3c410114bac644f`。可复用入口：
+
+| 文件 | 当前能力 |
+| --- | --- |
+| [integrations/agentic_runtime.py](../Agent/src/ped_research_agent/integrations/agentic_runtime.py) | build_agentic 显式组合控制器与答案尾链，execute(question) 返回 AgenticResult；无文件持久化 |
+| [integrations/research_run.py](../Agent/src/ped_research_agent/integrations/research_run.py) | run_research 统一共享工具/模型 meter、recorder、cancel、deadline，预检后持久化一次完整运行 |
+| [integrations/run_records.py](../Agent/src/ped_research_agent/integrations/run_records.py) | RunArchive、凭据过滤、状态增量日志、完整性封存；replay_run 校验并重建结果和 usage |
+| [cli.py](../Agent/src/ped_research_agent/cli.py) | demo 默认小型 SQLite/FTS fixture + OfflineModel；replay 仅读取归档 |
+
+固定图与动态组合复用 runtime.py 的 build_execution，预算逻辑未另写一套。
+底层端口、ModelPort 或规则 DecisionPolicy 由调用者显式注入；不自动读环境凭据，
+不构造真实 provider，不开启外部搜索。生产代码不放 experiments；该 CLI 是开发 smoke
+示例，不是 Gold 问题集、科研评估 runner 或真实规划质量证明。
+
+在本云端已有轻量 `.venv` 中，从仓库根运行：
+
+```bash
+.venv/bin/python -m ped_research_agent.cli demo --output-root /tmp/ped-agent-runs
+# 用上一条输出的 run_dir 运行；不需要临时 fixture 或任何模型/索引服务
+.venv/bin/python -m ped_research_agent.cli replay /tmp/ped-agent-runs/<run-uuid>
+```
+
+新环境需要 Python 3.12、Contracts、Agent[integration]、Agent-Harness；demo 另需 Knowledge-Base
+的 SQLite/FTS 路径，replay 无需 KB/模型资产。这里没有运行 root 的 Windows/CUDA uv sync。
+库调用先 load_profile，再把新 KnowledgeAdapter 与已配置 ModelPort 传给
+`await run_research(profile, knowledge, model_port, question)`；profile.output_dir 必须不存在。
+`build_agentic(..., recorder, run_id=...)` 可用于无持久化调用，取消信号是 runtime.execution.cancel。
+CLI 每次生成 UUID 子目录；库入口也默认生成 UUID，已有输出目录拒绝复用或覆盖。
+
+每个 run 有四个小文件：
+
+- manifest.json：无密钥 resolved config 及 SHA-256、run_id、问题、Git SHA/dirty、源码指纹、
+  Python/包版本、KB snapshot/fixture 或 index 指纹、prompt 与工具/model schema 版本/指纹。
+- events.jsonl：单调 seq，canonical 工具结果、原始模型回复的过滤视图、规划/支持/重规划、
+  每轮状态和增量、新证据/重复/丢弃、答案验证及最终 usage。不是单纯渲染日志。
+- result.json：最终 AgenticResult，包括 stop_reason、需求/证据/稳定标签、答案或结构化 gaps。
+- completion.json：以上文件哈希、事件数、格式版本、run_id 和过滤计数。无 seal 的中断目录
+  明确视为不完整；caller 取消会完成任务清理、归档 cancelled 缺口后继续传播 CancelledError。
+
+Archive 对已识别 credential 字段/字符串（provider key、Bearer、私钥、URL 密码等）和调用者
+显式 redact_values 递归过滤，字段名和字符串键也过滤。配置 schema 不接受凭据字段；
+SDK 对象不进入 manifest。过滤后 tool arguments/value 的日志哈希重新计算，content_hash
+保留原始来源身份；归档表示过滤后的可重放视图，不声称保留所有原始字节。
+调用真实自定义 provider 时，调用者仍须传入需要过滤的不透明凭据值；未知形式的敏感研究
+文本不是通用 DLP 的验证范围。过滤导致对象身份冲突会显式失败，不能悄悄合并对象。
+
+replay_run 不创建 provider/ToolExecutor，不访问临时 SQLite、PDF、Gold 或真实索引。
+它校验文件 seal、JSON/事件序号、run/profile/model 格式版本、调用和 canonical 值哈希；
+从空 DecisionState 按 before/after 哈希和 patch 逐轮应用 state_delta，检查依赖图、
+节点身份/查询历史、证据来自实际记录的工具结果、稳定标签、轮数和重规划上限，
+再核对 result.json。模型尝试和已知/未知 token 占额重新汇总并核对 usage；工具完成结果
+按 provenance.attempts 汇总。整图取消/超时时可能有已启动而未写 outcome 的工具，
+此时明确保留最终 meter 的 charged count，下界由完成结果验证，不虚构缺失 outcome。
+最后对 answered 结果重跑既有引用规则，检查精确标签、保留必要支持、语义判定记录与
+最终已验证草稿一致；重放没有重跑模型，也不证明真实语义判断正确。
+
+明确失败：missing（缺文件/不完整）、integrity（文件哈希变化）、incompatible（不支持的
+run/profile/model 格式）、invalid（JSON、状态增量、身份、预算或答案记录不一致）。
+哈希用于检测损坏和内部不一致，不提供外部签名或抵御可同时重写整份归档的真实性保证。
+
+复用既有集成文件补 7 项高价值检查：完整后端/无调用重放/拒绝覆盖；四种坏归档；
+已识别及不透明 credential 回显过滤；计划调用中断后可重放 cancelled 状态。
+最终核心 110 项；五模块 266 passed、1 skipped。Ruff/格式、针对性 mypy、离线 lock 检查
+通过；CLI demo 与单独 replay 已实际运行。冻结 EvidenceGraph、AnswerChain 验证逻辑、
+prompt 与基线快照保持不变。
+
+本次集成自审已修复重放对同 ID 多次 canonical 检索值的处理：读证据失败后重试时
+检索时间/排名可变化，重建状态须匹配某次实际记录值，而不能误绑第一次未使用的召回。
+也核对了裁剪支持、调用身份/output reservation、版本拒绝与最终验证记录的边界。
+未验证真实 LLM、OCR、embedding/reranker、GPU、PDF/Gold 或真实研究索引质量；
+进程内取消仍依赖工具/provider 协作，unknown usage 与 context token 都使用明确的保守估算。
+现有 CI 仅 main push/PR 触发，本分支 push 无运行，不记为 CI 通过。
+六阶段最小后端到此完成；新的算法、真实 provider 运行及科研评估须另行确定。

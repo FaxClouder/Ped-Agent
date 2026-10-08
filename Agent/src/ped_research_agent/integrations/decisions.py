@@ -23,6 +23,7 @@ from ped_research_agent.agentic.state import DecisionState
 from ped_research_agent.integrations.knowledge import ReadEvidenceOutput, SearchOutput
 
 _OBJECT = TypeAdapter(dict[str, JsonValue])
+DECISION_PROMPT_VERSION = "evidence-decisions-v1"
 
 
 class MeteredDecisionPolicy:

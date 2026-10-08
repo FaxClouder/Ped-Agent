@@ -804,3 +804,138 @@ async def test_dynamic_tail_reuses_repair_revision_and_shared_budget(source, mod
             and result.answer is None
             and result.gaps
         )
+
+
+@pytest.mark.asyncio
+async def test_backend_archive_rebuilds_state_without_dispatch_and_refuses_overwrite(
+    source, monkeypatch
+):
+    from ped_agent_harness import ToolExecutor
+    from ped_research_agent.cli import OfflineModel
+    from ped_research_agent.integrations.research_run import run_research
+    from ped_research_agent.integrations.run_records import replay_run
+
+    adapter, _, path = source
+    profile = load_profile(path, overrides={"harness": {"model_max_output_tokens": 128}})
+    result = await run_research(profile, adapter, OfflineModel(), "synthetic question")
+
+    async def forbidden(*args, **kwargs):
+        raise AssertionError("replay must not dispatch")
+
+    monkeypatch.setattr(OfflineModel, "invoke", forbidden)
+    monkeypatch.setattr(ToolExecutor, "execute", forbidden)
+    rebuilt, usage = replay_run(profile.output_dir)
+    assert rebuilt == result and result.answer.verification.status == "verified"
+    assert usage.model_calls == 4 and usage.tool_calls == 2
+    manifest = json.loads((profile.output_dir / "manifest.json").read_text())
+    assert (
+        manifest["provenance"]["fixture_or_index_fingerprint"] == adapter.snapshot.index_fingerprint
+    )
+    assert (
+        manifest["provenance"]["tool_schemas"] and manifest["provenance"]["code"]["source_sha256"]
+    )
+    events = [
+        json.loads(line) for line in (profile.output_dir / "events.jsonl").read_text().splitlines()
+    ]
+    assert sum(event["type"] == "state_delta" for event in events) >= 2
+    with pytest.raises(ValueError, match="already exists"):
+        await run_research(profile, adapter, OfflineModel(), "synthetic question")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "damage,code",
+    [
+        ("missing", "missing"),
+        ("digest", "integrity"),
+        ("version", "incompatible"),
+        ("state", "invalid"),
+    ],
+)
+async def test_backend_replay_rejects_missing_corrupt_incompatible_and_invalid_state(
+    source, damage, code
+):
+    from ped_research_agent.cli import OfflineModel
+    from ped_research_agent.integrations.research_run import run_research
+    from ped_research_agent.integrations.run_records import ReplayError, replay_run
+
+    adapter, _, path = source
+    profile = load_profile(path, overrides={"harness": {"model_max_output_tokens": 128}})
+    await run_research(profile, adapter, OfflineModel(), "synthetic question")
+    root = profile.output_dir
+    if damage == "missing":
+        (root / "result.json").unlink()
+    elif damage == "digest":
+        with (root / "events.jsonl").open("a") as stream:
+            stream.write("corrupt\n")
+    else:
+        completion = json.loads((root / "completion.json").read_text())
+        if damage == "version":
+            completion["format_version"] = "unsupported-v999"
+        else:
+            events = [json.loads(line) for line in (root / "events.jsonl").read_text().splitlines()]
+            next(event for event in events if event["type"] == "state_delta")["payload"]["patch"][
+                "round"
+            ] = 99
+            (root / "events.jsonl").write_text(
+                "\n".join(json.dumps(event) for event in events) + "\n"
+            )
+            completion["files"]["events.jsonl"] = hashlib.sha256(
+                (root / "events.jsonl").read_bytes()
+            ).hexdigest()
+        (root / "completion.json").write_text(json.dumps(completion))
+    with pytest.raises(ReplayError) as caught:
+        replay_run(root)
+    assert caught.value.code == code
+
+
+@pytest.mark.asyncio
+async def test_backend_archive_filters_credentials_and_preserves_replay(source):
+    from ped_research_agent.cli import OfflineModel
+    from ped_research_agent.integrations.research_run import run_research
+    from ped_research_agent.integrations.run_records import replay_run
+
+    secret = "sk-" + "a" * 30
+    opaque = "test-opaque-credential"
+
+    class SecretEcho(OfflineModel):
+        async def invoke(self, request):
+            reply = await super().invoke(request)
+            return reply.model_copy(update={"content": reply.content + " " + secret + " " + opaque})
+
+    adapter, _, path = source
+    profile = load_profile(path, overrides={"harness": {"model_max_output_tokens": 128}})
+    result = await run_research(
+        profile, adapter, SecretEcho(), "synthetic question", redact_values=(opaque,)
+    )
+    for file in profile.output_dir.iterdir():
+        assert secret not in file.read_text() and opaque not in file.read_text()
+    assert json.loads((profile.output_dir / "completion.json").read_text())["redactions"] > 0
+    assert replay_run(profile.output_dir)[0] == result
+
+
+@pytest.mark.asyncio
+async def test_backend_cancel_before_plan_finishes_seals_replayable_gaps(source):
+    import asyncio
+
+    from ped_research_agent.cli import OfflineModel
+    from ped_research_agent.integrations.research_run import run_research
+    from ped_research_agent.integrations.run_records import replay_run
+
+    started = asyncio.Event()
+
+    class Blocking(OfflineModel):
+        async def invoke(self, request):
+            started.set()
+            await asyncio.Event().wait()
+
+    adapter, _, path = source
+    profile = load_profile(path, overrides={"harness": {"model_max_output_tokens": 128}})
+    task = asyncio.create_task(run_research(profile, adapter, Blocking(), "synthetic question"))
+    await started.wait()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    result, usage = replay_run(profile.output_dir)
+    assert result.stop_reason is StopReason.CANCELLED and result.answer is None and result.gaps
+    assert usage.model_calls == 1 and not usage.reserved_output_tokens

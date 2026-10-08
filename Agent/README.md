@@ -2,7 +2,7 @@
 
 *Evidence orchestration and research QA module · status: current · 2026-10-08*
 
-证据约束的科研问答模块。当前实现是**固定条件 EvidenceGraph**：两次本地检索、可选外部搜索、结构化草稿、引用规则与语义验证、至多一次修订。`agentic/` 另有证据需求 DAG、支持判断与有限重规划的动态取证控制器，生产集成通过 Harness 共享预算与事件记录。动态取证已通过 `agentic/answer.py` 复用 AnswerChain 完成答案验证；通用运行入口和完整重放尚未接入。
+证据约束的科研问答模块。当前实现是**固定条件 EvidenceGraph**：两次本地检索、可选外部搜索、结构化草稿、引用规则与语义验证、至多一次修订。`agentic/` 另有证据需求 DAG、支持判断与有限重规划的动态取证控制器，生产集成通过 Harness 共享预算与事件记录。动态取证已通过 `agentic/answer.py` 复用 AnswerChain 完成答案验证；`integrations/research_run.py` 提供持久化后端入口，CLI 可离线运行并校验重建状态。
 
 本模块面向实验调用，不提供 FastAPI、会话数据库、SSE、任务队列或多用户能力。
 
@@ -14,7 +14,7 @@
 | [`ports.py`](src/ped_research_agent/ports.py) | `ModelGateway` / `LocalEvidenceRetriever` / `ExternalEvidenceSearcher` 协议 | 适配器接入点，保持不变 | 经 `test_evidence_graph.py` |
 | [`evidence_graph.py`](src/ped_research_agent/evidence_graph.py) | LangGraph 固定图：节点连线、阶段事件、预检查询 | 基线 `G-existing`，行为由快照锁定 | [`test_evidence_graph.py`](tests/test_evidence_graph.py)、[`test_evidence_graph_baseline.py`](tests/test_evidence_graph_baseline.py) |
 | [`answer_chain.py`](src/ped_research_agent/answer_chain.py) | 草稿 → 规则 → 语义验证 → 有限修订 → `AnswerDocument` | 基线与迭代控制器共用的验证尾链 | 经基线快照 |
-| [`evidence_pack.py`](src/ped_research_agent/evidence_pack.py) | 按 ID 去重、按来源截断（默认 8/5/5）、打包与标签 | 稳定标签与丢弃记录待在此实现 | 经基线快照 |
+| [`evidence_pack.py`](src/ped_research_agent/evidence_pack.py) | 按 ID 去重、按来源截断（默认 8/5/5）、打包与标签 | 固定基线打包；动态稳定标签/cap 位于 agentic/answer.py | 经基线快照 |
 | [`prompts.py`](src/ped_research_agent/prompts.py) | 改写、草稿、验证、修订 prompt；`PROMPT_SET_VERSION` | 改动措辞须升版本 | 经基线快照 |
 | [`structured.py`](src/ped_research_agent/structured.py) | 原生结构化输出、文本回退与一次 JSON 修复 | planner / judge 复用 | 经 `test_evidence_graph.py` |
 | [`policy.py`](src/ped_research_agent/policy.py) | claim / citation / evidence 双向绑定与来源前缀规则 | 直接复用为答案规则检查 | [`test_policy.py`](tests/test_policy.py) |
@@ -25,7 +25,7 @@
 
 `integrations/knowledge.py` 已提供 `HybridRetriever` 到 `LocalEvidenceRetriever` 的生产适配，
 `integrations/runtime.py::build_baseline` 将固定图检索接入 Harness 工具执行与事件记录。
-该可选集成包依赖 `Agent[integration]`，底层 KB 由调用者显式注入；无实验 runner。`agentic/controller.py` 提供动态取证循环，
+该可选集成包依赖 `Agent[integration]`，底层 KB 由调用者显式注入；CLI demo 是离线 smoke 示例。`agentic/controller.py` 提供动态取证循环，
 `agentic/decisions.py` 定义规划/判断端口，`integrations/decisions.py` 将模型和取证接入 Harness。
 状态类型及严格 JSON/TOML profile 位于 `agentic/`。新组合已接通模型共享预算、usage、取消
 和整图 deadline；旧网关接口不变，完整范围见
@@ -75,3 +75,18 @@ $env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src
 
 阶段 4 云端检查复用合成 SQLite/FTS 语料，核心 98 passed；五模块 254 passed、1 skipped。
 需求规划和支持判断使用离线脚本回复，未验证真实模型规划质量；阶段详情见开发进度。
+
+
+## 云端最小后端入口
+
+```bash
+.venv/bin/python -m ped_research_agent.cli demo --output-root /tmp/ped-agent-runs
+.venv/bin/python -m ped_research_agent.cli replay /tmp/ped-agent-runs/<run-uuid>
+```
+
+库调用使用 `integrations/agentic_runtime.py::build_agentic` 或持久化的
+`integrations/research_run.py::run_research`，显式传入 profile、knowledge、ModelPort。
+运行目录保存 manifest/events/result/completion；重放从状态增量和 canonical 结果重建，
+不调用模型或工具，缺失/损坏/版本不兼容明确失败。默认 demo 为脚本模型与小合成 FTS，
+不读取凭据或开启外部搜索。六阶段边界与限制见 [开发记录](../docs/agent-core-development.md)。
+最终云端五模块 266 passed、1 skipped；未验证真实模型或真实研究质量。

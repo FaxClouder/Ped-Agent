@@ -108,14 +108,24 @@ class BaselineRuntime:
             raise ModelExecutionError(ModelErrorCode.CANCELLED, str(exc)) from exc
 
 
-def build_baseline(
+@dataclass(frozen=True)
+class ExecutionSupport:
+    tools: ToolExecutor
+    models: ModelExecutor
+    meter: BudgetMeter
+    cancel: asyncio.Event
+    events: AgentEventBridge
+    scheduler: ToolScheduler
+
+
+def build_execution(
     profile: RunProfile,
     knowledge: KnowledgeAdapter,
     gateway: ModelPort,
     recorder: Recorder,
     *,
     run_id: str,
-) -> BaselineRuntime:
+) -> ExecutionSupport:
     UUID(run_id)  # Validate before any tool/model dispatch.
     profile.validate_assets()
     manifest = SnapshotIdentity.model_validate_json(profile.knowledge.manifest.read_text())
@@ -152,20 +162,41 @@ def build_baseline(
         max_retries=profile.harness.retry_model,
     )
     knowledge.bind_run(run_id)
+    return ExecutionSupport(
+        executor,
+        models,
+        meter,
+        cancel,
+        AgentEventBridge(recorder, run_id=run_id),
+        ToolScheduler(executor, max_parallel=profile.harness.max_parallel),
+    )
+
+
+def build_baseline(
+    profile: RunProfile,
+    knowledge: KnowledgeAdapter,
+    gateway: ModelPort,
+    recorder: Recorder,
+    *,
+    run_id: str,
+) -> BaselineRuntime:
+    support = build_execution(profile, knowledge, gateway, recorder, run_id=run_id)
     return BaselineRuntime(
         graph=EvidenceGraph(
             MeteredModelGateway(
-                models,
+                support.models,
                 run_id=run_id,
-                cancel_event=cancel,
+                cancel_event=support.cancel,
                 max_output_tokens=profile.harness.model_max_output_tokens,
             ),
-            ExecutedLocalRetriever(knowledge, executor, run_id=run_id, cancel_event=cancel),
+            ExecutedLocalRetriever(
+                knowledge, support.tools, run_id=run_id, cancel_event=support.cancel
+            ),
             DisabledExternalSearch(),
         ),
-        scheduler=ToolScheduler(executor, max_parallel=profile.harness.max_parallel),
-        meter=meter,
-        events=AgentEventBridge(recorder, run_id=run_id),
-        cancel_event=cancel,
-        models=models,
+        scheduler=support.scheduler,
+        meter=support.meter,
+        events=support.events,
+        cancel_event=support.cancel,
+        models=support.models,
     )
