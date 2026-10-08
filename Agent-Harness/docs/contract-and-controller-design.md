@@ -1,6 +1,10 @@
 # 工具契约与 Agent 控制器设计（借鉴加深版）
 
-*Agent-Harness 接口设计 · status: target · 2026-10-07；第 4 节步骤 1–2（契约类型与执行层）已于同日实现，其余为 target*
+*Agent-Harness 接口设计 · status: target · 2026-10-07；第 4 节步骤 1–3 与 5 已实现；步骤 4 独立答案尾链仍为 target*
+
+2026-10-08 当前实现和离线验证见 [Agent core 开发进度](../../docs/agent-core-development.md)。
+生产适配器位于 Agent 的 integrations；当前配置固定非法计划显式失败、非质量停止仅返回缺口。
+下文流程图的旧回退/部分答案选项仍为设计对照，本轮没有实现这些选项。
 
 ## 0. 这份文档解决什么
 

@@ -30,6 +30,9 @@ class StopReason(StrEnum):
     ALL_BLOCKED = "all_blocked"
     BUDGET_EXHAUSTED = "budget_exhausted"
     CANCELLED = "cancelled"
+    ROUND_LIMIT = "round_limit"
+    REPLAN_LIMIT = "replan_limit"
+    EXECUTION_FAILED = "execution_failed"
 
 
 class Requirement(DomainModel):
@@ -39,6 +42,7 @@ class Requirement(DomainModel):
     status: RequirementStatus = RequirementStatus.OPEN
     support_evidence_ids: list[str] = Field(default_factory=list)
     queries_tried: list[str] = Field(default_factory=list)
+    queries: list[str] = Field(default_factory=list)
     rationale: str | None = None
     contradictions: list[str] = Field(default_factory=list)
 
@@ -52,6 +56,8 @@ class RoundRecord(DomainModel):
     dropped_ids: list[str] = Field(default_factory=list)
     changed_requirement_ids: list[str] = Field(default_factory=list)
     degradation_reasons: list[str] = Field(default_factory=list)
+    support_gain_ids: list[str] = Field(default_factory=list)
+    replan_error: str | None = None
 
 
 class DecisionState(DomainModel):
@@ -96,7 +102,12 @@ class DecisionState(DomainModel):
         return [
             node
             for node in self.requirements.values()
-            if node.status in (RequirementStatus.OPEN, RequirementStatus.PARTIAL)
+            if node.status
+            in (
+                RequirementStatus.OPEN,
+                RequirementStatus.PARTIAL,
+                RequirementStatus.UNKNOWN,
+            )
             and all(
                 self.requirements[dep].status is RequirementStatus.SATISFIED
                 for dep in node.depends_on

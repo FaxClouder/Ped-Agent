@@ -1,8 +1,8 @@
 # Agent
 
-*Evidence orchestration and research QA module · status: current · 2026-10-07*
+*Evidence orchestration and research QA module · status: current · 2026-10-08*
 
-证据约束的科研问答模块。当前实现是**固定条件 EvidenceGraph**：两次本地检索、可选外部搜索、结构化草稿、引用规则与语义验证、至多一次修订。没有动态工具选择、需求规划、跨轮预算、通用运行循环或持久化运行记录；Agentic RAG 处于开发准备阶段。
+证据约束的科研问答模块。当前实现是**固定条件 EvidenceGraph**：两次本地检索、可选外部搜索、结构化草稿、引用规则与语义验证、至多一次修订。`agentic/` 另有证据需求 DAG、支持判断与有限重规划的动态取证控制器，生产集成通过 Harness 共享预算与事件记录。动态取证的答案尾链、通用运行入口和完整重放尚未接入。
 
 本模块面向实验调用，不提供 FastAPI、会话数据库、SSE、任务队列或多用户能力。
 
@@ -25,12 +25,13 @@
 
 `integrations/knowledge.py` 已提供 `HybridRetriever` 到 `LocalEvidenceRetriever` 的生产适配，
 `integrations/runtime.py::build_baseline` 将固定图检索接入 Harness 工具执行与事件记录。
-该可选集成包依赖 `Agent[integration]`，底层 KB 由调用者显式注入；无实验 runner 或动态控制器。
+该可选集成包依赖 `Agent[integration]`，底层 KB 由调用者显式注入；无实验 runner。`agentic/controller.py` 提供动态取证循环，
+`agentic/decisions.py` 定义规划/判断端口，`integrations/decisions.py` 将模型和取证接入 Harness。
 状态类型及严格 JSON/TOML profile 位于 `agentic/`。新组合已接通模型共享预算、usage、取消
 和整图 deadline；旧网关接口不变，完整范围见
 [Agent core 开发进度](../docs/agent-core-development.md)。原 EvidenceGraph 接口、行为和快照保留。
 
-## 当前调用链
+## 固定基线调用链
 
 ```mermaid
 flowchart LR
@@ -46,7 +47,7 @@ flowchart LR
     V -->|修订后仍失败| E[VerificationFailed]
 ```
 
-需要特别区分以下名称与实际行为：
+以下描述仅针对直接使用原 EvidenceGraph 的固定基线：
 
 - `load_conversation` 不读数据库，历史来自 `ResearchQuery`；`previous_evidence_ids` 写入状态但未使用。
 - `final_persist` 只构造答案、发出阶段事件，不写文件。
@@ -71,3 +72,6 @@ $env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src
 ```
 
 全部测试用伪造 gateway / retriever / HTTP 客户端，不调用真实模型或网络。2026-10-07 使用 E 盘 `.venv` 验证组件抽取，34 项全部通过；冻结基线快照未更新。
+
+阶段 4 云端检查复用合成 SQLite/FTS 语料，核心 98 passed；五模块 254 passed、1 skipped。
+需求规划和支持判断使用离线脚本回复，未验证真实模型规划质量；阶段详情见开发进度。

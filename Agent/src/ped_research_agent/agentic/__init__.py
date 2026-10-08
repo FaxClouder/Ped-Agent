@@ -1,4 +1,4 @@
-"""Explicit domain state for bounded evidence research (controller follows separately)."""
+"""Domain state; controller and execution adapters are explicit optional imports."""
 
 from ped_research_agent.agentic.state import (
     AgenticResult,

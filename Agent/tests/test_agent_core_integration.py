@@ -331,3 +331,314 @@ async def test_run_deadline_drains_model_and_cannot_return_verified(source):
     # A cold graph may consume the deadline before dispatch; that is also a valid hard stop.
     assert port.settled or usage.model_calls == 0
     assert usage.reserved_output_tokens == 0
+
+
+# Stage 4: synthetic decisions exercise state semantics, not planning quality.
+class ScriptedDecisions:
+    def __init__(self, plan, *, judgments=(), patches=()):
+        self.initial = plan
+        self.judgments = iter(judgments)
+        self.patches = iter(patches)
+        self.triggers = []
+
+    async def plan(self, question):
+        return self.initial
+
+    async def judge(self, state, requirement_id):
+        return next(self.judgments)
+
+    async def replan(self, state, trigger):
+        from ped_research_agent.agentic.decisions import Replan
+
+        self.triggers.append(trigger)
+        return next(self.patches, Replan(rationale="scripted empty patch"))
+
+
+def _decision_plan(*nodes):
+    from ped_research_agent.agentic.decisions import RequirementSpec, ResearchPlan
+
+    return ResearchPlan(requirements=[RequirementSpec(**node) for node in nodes])
+
+
+def _decision_runtime(source, policy, *, limits=None, tool_budget=40):
+    import asyncio
+
+    from ped_agent_harness import BudgetMeter, RunBudget, ToolExecutor, ToolRegistry
+    from ped_research_agent.agentic.config import AgentPolicy
+    from ped_research_agent.agentic.controller import EvidenceController
+    from ped_research_agent.integrations.decisions import HarnessEvidenceActions
+    from ped_research_agent.integrations.knowledge import KnowledgeReadTool, KnowledgeSearchTool
+
+    adapter, _, _ = source
+    run_id = str(uuid4())
+    adapter.bind_run(run_id)
+    recorder = MemoryRecorder()
+    meter = BudgetMeter(RunBudget(max_tool_calls=tool_budget, max_model_calls=20))
+    cancel = asyncio.Event()
+    executor = ToolExecutor(
+        ToolRegistry([KnowledgeSearchTool(adapter), KnowledgeReadTool(adapter)]),
+        meter,
+        recorder,
+        allowlist=("knowledge.search", "knowledge.read_evidence"),
+    )
+    actions = HarnessEvidenceActions(executor, run_id=run_id, cancel_event=cancel)
+    controller = EvidenceController(
+        policy,
+        actions,
+        limits or AgentPolicy(),
+        recorder,
+        run_id=run_id,
+        cancel_event=cancel,
+        remaining_seconds=meter.remaining_seconds,
+    )
+    return controller, actions, meter, recorder, cancel
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("invalid", ["missing", "cycle", "duplicate", "too_many"])
+async def test_dynamic_initial_plan_fails_without_dispatch(source, invalid):
+    from ped_research_agent.agentic.config import AgentPolicy
+
+    node = dict(id="root", statement="fact", queries=["density"])
+    nodes = [node | {"depends_on": ["absent" if invalid == "missing" else "root"]}]
+    if invalid in ("duplicate", "too_many"):
+        nodes = [node, node | {"id": "root" if invalid == "duplicate" else "second"}]
+    controller, _, meter, _, _ = _decision_runtime(
+        source, ScriptedDecisions(_decision_plan(*nodes)), limits=AgentPolicy(max_requirements=1)
+    )
+    result = await controller.execute("synthetic question")
+    assert result.stop_reason is StopReason.PLAN_INVALID and result.outcome == "failed"
+    assert meter.usage().tool_calls == 0 and result.answer is None
+
+
+@pytest.mark.asyncio
+async def test_dynamic_failed_parent_replans_and_unblocks_child_with_metered_decisions(source):
+    from ped_agent_harness.models import ModelExecutor
+    from ped_research_agent.agentic.decisions import Replan, RequirementSpec
+    from ped_research_agent.integrations.decisions import MeteredDecisionPolicy
+
+    plan = _decision_plan(
+        dict(id="root", statement="density fact", queries=["first fails"]),
+        dict(id="child", statement="condition", depends_on=["root"], queries=["bottleneck"]),
+    )
+
+    class DecisionPort:
+        def __init__(self):
+            self.snapshots = []
+
+        def capabilities(self, role):
+            return ModelCapabilities(structured=True)
+
+        async def invoke(self, request):
+            payload = json.loads(request.messages[-1].content)
+            if request.role == "planner":
+                decision = plan.model_dump(mode="json")
+            elif request.role == "replan":
+                self.snapshots.append(payload["state"])
+                replacement = {"root": ["density"]} if payload["trigger"] == "action_failed" else {}
+                decision = Replan(
+                    replace_queries=replacement,
+                    additions=[]
+                    if replacement
+                    else [
+                        RequirementSpec(
+                            id="audit",
+                            statement="independent condition",
+                            depends_on=["root"],
+                            queries=["density"],
+                        )
+                    ],
+                    rationale="scripted bounded patch",
+                ).model_dump(mode="json")
+            else:
+                from ped_research_agent.agentic.decisions import SupportJudgment
+
+                decision = SupportJudgment(
+                    status="satisfied",
+                    support_evidence_ids=list(payload["state"]["evidence"]),
+                    rationale="synthetic direct support",
+                ).model_dump(mode="json")
+            return ModelReply(
+                content="",
+                model="script",
+                structured=decision,
+                usage=ModelUsage(input_tokens=10, output_tokens=5),
+            )
+
+    controller, actions, meter, recorder, cancel = _decision_runtime(source, None)
+    port = DecisionPort()
+    models = ModelExecutor(port, meter, recorder)
+    controller.policy = MeteredDecisionPolicy(
+        models,
+        run_id=controller.run_id,
+        cancel_event=cancel,
+        limits=controller.limits,
+        max_output_tokens=32,
+    )
+    # Failure is injected at the real retriever port; calls still pass through Harness.
+    retriever = source[0].retriever
+    retrieve = retriever.retrieve
+
+    async def flaky(query, **kwargs):
+        if query == "first fails":
+            raise OSError("synthetic unavailable index")
+        return await retrieve(query, **kwargs)
+
+    retriever.retrieve = flaky
+    result = await controller.execute("synthetic question")
+    assert port.snapshots[0]["requirements"]["child"]["status"] == "blocked"
+    assert result.stop_reason is StopReason.QUALITY_STOP and result.answer is None
+    assert result.state.requirements["root"].queries_tried == ["first fails", "density"]
+    assert result.state.requirements["child"].queries_tried == ["bottleneck"]
+    assert result.state.replans_used == 2
+    assert meter.usage().model_calls == 6  # planner, two replans and three judgments
+    assert meter.usage().tool_calls == 5  # failed search, search, read, two downstream searches
+    assert list(result.state.labels.values()) == ["E1"]
+    assert result.state.rounds[-1].duplicate_ids and not result.state.rounds[-1].new_ids
+    assert result.state.rounds[-1].support_gain_ids == ["child", "audit"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("invalid_patch", [False, True])
+async def test_dynamic_duplicate_evidence_and_changed_rationale_do_not_reset_no_gain(
+    source,
+    invalid_patch,
+):
+    from ped_research_agent.agentic.config import AgentPolicy
+    from ped_research_agent.agentic.decisions import Replan, SupportJudgment
+
+    plan = _decision_plan(
+        dict(id="root", statement="missing fact", queries=["density", "bottleneck", "rises"])
+    )
+    judgments = [
+        SupportJudgment(status="unknown", rationale=f"no factual support {i}") for i in range(3)
+    ]
+    patches = (
+        [Replan(additions=plan.requirements, rationale="invalid duplicate")]
+        if invalid_patch
+        else []
+    )
+    controller, _, _, recorder, _ = _decision_runtime(
+        source,
+        ScriptedDecisions(plan, judgments=judgments, patches=patches),
+        limits=AgentPolicy(max_rounds=5),
+    )
+    result = await controller.execute("synthetic question")
+    assert result.stop_reason is StopReason.NO_GAIN_STOP and result.answer is None
+    assert result.state.no_gain_rounds == 2
+    assert len(result.state.evidence) == 1 and result.state.labels == {
+        next(iter(result.state.evidence)): "E1"
+    }
+    assert result.state.first_seen_round == {next(iter(result.state.evidence)): 1}
+    assert all(not r.support_gain_ids for r in result.state.rounds)
+    assert len(result.state.rounds[-1].duplicate_ids) == 1
+    assert list(result.state.requirements) == ["root"]
+    assert len(result.state.rounds) == (2 if invalid_patch else 3)
+    assert any(e.type == "replan_parse_failed" for e in recorder.events) == invalid_patch
+
+
+def test_dynamic_replans_validate_atomically_and_reject_conflicts():
+    from ped_research_agent.agentic.config import AgentPolicy
+    from ped_research_agent.agentic.controller import merge_plan
+    from ped_research_agent.agentic.decisions import Replan, RequirementSpec, SupportJudgment
+
+    state = DecisionState(
+        question="q",
+        requirements={
+            "root": Requirement(id="root", statement="fact", queries=["q"]),
+        },
+    )
+    original = state.model_dump()
+
+    def spec(key, deps=()):
+        return RequirementSpec(id=key, statement="fact", queries=["q"], depends_on=list(deps))
+
+    patches = [
+        Replan(additions=[spec("root")], rationale="duplicate"),
+        Replan(additions=[spec("new", ["absent"])], rationale="dangling"),
+        Replan(additions=[spec("b", ["c"]), spec("c", ["b"])], rationale="cycle"),
+        Replan(additions=[spec(str(i)) for i in range(4)], rationale="append cap"),
+        Replan(additions=[spec("new")], replace_queries={"absent": ["new"]}, rationale="atomic"),
+    ]
+    for patch in patches:
+        with pytest.raises(ValueError):
+            merge_plan(state, patch, AgentPolicy())
+        assert state.model_dump() == original
+    with pytest.raises(ValueError):
+        merge_plan(
+            state,
+            Replan(additions=[spec("new")], rationale="total cap"),
+            AgentPolicy(max_requirements=1),
+        )
+    with pytest.raises(ValueError, match="contradictory"):
+        SupportJudgment(
+            status="satisfied",
+            support_evidence_ids=["e"],
+            contradictions=["conflict"],
+            rationale="conflicted",
+        )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "limit,expected",
+    [
+        ("round", StopReason.ROUND_LIMIT),
+        ("replan", StopReason.REPLAN_LIMIT),
+        ("tool", StopReason.BUDGET_EXHAUSTED),
+        ("blocked", StopReason.ALL_BLOCKED),
+    ],
+)
+async def test_dynamic_hard_bounds_return_gaps(source, limit, expected):
+    from ped_research_agent.agentic.config import AgentPolicy
+    from ped_research_agent.agentic.decisions import SupportJudgment
+
+    plan = _decision_plan(
+        dict(id="root", statement="missing", queries=["density"]),
+        dict(id="child", statement="dependent", depends_on=["root"], queries=["bottleneck"]),
+    )
+    policy = ScriptedDecisions(plan, judgments=[SupportJudgment(status="unknown", rationale="gap")])
+    limits = (
+        AgentPolicy(max_rounds=1)
+        if limit == "round"
+        else AgentPolicy()
+        if limit == "blocked"
+        else AgentPolicy(max_replans=0)
+    )
+    controller, _, meter, _, _ = _decision_runtime(
+        source, policy, limits=limits, tool_budget=1 if limit == "tool" else 40
+    )
+    result = await controller.execute("synthetic question")
+    assert result.stop_reason is expected and result.answer is None
+    assert not result.state.requirements["child"].queries_tried
+    assert meter.usage().tool_calls <= meter.budget.max_tool_calls
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("reason", [StopReason.CANCELLED, StopReason.BUDGET_EXHAUSTED])
+async def test_dynamic_cancel_and_deadline_drain_policy_and_report_stop(source, reason):
+    import asyncio
+
+    class BlockingPolicy:
+        def __init__(self):
+            self.started = asyncio.Event()
+            self.drained = False
+
+        async def plan(self, question):
+            self.started.set()
+            try:
+                await asyncio.Event().wait()
+            finally:
+                self.drained = True
+
+    policy = BlockingPolicy()
+    controller, _, _, recorder, cancel = _decision_runtime(source, policy)
+    if reason is StopReason.BUDGET_EXHAUSTED:
+        controller.remaining_seconds = lambda: 0.05
+    task = asyncio.create_task(controller.execute("synthetic question"))
+    await policy.started.wait()
+    if reason is StopReason.CANCELLED:
+        cancel.set()
+    result = await task
+    assert result.stop_reason is reason and result.answer is None and policy.drained
+    assert recorder.events[-1].type == "decision_end"

@@ -22,7 +22,7 @@ flowchart LR
     knowledge["Knowledge-Base\nknowledge and evidence"]
     video["Video-Analysis\ndetection and flow analysis"]
     agent["Agent\nevidence orchestration and QA"]
-    harness["Agent-Harness\ntyped tool execution\n(controller planned)"]
+    harness["Agent-Harness\ntyped tool/model execution"]
     experiments["experiments\nreproducible studies"]
     data[("memPed\nresearch data")]
 
@@ -33,7 +33,7 @@ flowchart LR
     knowledge --> data
     video --> data
     knowledge -. "evidence" .-> agent
-    agent -. "uses (future)" .-> harness
+    agent -. "optional production integration" .-> harness
     experiments --> knowledge
     experiments --> video
     experiments --> agent
@@ -67,8 +67,8 @@ flowchart LR
 | Shared contracts | `Contracts/`, `Contracts/README.md` | Evidence, answer, and trajectory data shapes | Algorithms, storage, HTTP |
 | Knowledge and evidence | `Knowledge-Base/`, `Knowledge-Base/README.md` | Technical preflight, parsing, chunking, indexing, retrieval, rerank, evaluation | Final answer generation, video inference |
 | Detection and flow analysis | `Video-Analysis/`, `Video-Analysis/README.md` | Detection, tracking, calibration, trajectories, density/speed/flow/OD analysis | Document admission, natural-language QA |
-| Evidence orchestration and QA | `Agent/`, `Agent/README.md` | Evidence graph, citation rules, model adapters, research answers | FastAPI, SSE, sessions, task queues |
-| Agent execution support | `Agent-Harness/`, `Agent-Harness/README.md` | Typed tool execution, scheduling, budgets and event recording; model tool port and controller planned | Domain logic, evidence collection |
+| Evidence orchestration and QA | `Agent/`, `Agent/README.md` | Fixed evidence graph, bounded requirement controller, citation rules, model adapters, research answers | FastAPI, SSE, sessions, task queues |
+| Agent execution support | `Agent-Harness/`, `Agent-Harness/README.md` | Typed tool/model execution, scheduling, shared budgets and event recording | Domain logic, evidence collection |
 | Reproducible studies | `experiments/`, `experiments/README.md` | Inputs, hypotheses, versions, seeds, commands, metrics, outputs | Core reusable module implementation |
 
 ### Knowledge retrieval pipeline
@@ -166,6 +166,6 @@ archived product-integration tree implicitly.
 
 ## Agentic research extension status — 2026-10-08
 
-Agent-Harness is execution support for the Agent research capability, not an additional product capability. Since 2026-10-07 its source implements typed tool contracts, a registry, executor, scheduler, run budgets and JSONL event recording. The legacy Protocol definitions remain for compatibility. On 2026-10-08 the optional Agent production integration package added knowledge tools, fixed-graph composition and event bridging; Agentic state and a strict staged profile loader are implemented. Model tool-call contracts, shared model/tool budgets and a cooperative full-run deadline are implemented in the new composition; the dynamic Agent controller remains planned. The current EvidenceGraph remains a fixed conditional workflow; `final_persist` constructs an answer without filesystem persistence. Current implementation and validation are recorded in [Agent core development](agent-core-development.md); the [cloud baseline](agent-core-cloud-baseline-2026-10-08.md) records the original branch setup.
+Agent-Harness is execution support for the Agent research capability, not an additional product capability. Since 2026-10-07 its source implements typed tool contracts, a registry, executor, scheduler, run budgets and JSONL event recording. The legacy Protocol definitions remain for compatibility. On 2026-10-08 the optional Agent production integration package added knowledge tools, fixed-graph composition and event bridging; Agentic state and a strict staged profile loader are implemented. Model tool-call contracts, shared model/tool budgets and a cooperative full-run deadline are implemented in the new composition; the dynamic Agent evidence controller now implements dependency-ready collection, support judgments and bounded atomic replanning. Its final answer chain and general runner/replay remain planned. The current EvidenceGraph remains a fixed conditional workflow; `final_persist` constructs an answer without filesystem persistence. Current implementation and validation are recorded in [Agent core development](agent-core-development.md); the [cloud baseline](agent-core-cloud-baseline-2026-10-08.md) records the original branch setup.
 
 The [module integration assessment](../Agent/docs/harness-integration-assessment.md) records the earlier contracts and gaps. The [configuration design](../Agent-Harness/docs/configuration-design.md) remains a target beyond the staged subset, and the [Agentic research plan](../Agent-Harness/docs/agentic-research-plan.md) describes later research. Reusable adapters now belong in the optional production integration package as explicitly requested for agent-core; experiment entrypoints and experiment configuration remain in experiments. Neither knowledge nor video modules should import Harness internals.

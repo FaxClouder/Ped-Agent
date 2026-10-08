@@ -13,7 +13,7 @@
 | 1 | 领域状态、停止原因、工具 IO、严格配置与快照引用 | 已实现；需求图拒绝环/悬空依赖；非质量停止无答案；JSON/TOML 继承、覆盖、哈希和路径校验 |
 | 2 | 生产 KB 适配、只读工具、事件桥接、固定图接通 | 已实现；人工合成 SQLite 语料经真实 FTS/HybridRetriever、Harness 工具执行和原图生成脚本化答案 |
 | 3 | 模型调用契约、工具调用、usage、预算与取消 | 已实现；新组合路径共享模型/工具预算，重试与 JSON repair 计量，整图 deadline 与协作取消 |
-| 4 | 证据需求图控制器、支持判断、失败替代和有限重规划 | plan；状态类型已实现，动态循环尚未实现 |
+| 4 | 证据需求图控制器、支持判断、失败替代和有限重规划 | 已实现；依赖 ready、阻塞传播、原子重规划、ID/标签稳定、增益与硬界限离线验证；答案尾链尚未接入 |
 | 5 | 动态证据标签/context cap、独立答案尾链入口 | plan；已有 AnswerChain 分步方法直接复用，基线标签/快照不改 |
 | 6 | 运行入口、manifest/trace、离线状态重放及交付 | plan；当前 Recorder 已保存事件，尚无完整控制器重放器 |
 
@@ -69,8 +69,8 @@
 ```
 
 没有真实 LLM、OCR、embedding/reranker、PDF、Gold、GPU 或真实研究索引效果验证。
-阶段 3 已补全新组合路径的模型计量与整图 deadline；动态 Agentic 控制器仍未实现。
-后续进入阶段 4 的需求依赖、支持判断、有限重规划与停止逻辑。
+阶段 3 已补全新组合路径的模型计量与整图 deadline；阶段 4 已接入动态取证控制器。
+后续阶段 5–6 接入独立答案尾链、运行入口与重放。
 现有 CI 已补齐 Harness 安装/检查范围，触发条件仍只有 PR 与 main push；本分支 push 不触发。
 
 
@@ -105,3 +105,45 @@
 本阶段新增一个小型 Harness 检查文件，在既有 Agent 检查中补 native response、repair
 和整图 deadline 案例。核心 84 passed；五模块 240 passed、1 skipped；新增源码针对性
 Ruff/mypy 检查通过。未请求真实模型服务，未安装新 provider 或下载模型资产。
+
+
+## 阶段 4 动态证据需求控制器
+
+起点 `a690eaa1972c409fa521c598aaf2e847b089a0c0`；只在云端分支实施。
+
+- [agentic/decisions.py](../Agent/src/ped_research_agent/agentic/decisions.py) 定义
+  ResearchPlan/RequirementSpec、Replan、SupportJudgment、DecisionPolicy 和 EvidenceActions。
+  初始节点只能声明事实需求、依赖和候选查询，不能注入 satisfied 或生成答案。
+- [agentic/controller.py](../Agent/src/ped_research_agent/agentic/controller.py) 使用普通 async
+  循环，每轮只执行依赖已满足且尚有未试查询的需求层。保留 queries_tried；搜索或判断失败
+  标 unknown/unsatisfiable，传播 blocked；替换查询后可恢复取证，上游满足后再执行下游。
+  没有把需求图展平成固定流水线，也不回退到 EvidenceGraph。
+- 初始计划拒绝重复 ID、悬空依赖、重复依赖、环及需求数超限，返回 plan_invalid。
+  merge_plan 在深拷贝中验证整个候选图，拒绝超量追加、重复 ID、非法依赖与目标查询；
+  只允许有限追加或替换未满足需求的查询，不能删除节点/改变既有事实与依赖。
+  空补丁及无效尝试同样消耗 replan slot；无效补丁记录 replan_parse_failed 并计入无增益。
+- [integrations/decisions.py](../Agent/src/ped_research_agent/integrations/decisions.py) 的
+  MeteredDecisionPolicy 使用已计量 ModelExecutor 的 planner/judge/replan 角色与结构化响应，
+  模型收到实际 AgentPolicy 上限。HarnessEvidenceActions 的 search 与首次 child read
+  都经过 ToolExecutor；首轮读取核对 snapshot/child 身份，重复证据沿用首次读取与标签。
+  组合调用者须给两执行器注入相同 run_id、meter、recorder 和 cancel_event，并将
+  meter.remaining_seconds 传给控制器；本阶段没有通用运行入口。
+- 以 evidence_id 去重，保留首次轮次及 E1/E2 标签；同 ID 的身份/内容冲突被丢弃并记录。
+  new_ids 表示新增取证，support_gain_ids 表示支持状态增强或已记录冲突解决。
+  新引用 ID、重复检索或判断措辞变化本身不代表事实支持增益。判断必须引用已收集证据；
+  satisfied/partial 须有支持，satisfied 不能有未解决冲突。其语义质量仍取决于注入的判断端口。
+- quality_stop 要求所有需求都有证据、理由且无冲突。本阶段即使质量停止也只返回
+  AgenticResult(state, outcome="stopped", answer=None)，供阶段 5 的尾链使用，未生成 verified。
+  no_gain_stop、all_blocked、round_limit、replan_limit、budget_exhausted、cancelled、
+  plan_invalid、execution_failed 都保留状态及缺口，不返回答案。
+  轮数/无增益已触限不再重规划；已耗尽重规划仍可执行预先存在的未试查询，
+  当失败需要替代或查询耗尽时返回 replan_limit。
+  整体 deadline/协作取消复用 Harness helper；caller CancelledError 记录后继续传播。
+
+复用既有集成检查及合成 SQLite/FTS fixture，增加 14 项状态/边界案例。
+核心 98 passed；五模块 254 passed、1 skipped（可选 PedPy 未安装）。
+覆盖非法初始图、原子拒绝、上游阻塞与失败替代、合法追加、重复证据/无增益、
+无效重规划计数、轮数/重规划/工具上限、all_blocked、取消与 deadline 清理。
+脚本化判断仅证明状态转移与计量，不证明真实模型规划或证据判断质量。
+未调用收费模型、下载模型/PDF/完整 Gold 或修改冻结基线。
+阶段 5 的 context cap/最终答案尾链及阶段 6 的 runner/manifest/replay 仍为 plan。
