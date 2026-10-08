@@ -282,7 +282,7 @@ def extract_adobe_pdf(path: Path, *, credential_path: Path | None = None) -> byt
         from adobe.pdfservices.operation.pdfjobs.params.extract_pdf.extract_renditions_element_type import ExtractRenditionsElementType
         from adobe.pdfservices.operation.pdfjobs.result.extract_pdf_result import ExtractPDFResult
     except ImportError as exc:
-        raise RuntimeError("Install ped-knowledge[adobe] to use Adobe PDF Extract") from exc
+        raise RuntimeError("Install ped-knowledge to use Adobe PDF Extract") from exc
 
     client_id, client_secret = load_adobe_credentials(credential_path)
     try:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import unicodedata
 from pathlib import Path
 from typing import Protocol
 
@@ -22,6 +23,15 @@ class TokenCounter(Protocol):
     def decode(self, token_ids: list[int]) -> str: ...
 
     def count(self, text: str) -> int: ...
+
+
+class LexicalAnalyzer(Protocol):
+    """Query/document analyzer contract shared by sparse indexes."""
+
+    @property
+    def fingerprint(self) -> str: ...
+
+    def analyze(self, text: str) -> list[str]: ...
 
 
 class RegexTokenCounter:
@@ -81,6 +91,10 @@ class HuggingFaceTokenCounter:
     def encode(self, text: str) -> list[int]:
         return list(self._tokenizer.encode(text).ids)  # type: ignore[attr-defined]
 
+    def encode_with_offsets(self, text: str) -> tuple[list[int], list[tuple[int, int]]]:
+        encoding = self._tokenizer.encode(text)  # type: ignore[attr-defined]
+        return list(encoding.ids), list(encoding.offsets)
+
     def decode(self, token_ids: list[int]) -> str:
         return str(self._tokenizer.decode(token_ids))  # type: ignore[attr-defined]
 
@@ -88,33 +102,24 @@ class HuggingFaceTokenCounter:
         return len(self.encode(text))
 
 
-class JiebaLexicalAnalyzer:
-    """Versioned bilingual analyzer with isolated jieba state."""
+class EnglishLexicalAnalyzer:
+    """Versioned English-only analyzer for the PEARL retrieval-v0.2 protocol.
 
-    def __init__(
-        self,
-        *,
-        domain_terms_path: Path | None = None,
-        stopwords_path: Path | None = None,
-        version: str = "jieba-lexical-v1",
-    ) -> None:
-        try:
-            import jieba
-        except ImportError as exc:
-            raise RuntimeError("jieba is required for multilingual FTS tokenization") from exc
+    Applies Unicode NFKC normalization, lowercasing, and alphanumeric run
+    tokenization. No stopword removal and no stemming, so the same analyzer is
+    applied to queries and child text without any language-dependent resource.
+    """
 
+    ENGLISH_TOKEN_PATTERN = re.compile(r"[a-z]+|[0-9]+")
+
+    def __init__(self, *, version: str = "english-lexical-v1") -> None:
         self.version = version
-        self.domain_terms_path = domain_terms_path
-        self.stopwords_path = stopwords_path
-        self._tokenizer = jieba.Tokenizer()
-        self._domain_terms = _word_list(domain_terms_path)
-        self._stopwords = set(_word_list(stopwords_path))
-        for term in self._domain_terms:
-            self._tokenizer.add_word(term, freq=10_000_000)
         payload = {
             "version": version,
-            "domain_terms_sha256": _file_hash(domain_terms_path),
-            "stopwords_sha256": _file_hash(stopwords_path),
+            "normalization": "nfkc-lowercase",
+            "token_pattern": self.ENGLISH_TOKEN_PATTERN.pattern,
+            "stopwords": False,
+            "stemming": False,
         }
         normalized = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         self._fingerprint = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
@@ -124,40 +129,14 @@ class JiebaLexicalAnalyzer:
         return f"{self.version}:{self._fingerprint}"
 
     def analyze(self, text: str) -> list[str]:
-        normalized = re.sub(r"\s+", " ", text.strip().lower())
-        tokens: list[str] = []
-        for token in self._tokenizer.cut(normalized):
-            cleaned = token.strip()
-            if (
-                cleaned
-                and cleaned not in self._stopwords
-                and re.search(r"[0-9a-z\u3400-\u9fff]", cleaned)
-            ):
-                tokens.append(cleaned)
-        return tokens
-
-
-def _word_list(path: Path | None) -> list[str]:
-    if path is None:
-        return []
-    if not path.is_file():
-        raise FileNotFoundError(f"lexical resource not found: {path}")
-    return [
-        line.strip().lower()
-        for line in path.read_text(encoding="utf-8-sig").splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    ]
-
-
-def _file_hash(path: Path | None) -> str:
-    if path is None:
-        return hashlib.sha256(b"").hexdigest()
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+        normalized = unicodedata.normalize("NFKC", text).lower()
+        return self.ENGLISH_TOKEN_PATTERN.findall(normalized)
 
 
 __all__ = [
+    "EnglishLexicalAnalyzer",
     "HuggingFaceTokenCounter",
-    "JiebaLexicalAnalyzer",
+    "LexicalAnalyzer",
     "RegexTokenCounter",
     "TOKEN_PATTERN",
     "TokenCounter",

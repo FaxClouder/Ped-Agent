@@ -128,7 +128,16 @@ def evaluate_rankings(
             None,
         )
         reciprocal_ranks.append(0.0 if rank is None else 1.0 / rank)
-        relevance = [int(resource_id in expected_resources) for resource_id, _ in ranked]
+        # Credit each expected resource once, at its highest rank: ideal DCG counts
+        # unique resources, so counting every matching chunk pushes nDCG above 1.0.
+        credited: set[str] = set()
+        relevance: list[int] = []
+        for resource_id, _ in ranked:
+            if resource_id in expected_resources and resource_id not in credited:
+                credited.add(resource_id)
+                relevance.append(1)
+            else:
+                relevance.append(0)
         dcg = sum(value / math.log2(index + 1) for index, value in enumerate(relevance, start=1))
         ideal_count = min(len(expected_resources), k)
         ideal_dcg = sum(1.0 / math.log2(index + 1) for index in range(1, ideal_count + 1))

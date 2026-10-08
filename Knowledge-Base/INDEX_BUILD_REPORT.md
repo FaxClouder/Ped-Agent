@@ -1,5 +1,10 @@
 # 索引构建报告
 
+*2026-09-24 验证性构建记录 · status: historical*
+
+> 本报告保留当时的构建事实。其中的 jieba 分析器、领域词表、停用词和 `memPed/knowledge/indexes/` 路径已于
+> 2026-10-07 移除或停用；现行做法见 [`README.md`](README.md) 和 [RAG 设计规范](../docs/rag-design-spec.md)。
+
 **日期**: 2026-09-24  
 **会话**: Index building for knowledge base  
 **状态**: ✓ 完成（验证性构建）
@@ -226,5 +231,5 @@ uv pip install --python .venv\Scripts\python.exe --reinstall `
 
 - [Knowledge-Base README](README.md) - RAG研究链路说明
 - [BGE-M3 配置](config/embeddings/bge-m3/README.md) - 模型下载和CUDA配置
-- [词法配置](config/retrieval/lexical-v1.yaml) - jieba分词器配置
+- 词法配置 `config/retrieval/lexical-v1.yaml` - jieba分词器配置（已于 2026-10-07 删除）
 - Memory: `rag-eval-language-asymmetry.md` - BM25失效根因分析

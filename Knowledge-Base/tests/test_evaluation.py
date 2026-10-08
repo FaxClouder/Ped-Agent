@@ -9,6 +9,7 @@ from ped_knowledge.evaluation import (
     EvaluationReport,
     GoldQuestion,
     audit_evaluation,
+    evaluate_rankings,
     load_gold,
     validate_gold_resources,
 )
@@ -83,3 +84,36 @@ def test_repository_pilot_gold_matches_the_runtime_contract() -> None:
         "p.6",
         "p.7",
     ]
+
+
+def test_ndcg_stays_bounded_when_one_resource_fills_the_ranking() -> None:
+    """Several chunks of the same expected resource must not push nDCG above 1.0."""
+    questions = [
+        GoldQuestion(
+            question_id="q1",
+            query="q",
+            expected_resource_ids=["A"],
+            expected_locators=[],
+        )
+    ]
+    rankings = {"q1": [("A", f"p.{index}") for index in range(1, 6)]}
+
+    report = evaluate_rankings(questions, rankings, k=5)
+
+    assert report.ndcg_at_k == pytest.approx(1.0)
+
+
+def test_ndcg_credits_an_expected_resource_at_its_highest_rank() -> None:
+    questions = [
+        GoldQuestion(
+            question_id="q1",
+            query="q",
+            expected_resource_ids=["A"],
+            expected_locators=[],
+        )
+    ]
+    rankings = {"q1": [("B", "p.1"), ("C", "p.1"), ("A", "p.1")]}
+
+    report = evaluate_rankings(questions, rankings, k=5)
+
+    assert report.ndcg_at_k == pytest.approx(0.5)

@@ -59,6 +59,29 @@ class JournalQuartile(StrEnum):
     Q4 = "Q4"
 
 
+def _quartile_rank(quartile: JournalQuartile | None) -> int | None:
+    if quartile is None:
+        return None
+    return int(quartile.value[1])
+
+
+def best_journal_rank(
+    cas_zone: int | None,
+    jci_quartile: JournalQuartile | None,
+    jif_quartile: JournalQuartile | None,
+) -> int | None:
+    ranks = [
+        rank
+        for rank in (
+            cas_zone,
+            _quartile_rank(jci_quartile),
+            _quartile_rank(jif_quartile),
+        )
+        if rank is not None
+    ]
+    return min(ranks) if ranks else None
+
+
 class QualityTier(StrEnum):
     A = "A"
     B = "B"
@@ -135,6 +158,9 @@ class ResourceManifest(BaseModel):
     jci_quartile: JournalQuartile | None = None
     jci_year: int | None = Field(default=None, ge=2000)
     jci_source: str | None = None
+    jif_quartile: JournalQuartile | None = None
+    jif_year: int | None = Field(default=None, ge=2000)
+    jif_source: str | None = None
     cas_zone: int | None = Field(default=None, ge=1, le=4)
     cas_category: str | None = None
     cas_year: int | None = Field(default=None, ge=2000)
@@ -219,14 +245,6 @@ class ResourceManifest(BaseModel):
             self.citation_count is not None,
             self.citation_source,
             self.citation_checked_at,
-            self.jci_value is not None,
-            self.jci_quartile,
-            self.jci_year,
-            self.jci_source,
-            self.cas_zone,
-            self.cas_category,
-            self.cas_year,
-            self.cas_source,
             self.metrics_checked_at,
             self.quality_tier,
             self.content_quality_score is not None,
@@ -239,26 +257,67 @@ class ResourceManifest(BaseModel):
             raise ValueError("approved literature requires a formal publication_status")
         if self.integrity_status is not IntegrityStatus.CLEAR:
             raise ValueError("approved literature requires clear integrity_status")
-        if self.content_quality_score is None or self.content_quality_score < 80:
-            raise ValueError("approved literature requires content_quality_score >= 80")
+        if self.content_quality_score is None or self.content_quality_score <= 65:
+            raise ValueError("approved literature requires content_quality_score > 65")
         if not set(self.topics).issubset(LITERATURE_TOPICS):
             raise ValueError("approved literature requires controlled pedestrian-flow topics")
         if self.primary_topic not in self.topics:
             raise ValueError("approved literature primary_topic must be included in topics")
-        if self.jci_source != "clarivate_jcr" or self.cas_source != "cas_journal_partition":
-            raise ValueError("approved literature requires official JCI and CAS metric sources")
+        self._validate_journal_metric_provenance()
         self._validate_quality_tier()
 
+    def _validate_journal_metric_provenance(self) -> None:
+        cas_fields = (self.cas_zone, self.cas_category, self.cas_year, self.cas_source)
+        if any(value is not None for value in cas_fields):
+            if not all(cas_fields) or self.cas_source != "cas_journal_partition":
+                raise ValueError(
+                    "approved literature requires official CAS metric provenance"
+                )
+
+        jci_fields = (
+            self.jci_value,
+            self.jci_quartile,
+            self.jci_year,
+            self.jci_source,
+        )
+        if any(value is not None for value in jci_fields):
+            if self.jci_year is None or self.jci_source != "clarivate_jcr":
+                raise ValueError(
+                    "approved literature requires official JCI metric provenance"
+                )
+
+        jif_fields = (self.jif_quartile, self.jif_year, self.jif_source)
+        if any(value is not None for value in jif_fields):
+            if (
+                self.jif_quartile is None
+                or self.jif_year is None
+                or self.jif_source != "clarivate_jcr"
+            ):
+                raise ValueError(
+                    "approved literature requires official JIF metric provenance"
+                )
+
     def _validate_quality_tier(self) -> None:
+        rank = best_journal_rank(
+            self.cas_zone,
+            self.jci_quartile,
+            self.jif_quartile,
+        )
         if self.quality_tier is QualityTier.A:
-            if self.cas_zone != 1 or self.jci_value is None or self.jci_value < 1.5:
-                raise ValueError("A-tier literature requires CAS zone 1 and JCI >= 1.5")
+            if rank is None:
+                raise ValueError(
+                    "approved A/B literature requires an official journal ranking"
+                )
+            if rank != 1:
+                raise ValueError("A-tier literature requires journal rank 1")
             return
         if self.quality_tier is QualityTier.B:
-            if self.cas_zone is None or self.cas_zone > 2:
-                raise ValueError("B-tier literature requires CAS zone 1 or 2")
-            if self.jci_value is None or self.jci_value < 1.0:
-                raise ValueError("B-tier literature requires JCI >= 1.0")
+            if rank is None:
+                raise ValueError(
+                    "approved A/B literature requires an official journal ranking"
+                )
+            if rank > 2:
+                raise ValueError("B-tier literature requires journal rank 1 or 2")
             return
         if self.quality_tier is QualityTier.EXCEPTION:
             if not self.exception_reason or not self.approved_by:
