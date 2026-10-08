@@ -1,0 +1,543 @@
+<title>PedRAGent 研究控制台</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: three-column app frame after DeepSeek Harness (workspaces sidebar | conversation | docked right panel with tabs); settings, knowledge base and evaluation open in the center column. */
+:root {
+  --bg: #ffffff;
+  --side: #f5f7f9;
+  --sunken: #eef1f4;
+  --line: #dde3e9;
+  --fg: #17212b;
+  --muted: #5d6a77;
+  --accent: #1f5f8b;
+  --accent-soft: #e1edf6;
+  --good: #2c7a4b; --good-soft: #e0f1e6;
+  --warn: #9a6200; --warn-soft: #f8ecd4;
+  --bad: #b23a32;  --bad-soft: #f8e0dd;
+  --mark: #fff1b8;
+  --f-display: "IBM Plex Sans Condensed", "Noto Sans SC", "Arial Narrow", sans-serif;
+  --f-body: "IBM Plex Sans", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #151b21; --side: #10151a; --sunken: #1d252e; --line: #2a3542; --fg: #e3e9ef; --muted: #93a1af;
+  --accent: #6db3e3; --accent-soft: #1b3346; --good: #6cc790; --good-soft: #17301f; --warn: #e2b357; --warn-soft: #33280f;
+  --bad: #ec8a80; --bad-soft: #3a1c1a; --mark: #4a3f12; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #151b21; --side: #10151a; --sunken: #1d252e; --line: #2a3542; --fg: #e3e9ef; --muted: #93a1af;
+  --accent: #6db3e3; --accent-soft: #1b3346; --good: #6cc790; --good-soft: #17301f; --warn: #e2b357; --warn-soft: #33280f;
+  --bad: #ec8a80; --bad-soft: #3a1c1a; --mark: #4a3f12; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.55 var(--f-body); }
+button { font: inherit; color: inherit; }
+code { font: 12px var(--f-mono); background: var(--sunken); padding: 0 4px; border-radius: 3px; overflow-wrap: anywhere; }
+.mono { font-family: var(--f-mono); font-size: 12.5px; }
+.muted { color: var(--muted); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.frame { display: grid; grid-template-columns: 272px minmax(0, 1fr) auto; height: 100%; }
+
+/* left sidebar */
+.side { background: var(--side); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+.side-top { padding: 16px 12px 8px; display: flex; flex-direction: column; gap: 6px; }
+.brand { display: flex; align-items: baseline; gap: 8px; padding: 0 6px 8px; }
+.brand b { font: 600 19px/1 var(--f-display); letter-spacing: .01em; }
+.brand span { font: 500 10px var(--f-mono); letter-spacing: .08em; padding: 2px 5px; border-radius: 3px; background: var(--fg); color: var(--bg); }
+.newbtn { display: flex; justify-content: center; gap: 6px; padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); cursor: pointer; font-weight: 500; }
+.navrow { all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 6px; color: var(--fg); }
+.navrow:hover, .ses:hover { background: var(--sunken); }
+.navrow.on, .ses.on { background: var(--accent-soft); color: var(--accent); }
+.navrow svg { width: 16px; height: 16px; flex-shrink: 0; }
+.ws-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 4px; font-size: 12.5px; color: var(--muted); }
+.ws-scroll { overflow-y: auto; padding: 0 12px 12px; flex: 1; min-height: 0; }
+.ws { display: flex; align-items: center; gap: 8px; padding: 8px 8px 4px; font-size: 13px; font-weight: 500; }
+.ws svg { width: 15px; height: 15px; color: var(--muted); }
+.ws .tag { margin-left: auto; white-space: nowrap; font: 11px var(--f-mono); color: var(--muted); }
+.ses { all: unset; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 31px; border-radius: 6px; font-size: 13px; }
+.ses .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ses .age { font: 11px var(--f-mono); color: var(--muted); }
+.ses .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.side-foot { border-top: 1px solid var(--line); padding: 8px 12px 12px; }
+
+/* center */
+.center { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-bottom: 1px solid var(--line); min-height: 50px; flex-wrap: wrap; }
+.topbar h1 { font: 600 15px/1.3 var(--f-display); margin: 0; letter-spacing: .01em; }
+.topbar .sp { flex: 1; }
+.iconbtn { all: unset; cursor: pointer; display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 6px; color: var(--muted); }
+.iconbtn:hover { background: var(--sunken); color: var(--fg); }
+.iconbtn.on { color: var(--accent); background: var(--accent-soft); }
+.iconbtn svg { width: 17px; height: 17px; }
+.menu-btn { display: none; }
+.scrollarea { flex: 1; overflow-y: auto; min-height: 0; }
+.view[hidden] { display: none !important; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; padding: 4px 9px; border-radius: 6px; color: var(--muted); border: 1px solid transparent; white-space: nowrap; }
+.chip:hover { background: var(--sunken); }
+.chip.bordered { border-color: var(--line); }
+.chip b { color: var(--fg); font-weight: 500; }
+.pill { display: inline-block; font: 500 11.5px/1 var(--f-body); padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.neutral { background: var(--sunken); color: var(--muted); }
+
+/* empty new-session state */
+.hero { min-height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 18px; padding-block: 40px; padding-inline: 20px; }
+.hero h2 { font: 600 26px/1.2 var(--f-display); margin: 0; display: flex; align-items: center; gap: 10px; text-wrap: balance; text-align: center; }
+.hero h2 .pill { font-size: 11px; }
+.hero .ctx { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; width: min(720px, 100%); }
+.hero .composer { width: min(720px, 100%); }
+.suggest { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: min(720px, 100%); }
+.suggest button { all: unset; cursor: pointer; font-size: 12.5px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); max-width: 100%; }
+.suggest button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* composer */
+.composer { border: 1px solid var(--line); border-radius: 14px; background: var(--bg); box-shadow: 0 2px 10px rgb(20 40 60 / .06); display: flex; flex-direction: column; }
+.composer textarea { all: unset; padding: 14px 16px 6px; min-height: 44px; font-size: 14px; color: var(--fg); white-space: pre-wrap; }
+.composer textarea::placeholder { color: var(--muted); }
+.cbar { display: flex; align-items: center; gap: 4px; padding: 6px 8px 8px; flex-wrap: wrap; }
+.cbar .sp { flex: 1; }
+.send { all: unset; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--bg); display: grid; place-items: center; }
+.send svg { width: 16px; height: 16px; }
+.dock { padding: 10px 18px 16px; }
+.dock .composer { max-width: 820px; margin: 0 auto; }
+
+/* conversation */
+.msgs { max-width: 820px; margin: 0 auto; padding: 22px 18px 8px; display: flex; flex-direction: column; gap: 20px; }
+.msg { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.msg.user { align-items: flex-end; }
+.msg.user .bubble { background: var(--sunken); border-radius: 14px 14px 3px 14px; padding: 10px 14px; max-width: min(85%, 60ch); }
+.answer { font-size: 15px; line-height: 1.72; max-width: 72ch; }
+.cite { all: unset; cursor: pointer; display: inline-block; font: 600 10.5px/16px var(--f-mono); min-width: 16px; text-align: center; border-radius: 4px; background: var(--accent-soft); color: var(--accent); margin-left: 2px; vertical-align: 2px; }
+.sources { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 12px; align-items: center; }
+.src { all: unset; cursor: pointer; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; }
+.src b { font-family: var(--f-mono); color: var(--accent); margin-right: 4px; }
+details.work { border-left: 2px solid var(--line); padding-left: 12px; }
+details.work > summary { cursor: pointer; list-style: none; font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+details.work > summary::-webkit-details-marker { display: none; }
+details.work > summary::before { content: "▸"; font-size: 11px; }
+details.work[open] > summary::before { content: "▾"; }
+.steps { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.step { font-size: 13px; min-width: 0; }
+.sh { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.sh .k { font: 600 11.5px var(--f-body); letter-spacing: .03em; min-width: 52px; }
+.k.tool { color: var(--accent); } .k.judge { color: var(--good); } .k.plan { color: var(--warn); }
+.sh .ms { font: 11.5px var(--f-mono); color: var(--muted); margin-left: auto; }
+.step p { margin: 3px 0 0 60px; color: var(--muted); max-width: 66ch; }
+.step pre { margin: 5px 0 0 60px; font: 12px/1.5 var(--f-mono); background: var(--sunken); border-radius: 6px; padding: 6px 9px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.step .obs { margin: 4px 0 0 60px; font-size: 12.5px; }
+.obs mark, .q mark { background: var(--mark); color: inherit; padding: 0 1px; }
+.round { font: 600 11px var(--f-body); letter-spacing: .08em; color: var(--muted); padding-top: 4px; }
+.stopline { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12.5px; padding: 7px 10px; border-radius: 6px; background: var(--good-soft); }
+.live { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+
+/* right panel */
+.right { width: 400px; border-left: 1px solid var(--line); background: var(--bg); display: flex; flex-direction: column; min-height: 0; }
+.right[hidden] { display: none; }
+.rtabs { display: flex; gap: 2px; padding: 8px 10px 0; border-bottom: 1px solid var(--line); align-items: flex-end; }
+.rtabs button { all: unset; cursor: pointer; font-size: 13px; padding: 7px 10px; border-bottom: 2px solid transparent; color: var(--muted); margin-bottom: -1px; }
+.rtabs button.on { color: var(--fg); border-bottom-color: var(--accent); font-weight: 500; }
+.rtabs .sp { flex: 1; }
+.rbody { flex: 1; overflow-y: auto; padding: 14px 16px 20px; min-height: 0; display: flex; flex-direction: column; gap: 14px; }
+.rbody[hidden] { display: none; }
+.rbody h3 { font: 600 13px var(--f-display); margin: 0; letter-spacing: .02em; }
+.loc { font-size: 12px; color: var(--muted); }
+.q { font-size: 13.5px; line-height: 1.65; padding: 10px 12px; background: var(--sunken); border-radius: 6px; }
+.q .dim { color: var(--muted); }
+.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 12px; font-size: 12.5px; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.req { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+.req .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.req .top b { font: 600 12px var(--f-mono); }
+.req .e { font: 11.5px var(--f-mono); color: var(--muted); }
+.bar { display: grid; grid-template-columns: 82px minmax(0, 1fr) 76px; gap: 10px; align-items: center; font-size: 12.5px; }
+.track { height: 7px; background: var(--sunken); border-radius: 4px; overflow: hidden; }
+.fill { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+.bar .v { font: 12px var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.ledger { display: flex; flex-direction: column; }
+.lrow { display: grid; grid-template-columns: 30px 98px minmax(0, 1fr) 54px; gap: 8px; padding: 6px 2px; border-bottom: 1px solid var(--line); font-size: 12.5px; align-items: baseline; }
+.lrow .s { font: 11.5px var(--f-mono); color: var(--muted); text-align: right; }
+.lrow .ty { font: 500 11.5px var(--f-mono); }
+.lrow .ty.tool { color: var(--accent); } .lrow .ty.plan { color: var(--warn); } .lrow .ty.judge { color: var(--good); }
+.lrow .ms { font: 11.5px var(--f-mono); color: var(--muted); text-align: right; }
+.lrow.turn { grid-template-columns: 1fr; font: 600 11px var(--f-body); letter-spacing: .08em; color: var(--muted); border-bottom: 0; padding-top: 10px; }
+.gantt { display: flex; flex-direction: column; gap: 3px; }
+.gantt div { height: 8px; border-radius: 2px; background: var(--accent); opacity: .85; }
+.gantt div.p { background: var(--warn); } .gantt div.j { background: var(--good); }
+
+/* settings, knowledge base, evaluation */
+.page { max-width: 1040px; margin: 0 auto; padding: 22px 22px 40px; display: flex; flex-direction: column; gap: 16px; }
+.page > p.lead { margin: 0; color: var(--muted); max-width: 72ch; }
+.set-grid { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 22px; align-items: start; }
+.set-nav { display: flex; flex-direction: column; gap: 2px; position: sticky; top: 0; }
+.set-nav a { padding: 7px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13px; }
+.set-nav a.on { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.set-nav .lbl { font: 600 11px var(--f-body); letter-spacing: .08em; color: var(--muted); padding: 10px 10px 4px; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.card h2 { font: 600 15px var(--f-display); margin: 0 0 4px; letter-spacing: .01em; }
+.card .sub { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: 12px; color: var(--muted); }
+.field input, .field select { font: 13px var(--f-body); padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); width: 100%; min-width: 0; }
+.field .hint { font-size: 11.5px; color: var(--muted); }
+.field.wide { grid-column: 1 / -1; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; width: fit-content; max-width: 100%; }
+.seg span { padding: 6px 11px; font-size: 12.5px; border-right: 1px solid var(--line); color: var(--muted); }
+.seg span:last-child { border-right: 0; }
+.seg span.on { background: var(--accent); color: var(--bg); }
+.checks { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; }
+.checks .ok::before { content: "✓ "; color: var(--good); font-weight: 700; }
+.checks .no::before { content: "! "; color: var(--warn); font-weight: 700; }
+.tool-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tool { border: 1px solid var(--line); border-radius: 8px; padding: 11px 13px; display: flex; flex-direction: column; gap: 6px; }
+.tool.off { background: var(--sunken); }
+.tool .name { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.tool .name code { background: none; padding: 0; font-size: 13px; font-weight: 500; }
+.tool p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.attrs { display: flex; flex-wrap: wrap; gap: 4px; }
+.attrs span { font: 11px var(--f-mono); padding: 2px 6px; border-radius: 3px; background: var(--sunken); color: var(--muted); }
+.tool.off .attrs span { background: var(--bg); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 12px; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.n, th.n { text-align: right; font: 12.5px var(--f-mono); font-variant-numeric: tabular-nums; }
+tr.hl td { background: var(--accent-soft); }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 11px 13px; }
+.stat .v { font: 600 22px/1.1 var(--f-display); font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.stack { display: flex; height: 12px; border-radius: 3px; overflow: hidden; background: var(--sunken); min-width: 110px; }
+.stack i { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.alert { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; background: var(--warn-soft); font-size: 13px; }
+.tree { font: 12.5px/1.7 var(--f-mono); }
+.tree .p { padding: 3px 8px; border-radius: 4px; }
+.tree .p.sel { background: var(--accent-soft); }
+.tree .c { padding: 1px 8px 1px 26px; color: var(--muted); }
+.tree .c.sel { color: var(--accent); font-weight: 500; }
+.note { font-size: 12px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; }
+
+@media (max-width: 1180px) { .right { width: 340px; } }
+@media (max-width: 980px) {
+  .frame { grid-template-columns: minmax(0, 1fr); }
+  .side { position: fixed; inset: 0 auto 0 0; width: min(300px, 86vw); z-index: 20; transform: translateX(-100%); transition: transform .2s; padding-top: env(safe-area-inset-top, 0px); }
+  .frame.side-open .side { transform: none; box-shadow: 0 0 0 100vmax rgb(0 0 0 / .25); }
+  .menu-btn { display: inline-grid; }
+  .right { position: fixed; inset: 0 0 0 auto; width: min(420px, 100vw); z-index: 15; box-shadow: -8px 0 24px rgb(0 0 0 / .12); padding-top: env(safe-area-inset-top, 0px); }
+  .set-grid { grid-template-columns: minmax(0, 1fr); }
+  .set-nav { position: static; flex-direction: row; flex-wrap: wrap; }
+  .set-nav .lbl { display: none; }
+}
+@media (max-width: 640px) {
+  .form, .tool-grid { grid-template-columns: minmax(0, 1fr); }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .step p, .step pre, .step .obs { margin-left: 0; }
+  .page { padding-inline: 16px; }
+  .msgs { padding-inline: 16px; }
+  .dock { padding-inline: 16px; }
+  .topbar { padding-inline: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .live { animation: none; } .side { transition: none; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</svg>
+
+<div class="frame" id="frame">
+  <!-- left: workspaces and sessions -->
+  <aside class="side" aria-label="工作区与会话">
+    <div class="side-top">
+      <div class="brand"><b>PedRAGent</b><span>AGENT</span></div>
+      <button class="newbtn" data-go="new"><svg width="15" height="15"><use href="#i-plus"/></svg>新会话</button>
+      <button class="navrow" data-go="kb"><svg><use href="#i-book"/></svg>知识库</button>
+      <button class="navrow" data-go="eval"><svg><use href="#i-chart"/></svg>评测</button>
+    </div>
+    <div class="ws-head"><span>工作区</span><span class="mono">profile</span></div>
+    <div class="ws-scroll">
+      <div class="ws"><svg><use href="#i-folder"/></svg>Agentic 取证开发<span class="tag">iterative-dev-v1</span></div>
+      <button class="ses on" data-go="chat"><span class="t">Paetzke 单列实验中的年龄因素</span><span class="age">刚刚</span></button>
+      <button class="ses" data-go="chat"><span class="dot" style="background:var(--warn)"></span><span class="t">双向流实验的车道形成条件</span><span class="age">2h</span></button>
+      <button class="ses" data-go="chat"><span class="dot" style="background:var(--bad)"></span><span class="t">疏散出口宽度与流量关系</span><span class="age">1d</span></button>
+      <div class="ws"><svg><use href="#i-folder"/></svg>固定流程基线<span class="tag">G-existing</span></div>
+      <button class="ses" data-go="chat"><span class="t">Paetzke 单列实验中的年龄因素</span><span class="age">1d</span></button>
+      <div class="ws"><svg><use href="#i-folder"/></svg>dev80 批量运行<span class="tag">iterative-dev-v1</span></div>
+      <button class="ses" data-go="chat"><span class="t">pearl-dev-001 … 080</span><span class="age">3d</span></button>
+    </div>
+    <div class="side-foot"><button class="navrow" data-go="settings" style="width:100%;box-sizing:border-box"><svg><use href="#i-gear"/></svg>Agent 设置</button><div class="loc" style="padding:6px 8px 0">静态原型 · 除 PEARL 已发布数字外均为示例数据</div></div>
+  </aside>
+
+  <!-- center -->
+  <section class="center">
+    <!-- new session -->
+    <div class="view" id="v-new" hidden>
+      <div class="topbar"><button class="iconbtn menu-btn" data-menu aria-label="打开侧栏"><svg><use href="#i-menu"/></svg></button><span class="sp"></span></div>
+      <div class="scrollarea"><div class="hero">
+        <h2>问一个行人交通研究问题 <span class="pill neutral">静态原型</span></h2>
+        <div class="ctx"><span class="chip bordered"><svg width="14" height="14"><use href="#i-folder"/></svg><b>Agentic 取证开发</b> ▾</span><span class="chip bordered">只用本地知识库 ▾</span></div>
+        <div class="composer">
+          <textarea id="new-input" rows="2" aria-label="提问" placeholder="描述你的研究问题，@ 引用文献或会话"></textarea>
+          <div class="cbar"><span class="chip">profile <b>iterative-dev-v1</b> ▾</span><span class="sp"></span><span class="chip">deepseek-reasoner <b>High</b> ▾</span><button class="send" aria-label="发送"><svg><use href="#i-up"/></svg></button></div>
+        </div>
+        <div class="suggest"><button>为什么 Paetzke 等人的研究可以忽略年龄？</button><button>双向行人流中车道形成需要什么条件？</button><button>出口宽度对疏散流率的影响有哪些实验证据？</button></div>
+      </div></div>
+    </div>
+
+    <!-- conversation -->
+    <div class="view" id="v-chat">
+      <div class="topbar">
+        <button class="iconbtn menu-btn" data-menu aria-label="打开侧栏"><svg><use href="#i-menu"/></svg></button>
+        <h1>Paetzke 单列实验中的年龄因素</h1>
+        <span class="pill good">verified</span>
+        <span class="sp"></span>
+        <span class="chip">Agentic 取证开发</span>
+        <button class="iconbtn on" id="panel-btn" aria-label="切换右侧面板"><svg><use href="#i-panel"/></svg></button>
+      </div>
+      <div class="scrollarea">
+        <div class="msgs">
+          <div class="msg user"><div class="bubble">Why could age be omitted when Paetzke et al. analysed individual fundamental diagrams for their school students?</div></div>
+          <div class="msg">
+            <details class="work" open>
+              <summary>工作过程 · 2 轮 · 4 次工具 · 7 次模型调用 · 14.2 s</summary>
+              <ol class="steps">
+                <li class="step"><div class="sh"><span class="k plan">规划</span><span>拆成 3 条需求</span><span class="ms">1.6 s</span></div><p>R1 年龄与身高的关系；R2 为何因此可省略年龄（依赖 R1）；R3 结论适用范围。</p></li>
+                <li class="round">第 1 轮</li>
+                <li class="step"><div class="sh"><span class="k tool">工具</span><code>knowledge.search</code><span class="pill good">10 条</span><span class="ms">1.1 s</span></div><pre>{"query": "Paetzke school students age height correlation", "limit": 10}</pre><div class="obs">新增证据 e-2290（p.4 §3 Results）、e-2288（p.1）</div></li>
+                <li class="step"><div class="sh"><span class="k tool">工具</span><code>knowledge.read_evidence</code><span class="pill good">parent</span><span class="ms">38 ms</span></div><div class="obs">"… height and age of the participants are <mark>strongly correlated</mark>, so that <mark>age can be omitted</mark> …"</div></li>
+                <li class="step"><div class="sh"><span class="k judge">判断</span><span class="pill good">R1 满足</span><span class="pill good">R2 满足</span><span class="pill warn">R3 部分</span><span class="ms">2.0 s</span></div><p>R3 缺少原文对研究对象的界定，换查询继续。</p></li>
+                <li class="round">第 2 轮</li>
+                <li class="step"><div class="sh"><span class="k tool">工具</span><code>knowledge.search</code><span class="pill good">10 条</span><span class="ms">0.9 s</span></div><pre>{"query": "Paetzke single-file experiment participants school students", "limit": 10}</pre></li>
+                <li class="step"><div class="sh"><span class="k judge">判断</span><span class="pill good">R3 满足</span><span class="ms">1.4 s</span></div></li>
+                <li class="step"><div class="stopline"><span class="pill good">quality_stop</span>需求全部满足，生成答案 › 规则校验通过 › 语义校验通过 › 修订 0 次</div></li>
+              </ol>
+            </details>
+            <div class="answer">In the school single-file experiment, participants&#39; age and height were strongly correlated<button class="cite" data-ev="1">1</button>, so including age would have added redundant information; age could therefore be omitted from the individual fundamental-diagram analysis<button class="cite" data-ev="1">1</button>. This applies to the studied students and does not show that age never matters for pedestrians<button class="cite" data-ev="2">2</button>.</div>
+            <div class="sources"><button class="src" data-ev="1"><b>1</b>Paetzke et al. · p.4 · §3 Results</button><button class="src" data-ev="2"><b>2</b>Paetzke et al. · p.2 · §2 Experiment</button></div>
+          </div>
+          <div class="msg user"><div class="bubble">那其他研究里年龄对步行速度有影响吗？</div></div>
+          <div class="msg">
+            <details class="work" open>
+              <summary><span class="live"></span>正在取证 · 第 1 轮</summary>
+              <ol class="steps">
+                <li class="step"><div class="sh"><span class="k plan">规划</span><span>拆成 2 条需求</span><span class="ms">1.3 s</span></div><p>R1 年龄与自由步行速度的实验结果，至少两篇来源；R2 各研究的年龄分组与场景差异。</p></li>
+                <li class="step"><div class="sh"><span class="k tool">工具</span><code>knowledge.search</code><span class="pill neutral">执行中</span></div><pre>{"query": "effect of age on pedestrian free walking speed experiment", "limit": 10}</pre></li>
+              </ol>
+            </details>
+          </div>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="composer">
+          <textarea id="chat-input" rows="1" aria-label="继续追问" placeholder="继续追问，@ 引用文献或会话"></textarea>
+          <div class="cbar"><span class="chip">profile <b>iterative-dev-v1</b> ▾</span><span class="chip">工作过程 <b>展开</b> ▾</span><span class="sp"></span><span class="chip">deepseek-reasoner <b>High</b> ▾</span><button class="send" aria-label="发送"><svg><use href="#i-up"/></svg></button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- settings -->
+    <div class="view" id="v-settings" hidden>
+      <div class="topbar"><button class="iconbtn menu-btn" data-menu aria-label="打开侧栏"><svg><use href="#i-menu"/></svg></button><h1>Agent 设置</h1><span class="chip bordered">profile <b>native-iterative-dev-v1</b> ▾</span><span class="sp"></span><span class="pill warn">已修改未保存</span></div>
+      <div class="scrollarea"><div class="page">
+        <div class="set-grid">
+          <nav class="set-nav" aria-label="设置分区">
+            <div class="lbl">Agent</div>
+            <a href="#s-strategy" class="on">研究策略</a><a href="#s-model">模型</a><a href="#s-stop">停止与重规划</a>
+            <div class="lbl">Harness</div>
+            <a href="#s-budget">预算与执行</a><a href="#s-tools">工具</a>
+            <div class="lbl">引用</div>
+            <a href="#s-modules">知识库快照</a>
+          </nav>
+          <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+            <div class="card"><div class="checks"><span class="ok">预算均为有限正值</span><span class="ok">allowlist 工具已注册</span><span class="ok">重试与工具能力一致</span><span class="no">知识库快照指纹与活动索引不一致</span><span class="ok">输出目录不存在</span></div></div>
+            <div class="card" id="s-strategy"><h2>研究策略</h2><p class="sub">决定 Agent 怎么取证，字段为 <code>agent.*</code>。</p>
+              <div class="form">
+                <div class="field wide"><label>模式</label><div class="seg"><span>G-existing 固定流程</span><span class="on">iterative_evidence</span><span>dsh 对照</span></div><span class="hint">G-existing 即现有 EvidenceGraph，作为基线保留不变。</span></div>
+                <div class="field"><label for="f1">规划器 planner</label><select id="f1"><option>requirements-v1</option></select></div>
+                <div class="field"><label for="f2">充分性 sufficiency_policy</label><select id="f2"><option>requirements-support-v1</option></select></div>
+                <div class="field"><label for="f3">查询策略 query_strategy</label><select id="f3"><option>missing-requirement-v1</option></select></div>
+                <div class="field"><label for="f4">证据选择 evidence_selection</label><select id="f4"><option>frozen-layer2-policy</option></select></div>
+                <div class="field"><label for="f5">修订上限 revision_limit</label><input id="f5" value="1"></div>
+                <div class="field"><label>外部检索 external_policy</label><div class="seg"><span class="on">disabled</span><span>allowed</span></div></div>
+              </div></div>
+            <div class="card" id="s-model"><h2>模型</h2><p class="sub">回答模型与校验模型。校验模型默认继承回答模型。</p>
+              <div class="form">
+                <div class="field"><label for="m1">协议</label><select id="m1"><option>openai_compatible</option><option>anthropic</option></select></div>
+                <div class="field"><label for="m2">回答模型</label><input id="m2" value="deepseek-reasoner"></div>
+                <div class="field"><label for="m3">temperature</label><input id="m3" value="0.1"></div>
+                <div class="field"><label for="m4">max_tokens</label><input id="m4" value="4096"></div>
+                <div class="field"><label for="m5">结构化输出</label><select id="m5"><option>json_schema</option><option>json_mode</option><option>function_calling</option></select></div>
+                <div class="field"><label>校验模型</label><div class="seg"><span class="on">inherit</span><span>单独指定</span></div></div>
+                <div class="field wide"><label for="m6">API key</label><input id="m6" value="secret_ref: env:DEEPSEEK_API_KEY" readonly><span class="hint">只存引用，配置与运行记录里都不保存密钥。</span></div>
+              </div></div>
+            <div class="card" id="s-stop"><h2>停止与重规划</h2><p class="sub">只有 quality_stop 能产出 verified 答案。</p>
+              <div class="form">
+                <div class="field"><label for="p1">max_replans</label><input id="p1" value="2"></div>
+                <div class="field"><label for="p2">每次重规划最多追加需求</label><input id="p2" value="3"></div>
+                <div class="field"><label for="p3">连续无增益轮数即停止</label><input id="p3" value="2"></div>
+                <div class="field"><label>非质量停止时</label><div class="seg"><span class="on">部分答案并标明缺口</span><span>拒答</span></div></div>
+              </div></div>
+            <div class="card" id="s-budget"><h2>预算与执行</h2><p class="sub">由 Harness 计量，模型无法覆盖这些上限。</p>
+              <div class="form">
+                <div class="field"><label for="b1">max_rounds</label><input id="b1" value="3"><span class="hint">只计取证轮</span></div>
+                <div class="field"><label for="b2">max_tool_calls</label><input id="b2" value="8"><span class="hint">并行子调用逐个计</span></div>
+                <div class="field"><label for="b3">max_model_calls</label><input id="b3" value="12"><span class="hint">含规划、判断、回答、校验与重试</span></div>
+                <div class="field"><label for="b4">deadline_seconds</label><input id="b4" value="300"></div>
+                <div class="field"><label for="b5">输入 / 输出 tokens 上限</label><input id="b5" value="60000 / 12000"></div>
+                <div class="field"><label for="b6">max_parallel · 只读重试</label><input id="b6" value="1 · 1"></div>
+              </div></div>
+            <div class="card" id="s-tools"><h2>工具</h2><p class="sub">勾选进入 allowlist 的工具。索引重建、语料变更、通用 shell 和任意写文件不开放。</p>
+              <div class="tool-grid">
+                <div class="tool"><div class="name"><code>knowledge.search</code><span class="pill good">已启用</span></div><p>冻结快照上的混合检索，返回证据身份、原文片段、位置和分数。</p><div class="attrs"><span>READONLY</span><span>parallel_safe</span><span>60s</span><span>retry 1</span></div></div>
+                <div class="tool"><div class="name"><code>knowledge.read_evidence</code><span class="pill good">已启用</span></div><p>按证据或切块读取原文，可展开 parent 上下文。</p><div class="attrs"><span>READONLY</span><span>parallel_safe</span><span>60s</span><span>retry 1</span></div></div>
+                <div class="tool off"><div class="name"><code>analysis.read_bundle</code><span class="pill neutral">计划中</span></div><p>读取已存的轨迹分析结果作为数值证据。</p><div class="attrs"><span>READONLY</span></div></div>
+                <div class="tool off"><div class="name"><code>video.analyze</code><span class="pill neutral">计划中</span></div><p>新的轨迹或视频分析，会产生新产物，不自动重试。</p><div class="attrs"><span>SIDE_EFFECT</span><span>独立进程</span></div></div>
+              </div></div>
+            <div class="card" id="s-modules"><h2>知识库快照</h2><p class="sub">只引用已冻结的模块配置，不在这里改检索算法。</p>
+              <dl class="kv"><dt>knowledge_snapshot_ref</dt><dd class="mono">frozen-retrieval-manifest · 106 篇 / 6,433 child</dd><dt>context_policy_ref</dt><dd class="mono">frozen-layer2-manifest · parent 8K</dd><dt>检索</dt><dd>BM25 + BGE-M3 → RRF → bge-reranker-v2-m3</dd></dl></div>
+            <p class="note">字段来自 Agent-Harness 的配置设计与控制器设计（target）。配置 loader 和控制器尚未实现，字段在实现时可能调整。</p>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- knowledge base -->
+    <div class="view" id="v-kb" hidden>
+      <div class="topbar"><button class="iconbtn menu-btn" data-menu aria-label="打开侧栏"><svg><use href="#i-menu"/></svg></button><h1>知识库</h1><span class="sp"></span></div>
+      <div class="scrollarea"><div class="page">
+        <p class="lead">Agent 引用的证据来自这里。会话里点引用会在右侧面板打开对应位置；这里用于整体浏览。</p>
+        <div class="stats"><div class="stat"><div class="v">106</div><div class="l">文献 · Adobe-only</div></div><div class="stat"><div class="v">6,433</div><div class="l">child 切块</div></div><div class="stat"><div class="v">v1</div><div class="l">parent-child 策略</div></div><div class="stat"><div class="v" style="color:var(--bad)">过期</div><div class="l">稀疏索引指纹</div></div></div>
+        <div class="alert"><span class="pill warn">注意</span><div>活动 <code>fts.sqlite3</code> 缺少 analyzer fingerprint，<code>knowledge.search</code> 会报错。需要先重建稀疏索引。</div></div>
+        <div class="card"><h2>文献</h2><p class="sub">点一篇查看切块树、解析来源和被哪些会话引用。</p>
+          <div class="scroll"><table><thead><tr><th>标题</th><th>作者</th><th class="n">parent / child</th><th>元数据</th><th class="n">被引用</th></tr></thead><tbody>
+            <tr class="hl"><td>Individual fundamental diagrams of school students</td><td>Paetzke et al.</td><td class="n">18 / 64</td><td><span class="pill warn">tier 缺失</span></td><td class="n">3</td></tr>
+            <tr><td>Experimental study of bidirectional pedestrian flow</td><td>—</td><td class="n">31 / 117</td><td><span class="pill warn">year 缺失</span></td><td class="n">1</td></tr>
+            <tr><td>Evacuation dynamics of mixed crowds</td><td>—</td><td class="n">22 / 80</td><td><span class="pill good">完整</span></td><td class="n">0</td></tr>
+          </tbody></table></div></div>
+      </div></div>
+    </div>
+
+    <!-- evaluation -->
+    <div class="view" id="v-eval" hidden>
+      <div class="topbar"><button class="iconbtn menu-btn" data-menu aria-label="打开侧栏"><svg><use href="#i-menu"/></svg></button><h1>评测</h1><span class="sp"></span><span class="pill warn">Layer 5–6 待设计，数值示意</span></div>
+      <div class="scrollarea"><div class="page">
+        <p class="lead">以 Agent 决策为主线比较不同 profile；RAG 四层结果作为参照。批量运行的单题会话可在左侧“dev80 批量运行”里打开。</p>
+        <div class="card"><h2>Profile 对比 · dev80</h2><p class="sub">成对比较同一批题。</p>
+          <div class="scroll"><table><thead><tr><th>profile</th><th class="n">平均轮次</th><th class="n">工具 / 题</th><th class="n">模型 / 题</th><th class="n">tokens / 题</th><th>停止原因</th></tr></thead><tbody>
+            <tr><td class="mono">G-existing</td><td class="n">—</td><td class="n">1.0</td><td class="n">3.0</td><td class="n">7.9k</td><td><div class="stack"><i style="width:100%;background:var(--muted)"></i></div></td></tr>
+            <tr class="hl"><td class="mono">iterative-dev-v1</td><td class="n">1.8</td><td class="n">3.6</td><td class="n">6.4</td><td class="n">12.3k</td><td><div class="stack"><i style="width:72%;background:var(--good)"></i><i style="width:18%;background:var(--warn)"></i><i style="width:10%;background:var(--bad)"></i></div></td></tr>
+            <tr><td class="mono">dsh-compare-v1</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="muted">未运行</td></tr>
+          </tbody></table></div>
+          <div class="legend"><span><i style="background:var(--good)"></i>quality_stop</span><span><i style="background:var(--warn)"></i>no_gain_stop</span><span><i style="background:var(--bad)"></i>budget_exhausted</span><span><i style="background:var(--muted)"></i>固定流程</span></div></div>
+        <div class="card"><h2>RAG 四层参照</h2><p class="sub">PEARL 已发布结果。</p>
+          <dl class="kv"><dt>1 检索</dt><dd>R4 · CEGR@10 · eval200：<b class="mono">139 / 200</b></dd><dt>2 证据充分性</dt><dd>parent 8K · dev80：<b class="mono">71 / 80</b></dd><dt>3 答案正确性</dt><dd>最佳臂 · Strict · dev80：<b class="mono">61 / 80</b></dd><dt>4 忠实与拒答</dt><dd>400 份回答 · r03，分项汇总</dd></dl></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- right docked panel -->
+  <aside class="right" id="right" aria-label="会话面板">
+    <div class="rtabs" role="tablist">
+      <button class="on" data-tab="ev">证据</button><button data-tab="req">需求</button><button data-tab="traj">轨迹</button><button data-tab="budget">预算</button>
+      <span class="sp"></span><button class="iconbtn" id="panel-close" aria-label="关闭面板" style="margin-bottom:4px"><svg><use href="#i-x"/></svg></button>
+    </div>
+    <div class="rbody" id="t-ev">
+      <div><h3 id="ev-title">[1] Paetzke et al. · p.4 · §3 Results</h3><div class="loc mono">pearl-src-031a… · c-2290 → parent p04 · Adobe PDF Extract</div></div>
+      <div class="loc">原文片段为示意，接入后显示 Catalog 中的真实文本</div><div class="q"><span class="dim">… the individual fundamental diagrams were determined for each participant. </span>Since height and age of the participants are <mark>strongly correlated</mark>, so that <mark>age can be omitted</mark> as an additional parameter when analysing the individual fundamental diagrams of the school students.<span class="dim"> The analysis therefore focuses on body height …</span></div>
+      <dl class="kv"><dt>检索</dt><dd>rerank 0.91 · RRF 0.0325 · BM25 #2 · 稠密 #1</dd><dt>支持需求</dt><dd>R1、R2</dd><dt>首次出现</dt><dd>第 1 轮 · call-01</dd><dt>内容哈希</dt><dd class="mono">aeb679a1…6264</dd></dl>
+      <div class="tree"><div class="p">p01 · §1 Introduction · p.1</div><div class="p">p02 · §2 Experiment · p.2</div><div class="c">c-2301 · 引用 [2]</div><div class="p sel">p04 · §3 Results · p.4</div><div class="c sel">c-2290 · 引用 [1]</div></div>
+    </div>
+    <div class="rbody" id="t-req" hidden>
+      <h3>本轮需求 · DecisionState</h3>
+      <div class="req"><div class="top"><b>R1</b><span class="pill good">satisfied</span></div>年龄与身高的关系<div class="e">e-2290 · 第 1 轮</div></div>
+      <div class="req"><div class="top"><b>R2</b><span class="pill good">satisfied</span><span class="muted mono">依赖 R1</span></div>为何因此可省略年龄<div class="e">e-2290 · 第 1 轮</div></div>
+      <div class="req"><div class="top"><b>R3</b><span class="pill good">satisfied</span></div>结论适用范围<div class="e">e-2301 · 第 2 轮，第 1 轮为 partial</div></div>
+      <dl class="kv"><dt>stop_reason</dt><dd><span class="pill good">quality_stop</span></dd><dt>重规划</dt><dd>0 / 2</dd><dt>无增益轮</dt><dd>0</dd></dl>
+    </div>
+    <div class="rbody" id="t-traj" hidden>
+      <h3>轨迹 · run-0012 · 23 个事件</h3>
+      <div class="gantt" aria-label="耗时概览"><div class="p" style="width:12%;margin-left:0"></div><div style="width:8%;margin-left:12%"></div><div style="width:2%;margin-left:20%"></div><div class="j" style="width:14%;margin-left:22%"></div><div style="width:7%;margin-left:36%"></div><div class="j" style="width:10%;margin-left:43%"></div><div class="p" style="width:47%;margin-left:53%"></div></div>
+      <div class="ledger">
+        <div class="lrow turn">第 1 轮</div>
+        <div class="lrow"><span class="s">1</span><span class="ty">run_start</span><span>config 7c1e…09ab</span><span class="ms">0</span></div>
+        <div class="lrow"><span class="s">2</span><span class="ty plan">plan</span><span>initial · 3 需求</span><span class="ms">1.6s</span></div>
+        <div class="lrow"><span class="s">3</span><span class="ty tool">tool_call</span><span>knowledge.search</span><span class="ms">—</span></div>
+        <div class="lrow"><span class="s">4</span><span class="ty tool">tool_outcome</span><span>ok · 10 items</span><span class="ms">1.1s</span></div>
+        <div class="lrow"><span class="s">7</span><span class="ty judge">support_judgment</span><span>R1, R2 → satisfied</span><span class="ms">2.0s</span></div>
+        <div class="lrow"><span class="s">9</span><span class="ty">round_end</span><span>+2 证据 · 剩余工具 6</span><span class="ms"></span></div>
+        <div class="lrow turn">第 2 轮</div>
+        <div class="lrow"><span class="s">10</span><span class="ty tool">tool_call</span><span>knowledge.search</span><span class="ms">0.9s</span></div>
+        <div class="lrow"><span class="s">14</span><span class="ty judge">support_judgment</span><span>R3 → satisfied</span><span class="ms">1.4s</span></div>
+        <div class="lrow turn">尾链</div>
+        <div class="lrow"><span class="s">18</span><span class="ty">answer</span><span>verification=passed</span><span class="ms">6.8s</span></div>
+        <div class="lrow"><span class="s">23</span><span class="ty">run_end</span><span>quality_stop</span><span class="ms">14.2s</span></div>
+      </div>
+      <p class="note">点一行查看完整的输入输出、usage 与 canonical 值。数据来自 <code>events.jsonl</code>。</p>
+    </div>
+    <div class="rbody" id="t-budget" hidden>
+      <h3>预算 · native-iterative-dev-v1</h3>
+      <div class="bar"><span>轮次</span><span class="track"><span class="fill" style="width:67%"></span></span><span class="v">2 / 3</span></div>
+      <div class="bar"><span>工具调用</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="v">4 / 8</span></div>
+      <div class="bar"><span>模型调用</span><span class="track"><span class="fill" style="width:58%"></span></span><span class="v">7 / 12</span></div>
+      <div class="bar"><span>输入 tokens</span><span class="track"><span class="fill" style="width:16%"></span></span><span class="v">9.8k / 60k</span></div>
+      <div class="bar"><span>输出 tokens</span><span class="track"><span class="fill" style="width:12%"></span></span><span class="v">1.4k / 12k</span></div>
+      <div class="bar"><span>时限</span><span class="track"><span class="fill" style="width:5%"></span></span><span class="v">14 / 300 s</span></div>
+      <p class="note">每次尝试（含重试）都计入。token 取模型返回的 usage，拿不到时标为 unknown，不按 0 计。</p>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function () {
+  var frame = document.getElementById("frame");
+  var right = document.getElementById("right");
+  var panelBtn = document.getElementById("panel-btn");
+  var views = ["new", "chat", "settings", "kb", "eval"];
+  function go(v) {
+    views.forEach(function (x) { document.getElementById("v-" + x).hidden = x !== v; });
+    right.hidden = v !== "chat" || right.dataset.closed === "1";
+    document.querySelectorAll("[data-go]").forEach(function (b) { b.classList.toggle("on", b.dataset.go === v && (v !== "chat" || b.classList.contains("on"))); });
+    frame.classList.remove("side-open");
+    try { localStorage.setItem("pedragent-view", v); } catch (e) {}
+  }
+  document.querySelectorAll("[data-go]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (b.classList.contains("ses")) { document.querySelectorAll(".ses").forEach(function (s) { s.classList.remove("on"); }); b.classList.add("on"); }
+      go(b.dataset.go);
+    });
+  });
+  document.querySelectorAll("[data-menu]").forEach(function (b) { b.addEventListener("click", function () { frame.classList.toggle("side-open"); }); });
+  function setPanel(open) { right.dataset.closed = open ? "0" : "1"; right.hidden = !open; panelBtn.classList.toggle("on", open); }
+  panelBtn.addEventListener("click", function () { setPanel(right.hidden); });
+  document.getElementById("panel-close").addEventListener("click", function () { setPanel(false); });
+  function tab(t) {
+    document.querySelectorAll(".rtabs [data-tab]").forEach(function (b) { b.classList.toggle("on", b.dataset.tab === t); });
+    ["ev", "req", "traj", "budget"].forEach(function (x) { document.getElementById("t-" + x).hidden = x !== t; });
+  }
+  document.querySelectorAll(".rtabs [data-tab]").forEach(function (b) { b.addEventListener("click", function () { tab(b.dataset.tab); }); });
+  document.querySelectorAll("[data-ev]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.getElementById("ev-title").textContent = b.dataset.ev === "2" ? "[2] Paetzke et al. · p.2 · §2 Experiment" : "[1] Paetzke et al. · p.4 · §3 Results";
+      setPanel(true); tab("ev");
+    });
+  });
+  if (window.matchMedia("(max-width: 980px)").matches) setPanel(false);
+  var start = (location.hash || "").slice(1);
+  if (views.indexOf(start) < 0) { try { start = localStorage.getItem("pedragent-view") || "chat"; } catch (e) { start = "chat"; } }
+  go(views.indexOf(start) < 0 ? "chat" : start);
+})();
+</script>
