@@ -19,6 +19,7 @@ skills-lock.json
 
 # Local outputs and memPed runtime assets
 outputs/
+.codex-tmp/
 tmp/
 Video-Analysis/runtime/
 Video-Analysis/models/**/weights/*
@@ -42,7 +43,44 @@ paper/build/
 paper/latex/**/*.bbl
 paper/latex/**/*.spl
 
+# Failed / deprecated assets (decision record in Git, large artifacts ignored)
+failed/**/results/
+failed/**/*.sqlite3*
+failed/outputs-void-scores/
+
 # Local configuration and secrets
 .env
 .env.*
 !.env.example
+
+# Local worktrees, audit scratch files and generated dependency trees
+/.orca/worktree/
+/.learnings/
+/.tmp-organize/
+/.pearl_audit*_tmp.py
+**/node_modules/
+/paper/Stage-Report/.codex-build/
+/paper/Stage-Report/*.pptx
+
+# Incoming licensed source documents; retain inventory CSVs and manifests
+/memPed/knowledge/batch-*-incoming/*.pdf
+/memPed/knowledge/batch-1-held/*.pdf
+/memPed/knowledge/sources.sqlite*
+
+# Frozen real Gold stays local under the evaluation standard; synthetic tests remain tracked
+/memPed/knowledge/gold/
+/paper/pearl-framework/datasets/retrieval-pilot/*.json
+
+# Local pilot index and scoring payloads; retain run-manifest.json
+/memPed/knowledge/pearl-retrieval-pilot-r1-2026-09-29-01/children.jsonl
+/memPed/knowledge/pearl-retrieval-pilot-r1-2026-09-29-01/rankings.jsonl
+/memPed/knowledge/pearl-retrieval-pilot-r1-2026-09-29-01/preliminary-scores.json
+/memPed/knowledge/pearl-retrieval-pilot-r1-2026-09-29-01/support-mapping-agent-reviewed.json
+/memPed/knowledge/pearl-retrieval-pilot-r1-2026-09-29-01/support-review-pool-top20.jsonl
+
+# Full research response packages; keep top-level manifests, plans and source scripts
+/paper/pearl-6b-judge-workpackage/research-primary-1/answerability/
+/paper/pearl-6b-judge-workpackage/research-primary-1/grounding/
+/paper/pearl-6b-judge-workpackage/research-primary-1/layer3/
+/paper/pearl-6b-judge-workpackage/research-primary-2/behavior/
+/paper/pearl-6b-judge-workpackage/research-primary-2/factuality/
