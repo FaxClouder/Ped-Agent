@@ -12,7 +12,11 @@
 | --- | --- | --- | --- |
 | [`context.py`](src/ped_research_agent/context.py) | `ResearchQuery`：问题、run_id、实验提供的历史 | 运行输入；需补冻结 profile 引用 | 经 `test_evidence_graph.py` |
 | [`ports.py`](src/ped_research_agent/ports.py) | `ModelGateway` / `LocalEvidenceRetriever` / `ExternalEvidenceSearcher` 协议 | 适配器接入点，保持不变 | 经 `test_evidence_graph.py` |
-| [`evidence_graph.py`](src/ped_research_agent/evidence_graph.py) | LangGraph 固定图、证据规范化与打包、prompt、结构化修复 | 基线 `G-existing`；验证尾链待复用 | [`test_evidence_graph.py`](tests/test_evidence_graph.py) |
+| [`evidence_graph.py`](src/ped_research_agent/evidence_graph.py) | LangGraph 固定图：节点连线、阶段事件、预检查询 | 基线 `G-existing`，行为由快照锁定 | [`test_evidence_graph.py`](tests/test_evidence_graph.py)、[`test_evidence_graph_baseline.py`](tests/test_evidence_graph_baseline.py) |
+| [`answer_chain.py`](src/ped_research_agent/answer_chain.py) | 草稿 → 规则 → 语义验证 → 有限修订 → `AnswerDocument` | 基线与迭代控制器共用的验证尾链 | 经基线快照 |
+| [`evidence_pack.py`](src/ped_research_agent/evidence_pack.py) | 按 ID 去重、按来源截断（默认 8/5/5）、打包与标签 | 稳定标签与丢弃记录待在此实现 | 经基线快照 |
+| [`prompts.py`](src/ped_research_agent/prompts.py) | 改写、草稿、验证、修订 prompt；`PROMPT_SET_VERSION` | 改动措辞须升版本 | 经基线快照 |
+| [`structured.py`](src/ped_research_agent/structured.py) | 原生结构化输出、文本回退与一次 JSON 修复 | planner / judge 复用 | 经 `test_evidence_graph.py` |
 | [`policy.py`](src/ped_research_agent/policy.py) | claim / citation / evidence 双向绑定与来源前缀规则 | 直接复用为答案规则检查 | [`test_policy.py`](tests/test_policy.py) |
 | [`model_gateway.py`](src/ped_research_agent/model_gateway.py) | OpenAI 兼容 / Anthropic 直连，原生结构化输出 | 答案与验证模型；无工具调用和 usage | [`test_model_gateway.py`](tests/test_model_gateway.py) |
 | [`config.py`](src/ped_research_agent/config.py) | `AgentSettings`：answer / verify 模型与继承 | 仅模型层配置；`.env` 只映射部分字段 | 无专门测试 |
