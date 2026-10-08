@@ -150,8 +150,9 @@ class ToolSpec[I: BaseModel, O: BaseModel](ABC):
     input_model: ClassVar[type[BaseModel]]
     output_model: ClassVar[type[BaseModel]]
     side_effect: ClassVar[SideEffect] = SideEffect.READONLY
-    timeout_seconds: ClassVar[float | None] = None
-    max_retries: ClassVar[int] = 0
+    # Execution policy can be resolved per run; schemas and tool identity remain class metadata.
+    timeout_seconds: float | None = None
+    max_retries: int = 0
 
     def parallel_safe(self, args: I) -> bool:
         return False

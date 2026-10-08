@@ -32,6 +32,10 @@
 
 测试：`tests/test_executor.py`、`tests/test_budget.py` 与原 `test_protocols.py`，共 29 个。旧 `protocols.py` 保留作兼容，已标记待移除，新代码不应引用。
 
-尚未实现：模型工具调用端口、配置 loader、检索工具适配器（放在 `experiments/agentic-baseline/`）、Agent 控制器。本模块没有运行真实模型、安装 DeepSeek SDK 或改变 RAG 基线。
+2026-10-08 已在 `Agent` 的可选生产集成包接入知识检索工具和固定图事件，
+并提供阶段性严格 profile loader；适配器不放实验目录，见 [Agent core 开发进度](../docs/agent-core-development.md)。
+尚未实现：模型工具调用端口与全运行预算、完整模型配置解析、动态 Agent 控制器。
+本模块没有运行真实模型、安装 DeepSeek SDK 或改变 RAG 基线。
 
-研究组合先进入 `experiments/`；接口通过固定案例和跨模块验证后再下沉。使用方式与旧示例之间有出入时，以本入口及 [接入评估](../Agent/docs/harness-integration-assessment.md) 的状态标注为准。
+实验运行入口和实验配置仍位于 `experiments/`，可复用生产适配器位于 `Agent/integrations`。
+使用方式与旧示例之间有出入时，以本入口及 [Agent core 开发进度](../docs/agent-core-development.md) 的当前状态为准。

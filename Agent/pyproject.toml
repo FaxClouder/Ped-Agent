@@ -16,8 +16,12 @@ dependencies = [
   "pydantic>=2.11,<3",
 ]
 
+[project.optional-dependencies]
+integration = ["ped-agent-harness"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/ped_research_agent"]
 
 [tool.uv.sources]
 ped-research-contracts = { workspace = true }
+ped-agent-harness = { workspace = true }

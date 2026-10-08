@@ -1885,8 +1885,14 @@ dependencies = [
     { name = "pydantic" },
 ]
 
+[package.optional-dependencies]
+integration = [
+    { name = "ped-agent-harness" },
+]
+
 [package.metadata]
 requires-dist = [
+    { name = "ped-agent-harness", marker = "extra == 'integration'", editable = "Agent-Harness" },
     { name = "httpx", specifier = ">=0.28,<1" },
     { name = "langchain-anthropic", specifier = ">=1.0,<2" },
     { name = "langchain-openai", specifier = ">=1.0,<2" },
@@ -1894,6 +1900,8 @@ requires-dist = [
     { name = "ped-research-contracts", editable = "Contracts" },
     { name = "pydantic", specifier = ">=2.11,<3" },
 ]
+
+provides-extras = ["integration"]
 
 [[package]]
 name = "ped-research-contracts"

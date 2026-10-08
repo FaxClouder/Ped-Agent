@@ -4,6 +4,8 @@
 
 ## 当前入口
 
+- [Agent core 开发进度与边界](agent-core-development.md)：阶段 1–2 实现、生产适配接口、离线验证和阶段 3–6 待办（current；2026-10-08）。
+
 - [Agent core 云端开发基线](agent-core-cloud-baseline-2026-10-08.md)：后端分支起点、Agent/Harness 接口、轻量环境、离线测试与后续待决规格（current；2026-10-08）。
 
 - **[评测问题集与实验规范](../experiments/EVALUATION-STANDARD.md)**、[登记表](../experiments/EVALUATION-REGISTRY.yaml)：问题集身份、规范存放位置（`memPed/knowledge/gold/pearl-adobe106/`）、封存评估集访问规则、实验设置规范与扩充计划；新建或使用问题集、启动评测实验前必读（current；扩充计划为 plan；2026-10-07）。

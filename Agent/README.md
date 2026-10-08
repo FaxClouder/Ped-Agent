@@ -23,7 +23,11 @@
 | [`external_search.py`](src/ped_research_agent/external_search.py) | Semantic Scholar、OpenAlex、Parallel 搜索与网页抽取 | 主消融中关闭；external-on 需冻结返回 | [`test_external_search.py`](tests/test_external_search.py) |
 | 共享契约 | [`ped_contracts.evidence`](../Contracts/src/ped_contracts/evidence.py) | EvidenceItem、RetrievalBatch、AnswerDocument 等 | [`test_contracts.py`](tests/test_contracts.py) |
 
-仓库内尚无调用 `EvidenceGraph` 的实验入口，也没有把 `HybridRetriever` 适配为 `LocalEvidenceRetriever` 的代码。
+`integrations/knowledge.py` 已提供 `HybridRetriever` 到 `LocalEvidenceRetriever` 的生产适配，
+`integrations/runtime.py::build_baseline` 将固定图检索接入 Harness 工具执行与事件记录。
+该可选集成包依赖 `Agent[integration]`，底层 KB 由调用者显式注入；无实验 runner 或动态控制器。
+状态类型及严格 JSON/TOML profile 位于 `agentic/`。当前模型预算尚未接通，完整范围见
+[Agent core 开发进度](../docs/agent-core-development.md)。原 EvidenceGraph 接口、行为和快照保留。
 
 ## 当前调用链
 
