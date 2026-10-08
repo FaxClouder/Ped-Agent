@@ -1,12 +1,14 @@
 # Adobe PDF Extract Optional Parser Implementation Plan
 
-_Implementation checklist for the approved optional Adobe parser · status: plan_
+_Completed implementation checklist retained for traceability · status: historical_
 
 **Goal:** Add a credentials-backed optional Adobe structured parser and validate it against the Adobe sample PDF.
 
 **Architecture:** Keep `ImportService`'s default PyMuPDF path. An Adobe adapter calls the SDK and converts its ZIP into the existing canonical document contract; the derived writer persists provider assets and source provenance.
 
 **Tech Stack:** Python 3.12, pdfservices-sdk 4.2.0, PyMuPDF, Pydantic, pytest.
+
+**Implementation record (2026-09-23):** The checklist below is complete. The Adobe sample PDF API smoke request and repository test suite ran; extraction quality on the research corpus remains unverified. For current operation, see [`Knowledge-Base/README.md`](../../../Knowledge-Base/README.md).
 
 ## Global constraints
 

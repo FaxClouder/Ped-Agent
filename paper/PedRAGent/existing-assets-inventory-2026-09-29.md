@@ -21,7 +21,7 @@
 | 引用与推断约束 | [policy.py](../../Agent/src/ped_research_agent/policy.py)、[工作流提示词](../../Agent/src/ped_research_agent/evidence_graph.py) | 已检查断言与引用双向绑定、证据 ID、正文引用标记；推断单列并绑定依据。无需另起一套引用格式。 |
 | 模型端口与结构化输出 | [ports.py](../../Agent/src/ped_research_agent/ports.py)、[model_gateway.py](../../Agent/src/ped_research_agent/model_gateway.py) | 已有生成/核验端口，工作流支持结构化响应及 JSON 修复。可复用适配层；本次未执行外部模型。 |
 | 工作流追踪 | [evidence_graph.py](../../Agent/src/ped_research_agent/evidence_graph.py)、[运行指标契约](../../Contracts/src/ped_contracts/evidence.py) | 已有阶段事件、耗时及证据/核验/修订指标；不等同于完整的逐轮需求、增量覆盖、停止原因和 token 成本账本。 |
-| 检索评价 | [gold_v2.py](../../Knowledge-Base/src/ped_knowledge/evaluation/gold_v2.py)、[开发集实验](../../experiments/benchmark-gold-20260923/README.md) | 已有证据组与定位评价及双语开发集实验入口。沿用版本化数据和评分实现，先处理与 PEARL 的口径映射。 |
+| 检索评价 | [gold_v2.py](../../Knowledge-Base/src/ped_knowledge/evaluation/gold_v2.py)、[开发集实验](../../experiments/benchmark-gold-20260923/README.md) | 已有旧口径的证据组、定位评价及双语开发集入口；其版本与定位校验经验可供参考。PEARL 须使用新 Gold 和新评分器，不能沿用旧标签、评分逻辑或结果。 |
 
 ### 当前工作流的实际限制
 
@@ -49,33 +49,34 @@
 | 资产 | 入口 | 可复用内容及限制 |
 | --- | --- | --- |
 | 104 篇索引实验 | [索引实验](../../experiments/benchmark-index-20260924/README.md)、~~V1 目录~~、~~V2 目录~~ | 索引构建脚本可复用；V1/V2 索引目录已迁至 `../../failed/outputs-void-scores/`（PEARL 退出该评测口径；见 `../../failed/README.md`）。 |
-| ~~P1 检索候选对照~~ | ~~[综合输出](../../outputs/gold-v5-dev-p1-synthesis-20260926-03/README.md)~~ | **已作废** — 迁至 `../../failed/outputs-void-scores/`；评分语义与 PEARL 相反。 |
-| Stage 2 开发标注 | [说明](../../experiments/stage2-annotation/README.md)、[标注](../../outputs/stage2-agent-adjudicated-20260927-03/annotations.jsonl)、[manifest](../../outputs/stage2-agent-adjudicated-20260927-03/manifest.json) | 实读 20 条：18 条 agent 候选、2 条争议；18 条包含 36 条必要事实。包含事实-证据组映射、数值约束、等价表述、禁止推断等字段，可复用 schema。全部不是人工 Gold。 |
+| ~~P1 检索候选对照~~ | ~~`outputs/gold-v5-dev-p1-synthesis-20260926-03/README.md`~~ | **已作废** — 迁至 `../../failed/outputs-void-scores/`；评分语义与 PEARL 相反。 |
+| Stage 2 开发标注 | [说明](../../experiments/stage2-annotation/README.md)、[标注](../../outputs/stage2-agent-adjudicated-20260927-03/annotations.jsonl)、[manifest](../../outputs/stage2-agent-adjudicated-20260927-03/manifest.json) | 实读 20 条：18 条 agent 候选、2 条争议；18 条包含 36 条必要事实。字段组织可供新标注设计参考，但旧题目和标签不进入 PEARL。`answer_type`、`requires_multi_hop` 均为 0/20 已填，`numeric_constraints` 为 4/20；全部不是人工 Gold。 |
 | P2 解析敏感性 | [交付清单](../../experiments/benchmark-parser-sensitivity-20260927/DELIVERABLES.md)、[综合 summary](../../outputs/parser-sensitivity-p2-synthesis-20260927-01/summary.json) | 解析、检索、综合三个产物目录仍在；已保存资源/页/文本/parent 定位指标。可复用诊断和脚本，本次没有重新执行 Adobe、BGE-M3 或 GPU。 |
 | 解析证据锚点 | [开发集锚点](../../experiments/benchmark-parser-sensitivity-20260927/evidence_anchors_dev.json) | 已有比资源级召回更细的文本定位实验输入，后续充分性研究应先检查这些产物。 |
-| ~~Stage 1 分析代码~~ | ~~[analyze_stage1.py](../../experiments/stage1-analysis/analyze_stage1.py)~~ | **已作废** — 迁至 `../../failed/stage1-analysis/`；输入路径缺失。 |
+| ~~Stage 1 分析代码~~ | ~~`experiments/stage1-analysis/analyze_stage1.py`~~ | **已作废** — 迁至 `../../failed/stage1-analysis/`；输入路径缺失。 |
 
 ### 开发集与当前主线的差距
 
 对 Stage 2 的 18 条 `agent_reviewed_candidate` 实际统计：每题都只有一个候选证据组；必要事实每题来自一个文献、一个页码。36 条事实不等于 36 个跨文献问题。`requires_multi_hop` 等预留字段不能当作已经完成的多跳标注。
 
-因此现有题目适合基础问答、检索和引用对照，不能直接证明跨论文比较或动态补证收益。应保留现有数据版本，并在开发集之外另行设计和版本化新增任务；不动 sealed test 来迎合当前方案。
+因此现有题目仅可用于旧口径的探索性基础问答、检索和引用对照，不能直接证明跨论文比较或动态补证收益，也不构成 PEARL 新题集。应保留现有数据版本，按新协议另行设计和版本化题目；不动旧 sealed test 来迎合当前方案。`rgq-015` 的多页公式定位争议保留在旧数据记录中，不作为新 PEARL 的已验证多页样本。
 
 ## 5. 已核实的文档偏差
 
 1. **论文导航含失效目标。** `paper/README.md` 引用的 `evaluation-reports/`、`F-Report/`、`latex/`、`llm-pedestrian-literature/` 和 `memped-rag-design-summary.md` 在本次检查时均不存在。它们不是已确认可复用的现存资产；本次不推断丢失原因，也不把现有 outputs 当作原文件的完整恢复。**已完成修复：`paper/README.md` 和 `docs/README.md` 已标记失效路径并指向 `failed/` 目录。**
-2. **首页定位数量不一致。** PEARL README 写 15/18；按当前 Stage 2 的 `required_facts[].source_locator.pdf_page_1based` 统计，14/18 的事实均在第 1 页，其余分别在第 5、12、13、15 页。需要声明统计字段并统一口径。
-3. **证据组逻辑不同。** 既有 Gold 评分是组间 AND、组内替代 OR；PEARL 使用完整证据组内 AND、可替代完整组间 OR。数据结构映射后才可比较，不能直接替换字段名。**已迁移：41 个 Gold v* 评分目录迁至 `failed/outputs-void-scores/`。**
-4. **截断和样本范围不同。** 旧开发实验主要 @5、20 intent；PEARL Layer 1 主报 @10、18 可计分 intent。旧汇总分数不是新协议成绩。
-5. **旧人工审核表述不一致。** P1 输出 README 写”下一轮人工核验后”，较新的 Stage 2 说明允许 agent 复核标签用于探索性研究。人工 Gold 是独立质量声明，不应重新成为当前开发研究的默认门槛。
-6. **完成报告不能替代状态核查。** P2 交付文档称代码已纳入版本控制，但本次 `git status` 显示该实验目录仍为 untracked。文件存在、测试记录、Git 归档和真实实验完成是不同事实。
+2. **旧首页定位说法已退出现行协议。** 此前的 15/18 不再出现在现行 PEARL Layer 1 文档。按 Stage 2 `required_facts[].source_locator.pdf_page_1based` 复核，18 条 `agent_reviewed_candidate` 中有 14 条的必要事实均定位在 PDF 第 1 页，其余四条分别定位在第 5、12、13、15 页。该数字仅描述旧开发标注，不是新 PEARL 的题型分层或成绩。
+3. **证据组与定位结构不同。** 既有 Gold 评分是组间 AND、组内替代 OR；其评分器读取 `alternatives[].locator.page_index`，Stage 2 则记录 `required_facts[].source_locator.pdf_page_1based`。PEARL 使用完整组内 AND、可替代组间 OR，并另建来源锚点和支持映射；旧字段不能直接交给旧评分器，也不能靠字段转换把旧数据变成 PEARL 评估输入。**已迁移：41 个 Gold v* 评分目录迁至 `failed/outputs-void-scores/`。**
+4. **截断和样本范围不同。** 旧开发实验主要按前 5 个去重资源评分，覆盖 20 个开发 intent；新 PEARL Layer 1 计划按原始前 10 个 child 的内容评分，新建 80 个开发 intent 与 200 个独立评估 intent。新题集尚未构建，不能把旧 18 条无争议候选当作 PEARL 分母或将旧汇总分数转成新成绩。
+5. **旧查询数量的分母不同。** Stage 2 的 40 条中英查询来自 20 个 intent 各两种语言；18 条无争议候选若只统计其双语问法则为 36 条，另有 36 条必要事实／证据组映射。三种计数须分别标明对象。新 PEARL Retrieval 每个新 intent 使用一条英文主查询，不沿用这两个旧查询数。
+6. **旧人工审核表述不一致。** P1 输出 README 写”下一轮人工核验后”，较新的 Stage 2 说明允许 agent 复核标签用于探索性研究。人工 Gold 是独立质量声明，不应重新成为当前开发研究的默认门槛。
+7. **完成报告不能替代状态核查。** P2 交付文档称代码已纳入版本控制，但本次 `git status` 显示该实验目录仍为 untracked。文件存在、测试记录、Git 归档和真实实验完成是不同事实。
 
 ## 6. 后续复用顺序
 
 1. 以当前 Contracts、HybridRetriever、EvidenceGraph 为实现基础，沿用其测试与端口。
 2. 以 9 月 22 日 P7 为功能起点，逐项核对条件槽位、上下文预算、补证和封闭语料适配的缺口。
 3. 以 PEARL Layer 2/5 和 A0–A4 为评价起点；原固定工作流可作为补充对照，不替代既有消融体系。
-4. 复用 Stage 2 的事实映射与 P2 的定位资产；新增跨文献比较题时保留来源、条件和不支持的推断。
+4. 参考 Stage 2 的事实映射结构与 P2 的定位方法，为 PEARL 新建证据标注；新增跨文献比较题时保留来源、条件和不支持的推断。
 5. 当前盘点不决定引入新运行框架或多 Agent，也不启动新的实现或实验。
 
 ## 7. 核查记录

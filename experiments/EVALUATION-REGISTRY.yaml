@@ -1,0 +1,124 @@
+# PedRAGent evaluation registry
+# Status: current · 2026-10-07
+# Rules: experiments/EVALUATION-STANDARD.md. Append-only: never edit a frozen entry's
+# path or sha256; add a new revision entry instead and set the old one's `superseded_by`.
+
+schema_version: pedragent-evaluation-registry-v1
+updated: 2026-10-07
+
+corpora:
+  - id: corpus-pearl-adobe106-v02
+    description: 106 English papers parsed by Adobe PDF Extract; 6,433 parent-child-v1 children
+    source_list: outputs/pearl-index-106-adobe-20260929-01/sources.jsonl
+    index: outputs/pearl-index-106-adobe-20260929-01/
+    record: experiments/pearl-index-106-adobe-20260929/README.md
+    language: en
+    status: frozen
+
+question_sets:
+  - id: qs-pilot8
+    role: development
+    description: 8-intent pilot; merged unchanged into qs-dev80-r01
+    canonical_path: memPed/knowledge/gold/pearl-adobe106/retrieval/pilot8/pearl-retrieval-dev-pilot-8-adobe106-gold.json
+    frozen_source_path: paper/pearl-framework/datasets/retrieval-pilot/pearl-retrieval-dev-pilot-8-adobe106-gold.json
+    sha256: 768629fd65110e5dede9bb81e13a5ca5eb1de92e90baefaf12109d1b17ee9e7e
+    corpus: corpus-pearl-adobe106-v02
+    n_intents: 8
+    language: en
+    review_status: agent_reviewed_preliminary
+    human_verified: false
+    status: superseded
+    superseded_by: qs-dev80-r01
+    record: paper/pearl-framework/datasets/retrieval-pilot/README.md
+
+  - id: qs-dev80-r01
+    role: development
+    description: 80 development intents, 20 per stratum
+    canonical_path: memPed/knowledge/gold/pearl-adobe106/retrieval/dev80/r01/pearl-retrieval-dev-80-adobe106-gold-20261003-r01.json
+    frozen_source_path: outputs/pearl-retrieval-dev80-eval200-adobe106-20261003-01/pearl-retrieval-dev-80-adobe106-gold-20261003-r01.json
+    sha256: 4b118700b2ec810dd57d342ab3d5447b7d313c11aea73535dff160bfaba2d56c
+    corpus: corpus-pearl-adobe106-v02
+    n_intents: 80
+    strata: {single_source: 20, numeric_table: 20, within_paper_multi: 20, cross_paper: 20}
+    language: en
+    review_status: agent_reviewed_preliminary
+    human_verified: false
+    status: superseded
+    superseded_by: qs-dev80-r02
+    record: experiments/pearl-dataset-80-200-20261003/README.md
+
+  - id: qs-dev80-r02
+    role: development
+    description: current development set; intents 012, 050, 080 revised (080 adds atom a3)
+    canonical_path: memPed/knowledge/gold/pearl-adobe106/retrieval/dev80/r02/gold-r02.json
+    frozen_source_path: outputs/pearl-retrieval-dev80-gold-r02-20261003-01/gold-r02.json
+    sha256: 7f64ac4559fbf604c0d4d6aca81e23685f1dcbf009853ee3c8637dc368ad29f5
+    diff_path: memPed/knowledge/gold/pearl-adobe106/retrieval/dev80/r02/gold-diff.json
+    parent: qs-dev80-r01
+    corpus: corpus-pearl-adobe106-v02
+    n_intents: 80
+    language: en
+    review_status: agent_reviewed_preliminary
+    human_verified: false
+    status: current
+    record: experiments/pearl-retrieval-gold-revision-r02/README.md
+
+  - id: qs-eval200-r01
+    role: sealed_evaluation
+    description: 200 independent evaluation intents, 50 per stratum; source papers disjoint from development
+    canonical_path: memPed/knowledge/gold/pearl-adobe106/retrieval/eval200/r01/pearl-retrieval-eval-200-adobe106-gold-20261003-r01.json
+    frozen_source_path: outputs/pearl-retrieval-dev80-eval200-adobe106-20261003-01/pearl-retrieval-eval-200-adobe106-gold-20261003-r01.json
+    sha256: 25c0e5d1d493155f23fdee1ff1d6773e0ea74f7b013e5ad4a2805423f4fd9d70
+    seal_manifest: memPed/knowledge/gold/pearl-adobe106/retrieval/eval200/r01/seal_manifest.json
+    seal_manifest_sha256: c3524b0095e610e4ce325166f357903d3319da6dd0de23adc63277381d4a656b
+    corpus: corpus-pearl-adobe106-v02
+    n_intents: 200
+    strata: {single_source: 50, numeric_table: 50, within_paper_multi: 50, cross_paper: 50}
+    language: en
+    review_status: agent_reviewed_preliminary
+    human_verified: false
+    status: current
+    sealed: true
+    uses_so_far: [exp-retrieval-eval200]
+    record: experiments/pearl-dataset-80-200-20261003/README.md
+
+references:
+  - id: ref-dev80-answer-r01
+    layer: 3
+    description: frozen reference answers, key targets, conditions and claim groups for 80 development intents
+    question_set: qs-dev80-r02
+    canonical_path: memPed/knowledge/gold/pearl-adobe106/answer-references/dev80/reference-freeze-r01.json
+    frozen_source_path: outputs/pearl-answer-dev80-20261004-01/reference-freeze-r01.json
+    sha256: 521279422ddc479602d39cc748ba37799772db100b71667092ed8f4444bc3c1e
+    status: current
+    record: experiments/pearl-answer-dev80-20261004/README.md
+
+  - id: ref-dev80-facts-r03
+    layer: 4
+    description: frozen factuality items used for Layer 4 scoring and 6B
+    question_set: qs-dev80-r02
+    canonical_path: memPed/knowledge/gold/pearl-adobe106/facts/dev80/facts-r03.json
+    frozen_source_path: outputs/pearl-layer4-dev80-20261004-01/facts/facts-r03.json
+    sha256: cf00cb9d7085f1303aefd7802e655a985119462cc38767cf77fa892c784df3e6
+    status: current
+    record: experiments/pearl-layer4-dev80-20261004/README.md
+
+experiments:
+  - {id: exp-index-106, dir: experiments/pearl-index-106-adobe-20260929, question_sets: [qs-pilot8], eval200_access: false, status: complete, outputs: [pearl-index-106-adobe-20260929-01, pearl-retrieval-dev-pilot-8-adobe106-20260929-01, pearl-retrieval-dev-pilot-8-adobe106-r4-20260929-01]}
+  - {id: exp-dataset-80-200, dir: experiments/pearl-dataset-80-200-20261003, produces: [qs-dev80-r01, qs-eval200-r01], eval200_access: authoring_only, status: complete, outputs: [pearl-dataset-80-200-authoring-20261003-01, pearl-retrieval-dev80-eval200-adobe106-20261003-01]}
+  - {id: exp-retrieval-dev80, dir: experiments/pearl-retrieval-dev80-20261003, layer: 1, question_sets: [qs-dev80-r01], eval200_access: false, status: complete, outputs: [pearl-retrieval-dev80-20261003-01]}
+  - {id: exp-dev-review-freeze, dir: experiments/pearl-dev-review-freeze-20261003, layer: 1, question_sets: [qs-dev80-r01], eval200_access: false, status: complete, outputs: [pearl-dev-review-freeze-20261003-01]}
+  - {id: exp-gold-revision-r02, dir: experiments/pearl-retrieval-gold-revision-r02, layer: 1, question_sets: [qs-dev80-r01], produces: [qs-dev80-r02], eval200_access: false, status: complete, outputs: [pearl-retrieval-dev80-gold-r02-20261003-01]}
+  - {id: exp-eval-entry, dir: experiments/pearl-retrieval-eval-entry-20261003, layer: 1, question_sets: [synthetic], eval200_access: false, status: complete, outputs: [pearl-retrieval-eval-entry-synthetic-20261003-01, pearl-retrieval-stage-b-audit-20261003-01]}
+  - {id: exp-retrieval-eval200, dir: experiments/pearl-retrieval-eval200-20261003, layer: 1, question_sets: [qs-eval200-r01], eval200_access: query_only_runner, status: complete, outputs: [pearl-retrieval-eval200-release-20261003-03, pearl-retrieval-eval200-20261003-01, pearl-retrieval-eval200-audit-20261003-01]}
+  - {id: exp-evidence-dev80, dir: experiments/pearl-evidence-dev80-20261004, layer: 2, question_sets: [qs-dev80-r02], eval200_access: false, status: complete, outputs: [pearl-evidence-dev80-20261004-01]}
+  - {id: exp-answer-dev80, dir: experiments/pearl-answer-dev80-20261004, layer: 3, question_sets: [qs-dev80-r02], produces: [ref-dev80-answer-r01], eval200_access: false, status: complete, outputs: [pearl-answer-dev80-20261004-01]}
+  - {id: exp-layer4-dev80, dir: experiments/pearl-layer4-dev80-20261004, layer: 4, question_sets: [qs-dev80-r02], references: [ref-dev80-answer-r01], produces: [ref-dev80-facts-r03], eval200_access: false, status: complete, outputs: [pearl-layer4-dev80-20261004-01]}
+  - {id: exp-chunking-dev80, dir: experiments/pearl-chunking-dev80-20261005, layer: [1, 2, 3, 4], question_sets: [qs-dev80-r02], references: [ref-dev80-answer-r01, ref-dev80-facts-r03], eval200_access: false, status: in_progress_6B, current_entry: paper/pearl-6b-judge-workpackage/6b-work-plan.md}
+
+legacy_question_sets:
+  # Retired: not used for PEARL question sets, baselines, denominators or scores.
+  - {id: legacy-pilot31, path: memPed/knowledge/pilot_gold.jsonl, reason: Chinese pilot; resource IDs do not match current catalog}
+  - {id: legacy-core-gold, path: memPed/knowledge/core_gold.jsonl, reason: resource IDs do not match current catalog}
+  - {id: legacy-gold-v5, path: memPed/knowledge/gold/2026-09-23-rebuild/, reason: 104-paper corpus; Gold v2 scorer AND/OR semantics inverted relative to PEARL}
+  - {id: legacy-stage2, path: experiments/stage2-annotation/, reason: built on Gold v5 development intents}

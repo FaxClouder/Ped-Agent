@@ -103,7 +103,7 @@ With the verified 2025 metrics:
 | Scientific Reports | JCI Q1 / JIF Q1 | pass |
 | Transportation Letters | JCI Q2 / JIF Q2 | pass |
 | Scientific Data | JCI Q1 / JIF Q1 / CAS 2 | pass |
-| Frontiers in Physics | JCI Q2 / JIF Q2 | pass |
+| Frontiers in Physics | JCI Q2 / JIF Q2; later removed by explicit user decision on 2026-09-21 | exclude |
 | Physical Review E | JCI Q1 / JIF Q1 | pass |
 | Collective Dynamics | unindexed in verified systems | reject |
 

@@ -2,7 +2,7 @@
 
 > **Status: target module design.** Vision belongs to “检测追踪与流动分析”
 > and is not a standalone product line.
-> Current module boundary: [Ped-Agent current project architecture](project-architecture.md).
+> Current module boundary: [PedRAGent current project architecture](project-architecture.md).
 
 ## 一、模块概述
 
@@ -10,7 +10,7 @@
 
 核心流程：
 ```
-视频输入 → 行人检测 (YOLO26) → 多目标跟踪 (ByteTrack) 
+视频输入 → 行人检测 (YOLO26) → 多目标跟踪 (ByteTrack)
 → 坐标变换 (像素→世界) → 轨迹后处理 → TrajectoryData 输出
 ```
 
@@ -41,7 +41,7 @@ import numpy as np
 
 class PedestrianDetector:
     """YOLO26 行人检测器"""
-    
+
     def __init__(self, config: dict):
         self.model_path = config.get('model', 'yolo26x.pt')
         self.confidence = config.get('confidence', 0.5)
@@ -51,13 +51,13 @@ class PedestrianDetector:
         self.device = config.get('device', 'cuda:0')
         self.half = config.get('half_precision', True)
         self.end2end = config.get('end2end', True)
-        
+
         self.model = YOLO(self.model_path)
-        
+
     def detect(self, frame: np.ndarray) -> list:
         """
         检测单帧中的行人
-        
+
         Returns:
             List[Detection]: 检测结果列表
         """
@@ -72,7 +72,7 @@ class PedestrianDetector:
             end2end=self.end2end,
             verbose=False,
         )
-        
+
         detections = []
         if results[0].boxes is not None:
             boxes = results[0].boxes
@@ -83,9 +83,9 @@ class PedestrianDetector:
                     class_id=int(boxes.cls[i]),
                 )
                 detections.append(det)
-        
+
         return detections
-    
+
     def detect_batch(self, frames: list) -> list:
         """批量检测"""
         results = self.model(
@@ -123,7 +123,7 @@ from boxmot import ByteTrack, DeepSORT
 
 class PedestrianTracker:
     """多目标跟踪器"""
-    
+
     def __init__(self, config: dict):
         self.config = config
         self.algorithm = config.get('algorithm', 'bytetrack')
@@ -146,15 +146,15 @@ class PedestrianTracker:
             raise ValueError(f"Unknown tracker: {self.algorithm}")
 
         return self.tracker
-    
+
     def update(self, detections: list, frame: np.ndarray) -> np.ndarray:
         """
         更新跟踪状态
-        
+
         Args:
             detections: 当前帧检测结果
             frame: 当前帧图像 (DeepSORT 需要用于 ReID)
-            
+
         Returns:
             tracks: (N, 6) array [x1, y1, x2, y2, track_id, confidence]
         """
@@ -162,10 +162,10 @@ class PedestrianTracker:
             dets = np.empty((0, 5))
         else:
             dets = np.array([[*d.bbox, d.confidence] for d in detections])
-        
+
         tracks = self.tracker.update(dets, frame)
         return tracks
-    
+
     def reset(self):
         """重置跟踪器状态 (新视频时调用)"""
         self.tracker = self._build_tracker()
@@ -173,78 +173,229 @@ class PedestrianTracker:
 
 ---
 
-## 四、坐标变换
+## 四、坐标变换（双路线设计）
 
-### 4.1 变换方法
+### 4.0 路线选择
+
+模块提供两条独立路线，用户根据场景选择，不做性能对比实验：
+
+| 路线 | 方法 | 精度 | 适用场景 | 状态 |
+|------|------|------|---------|------|
+| **路线A** | 几何标定法 | ±2-5cm | 正式实验，固定相机 | **推荐** |
+| **路线B** | 深度估计法 | ±10-30cm | 快速分析，历史视频 | 辅助工具 |
+
+详细设计见 [`coordinate-transform-dual-routes.md`](coordinate-transform-dual-routes.md)。
+
+### 4.1 路线A：几何标定法
 
 | 方法 | 精度 | 要求 | 适用场景 |
 |------|------|------|---------|
 | **单应矩阵 (Homography)** | 高 | 4+ 对应点标定 | 平面场景 |
+| 完整相机标定 (Full Camera) | 高 | CharUco标定板 | 非平面/需畸变校正 |
 | 简易缩放 (Scale) | 中 | 已知像素/米比 | 正俯视相机 |
 | 无变换 (None) | - | 无 | 仅像素分析 |
 
-### 4.2 实现
+### 4.2 路线B：深度估计法
+
+#### 工作流程
+
+```
+视频帧 → 检测/跟踪 → 像素坐标(x_px, y_px)
+        ↓
+  YOLO26-Depth 推理 → 深度图(H×W)
+        ↓
+  提取深度值: depth_m = depth_map[y_px, x_px]
+        ↓
+  反投影: (x_world, y_world) = backproject(x_px, y_px, depth_m, K)
+        ↓
+  世界坐标 + 置信度标记
+```
+
+#### 深度估计器实现
+
+```python
+from ultralytics import YOLO
+import numpy as np
+
+class DepthEstimator:
+    """YOLO26-Depth 单目深度估计"""
+
+    def __init__(self, model_path: str, camera_intrinsics: dict):
+        self.model = YOLO(model_path)
+        self.fx = camera_intrinsics["fx"]
+        self.fy = camera_intrinsics["fy"]
+        self.cx = camera_intrinsics["cx"]
+        self.cy = camera_intrinsics["cy"]
+
+    def estimate(self, frame: np.ndarray) -> np.ndarray:
+        """估计深度图 (H×W), 单位：米"""
+        results = self.model(frame)
+        return results[0].depth
+
+    def backproject(
+        self,
+        x_px: float,
+        y_px: float,
+        depth_m: float
+    ) -> tuple[float, float]:
+        """针孔相机模型反投影到世界坐标"""
+        x_world = (x_px - self.cx) * depth_m / self.fx
+        y_world = (y_px - self.cy) * depth_m / self.fy
+        return x_world, y_world
+```
+
+**配置示例**：
+```yaml
+# calibration_depth.yaml
+method: depth_estimation
+depth_model: yolo26x-depth.pt
+camera_intrinsics:
+  fx: 1200.5  # 焦距x
+  fy: 1205.3  # 焦距y
+  cx: 960.0   # 主点x
+  cy: 540.0   # 主点y
+```
+
+**技术背景**：
+- 模型：YOLO26-Depth (Ultralytics v8.4.104, 2026.07)
+- 训练数据：~219万张室内外图像
+- 评估基准：NYU Depth V2 Eigen split
+- 原理：单张RGB图像 → 逐像素深度图（学习透视、遮挡、尺寸等视觉线索）
+
+**文献参考**：
+- YOLO26 架构：arXiv:2509.25164
+- 深度估计综述：arXiv:2406.19675 (2024), arXiv:2501.11841 (2025)
+- 基础模型：Depth Anything (CVPR 2024), MiDaS v3.1 (arXiv:2307.14460)
+
+### 4.3 统一接口实现
 
 ```python
 import cv2
+import numpy as np
 
 class CoordinateTransformer:
-    """像素坐标 → 世界坐标变换"""
-    
+    """像素坐标 → 世界坐标变换（双路线统一接口）"""
+
     def __init__(self, config: dict):
         self.method = config.get('method', 'none')
         self.homography_matrix = None
         self.pixel_per_meter = config.get('pixel_per_meter', None)
-        
+        self.depth_estimator = None
+
+        # 路线A：几何标定
         if self.method == 'homography':
             calib_file = config.get('calibration_file')
             if calib_file:
                 self.homography_matrix = self._load_homography(calib_file)
-    
-    def transform(self, pixel_points: np.ndarray) -> np.ndarray:
+
+        # 路线B：深度估计
+        elif self.method == 'depth_estimation':
+            self.depth_estimator = DepthEstimator(
+                model_path=config['depth_model'],
+                camera_intrinsics=config['camera_intrinsics']
+            )
+
+    def transform(
+        self,
+        pixel_points: np.ndarray,
+        frame: np.ndarray | None = None
+    ) -> np.ndarray:
         """
         将像素坐标转换为世界坐标 (米)
-        
+
         Args:
             pixel_points: (N, 2) 像素坐标 [px_x, px_y]
-            
+            frame: 可选，路线B需要提供帧图像用于深度估计
+
         Returns:
             world_points: (N, 2) 世界坐标 [m_x, m_y]
         """
         if self.method == 'none':
             return pixel_points
-        
+
         elif self.method == 'scale':
-            return pixel_points / self.pixel_per_meter
-        
+            if not self.pixel_per_meter:
+                raise ValueError("pixel_per_meter required for scale transform")
+            return pixel_points / float(self.pixel_per_meter)
+
         elif self.method == 'homography':
             if self.homography_matrix is None:
-                raise ValueError("Homography matrix not loaded")
-            
-            # OpenCV perspectiveTransform 要求 (N, 1, 2) 形状
-            pts = pixel_points.reshape(-1, 1, 2).astype(np.float64)
-            world_pts = cv2.perspectiveTransform(pts, self.homography_matrix)
-            return world_pts.reshape(-1, 2)
-    
-    def transform_bbox_center(self, bboxes: np.ndarray) -> np.ndarray:
-        """将 bbox 底边中点转为世界坐标 (行人脚部位置)"""
-        # 底边中点: ((x1+x2)/2, y2)
-        centers = np.column_stack([
-            (bboxes[:, 0] + bboxes[:, 2]) / 2,  # x center
-            bboxes[:, 3]  # y bottom (脚部)
-        ])
-        return self.transform(centers)
-    
+                raise ValueError("homography_matrix not configured")
+            points = pixel_points.reshape(-1, 1, 2).astype(np.float64)
+            return cv2.perspectiveTransform(
+                points, self.homography_matrix
+            ).reshape(-1, 2)
+
+        elif self.method == 'depth_estimation':
+            if frame is None:
+                raise ValueError("frame required for depth estimation")
+            return self._transform_with_depth(pixel_points, frame)
+
+        raise ValueError(f"Unknown method: {self.method}")
+
+    def _transform_with_depth(
+        self,
+        points: np.ndarray,
+        frame: np.ndarray
+    ) -> np.ndarray:
+        """路线B：使用深度估计进行变换"""
+        depth_map = self.depth_estimator.estimate(frame)
+        world_points = []
+
+        for x_px, y_px in points:
+            depth_m = depth_map[int(y_px), int(x_px)]
+            x_w, y_w = self.depth_estimator.backproject(x_px, y_px, depth_m)
+            world_points.append([x_w, y_w])
+
+        return np.array(world_points)
+
     @staticmethod
-    def calibrate_from_points(pixel_points: np.ndarray, 
-                              world_points: np.ndarray) -> np.ndarray:
-        """
-        从对应点计算单应矩阵
-        
-        Args:
+    def _load_homography(path: str) -> np.ndarray:
+        import yaml
+        from pathlib import Path
+        data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        return np.array(data["homography_matrix"], dtype=float)
+```
+
+**配置切换示例**：
+
+```yaml
+# 路线A：单应矩阵标定
+coordinate_transform:
+  method: homography
+  calibration_file: calibrations/scene_001/homography.yaml
+
+# 路线B：深度估计
+coordinate_transform:
+  method: depth_estimation
+  depth_model: yolo26x-depth.pt
+  camera_intrinsics:
+    fx: 1200.5
+    fy: 1205.3
+    cx: 960.0
+    cy: 540.0
+```
+
+### 4.4 使用场景建议
+
+**路线A（几何标定）适用于**：
+- ✅ 正式实验，需要高精度指标（密度、速度、流量）
+- ✅ 固定相机位置，可完成标定工作
+- ✅ 平面地面场景（车站、广场、走廊）
+- ✅ 论文发表的主要实验方法
+
+**路线B（深度估计）适用于**：
+- ✅ 探索性分析，快速验证算法
+- ✅ 历史视频，无法重新标定
+- ✅ 大规模视频批量处理
+- ✅ 临时场景、应急事件分析
+
+---
+
+## 五、轨迹后处理
             pixel_points: (N, 2) 像素坐标 (至少4个点)
             world_points: (N, 2) 世界坐标
-            
+
         Returns:
             H: (3, 3) 单应矩阵
         """
@@ -255,7 +406,7 @@ class CoordinateTransformer:
             ransacReprojThreshold=5.0
         )
         return H
-    
+
     @staticmethod
     def _load_homography(filepath: str) -> np.ndarray:
         """从文件加载单应矩阵"""
@@ -292,54 +443,54 @@ from scipy.interpolate import interp1d
 
 class TrajectoryPostProcessor:
     """轨迹后处理：平滑、插值、过滤"""
-    
+
     def __init__(self, config: dict):
         self.min_track_length = config.get('min_track_length', 10)
         self.smoothing = config.get('smoothing', 'savgol')
         self.smoothing_window = config.get('smoothing_window', 5)
         self.interpolation = config.get('interpolation', True)
         self.fps = config.get('fps', 25.0)
-    
+
     def process(self, raw_tracks: dict) -> List[PedestrianTrack]:
         """
         完整后处理管道
-        
+
         Args:
             raw_tracks: {track_id: [(frame, x, y, conf), ...]}
-            
+
         Returns:
             List[PedestrianTrack]
         """
         processed = []
-        
+
         for track_id, points in raw_tracks.items():
             # 1. 长度过滤
             if len(points) < self.min_track_length:
                 continue
-            
+
             frames = np.array([p[0] for p in points])
             positions = np.array([[p[1], p[2]] for p in points])
             confidences = np.array([p[3] for p in points])
-            
+
             # 2. 插值缺失帧
             if self.interpolation:
                 frames, positions, confidences = self._interpolate(
                     frames, positions, confidences
                 )
-            
+
             # 3. 平滑
             if self.smoothing != 'none':
                 positions = self._smooth(positions)
-            
+
             # 4. 异常值过滤 (速度突变)
             mask = self._filter_outliers(positions, frames)
             frames = frames[mask]
             positions = positions[mask]
             confidences = confidences[mask]
-            
+
             if len(frames) < self.min_track_length:
                 continue
-            
+
             # 构建输出
             track = PedestrianTrack(
                 track_id=int(track_id),
@@ -349,27 +500,27 @@ class TrajectoryPostProcessor:
                 confidence=confidences.tolist(),
             )
             processed.append(track)
-        
+
         return processed
-    
+
     def _interpolate(self, frames, positions, confidences):
         """线性插值缺失帧"""
         full_frames = np.arange(frames[0], frames[-1] + 1)
-        
+
         fx = interp1d(frames, positions[:, 0], kind='linear', fill_value='extrapolate')
         fy = interp1d(frames, positions[:, 1], kind='linear', fill_value='extrapolate')
         fc = interp1d(frames, confidences, kind='nearest', fill_value='extrapolate')
-        
+
         new_positions = np.column_stack([fx(full_frames), fy(full_frames)])
         new_confidences = fc(full_frames)
-        
+
         return full_frames, new_positions, new_confidences
-    
+
     def _smooth(self, positions: np.ndarray) -> np.ndarray:
         """轨迹平滑"""
         if len(positions) < self.smoothing_window:
             return positions
-        
+
         if self.smoothing == 'savgol':
             window = min(self.smoothing_window, len(positions))
             if window % 2 == 0:
@@ -379,15 +530,15 @@ class TrajectoryPostProcessor:
             smoothed_x = savgol_filter(positions[:, 0], window, polyorder=2)
             smoothed_y = savgol_filter(positions[:, 1], window, polyorder=2)
             return np.column_stack([smoothed_x, smoothed_y])
-        
+
         elif self.smoothing == 'moving_avg':
             kernel = np.ones(self.smoothing_window) / self.smoothing_window
             smoothed_x = np.convolve(positions[:, 0], kernel, mode='same')
             smoothed_y = np.convolve(positions[:, 1], kernel, mode='same')
             return np.column_stack([smoothed_x, smoothed_y])
-        
+
         return positions
-    
+
     def _filter_outliers(self, positions: np.ndarray, frames: np.ndarray,
                          max_speed: float = 5.0) -> np.ndarray:
         """
@@ -395,11 +546,11 @@ class TrajectoryPostProcessor:
         """
         if len(positions) < 2:
             return np.ones(len(positions), dtype=bool)
-        
+
         displacements = np.linalg.norm(np.diff(positions, axis=0), axis=1)
         dt = np.diff(frames) / self.fps
         speeds = displacements / np.maximum(dt, 1e-6)
-        
+
         # 首点始终保留
         valid = np.concatenate([[True], speeds < max_speed])
         return valid
@@ -415,7 +566,7 @@ from pathlib import Path
 
 class VisionPipeline:
     """视觉处理完整管道"""
-    
+
     def __init__(self, config: dict):
         self.config = config
         self.detector = PedestrianDetector(config.get('detector', {}))
@@ -423,12 +574,12 @@ class VisionPipeline:
         self.transformer = CoordinateTransformer(config.get('coordinate_transform', {}))
         self.postprocessor = TrajectoryPostProcessor(config.get('postprocessing', {}))
         self.skip_frames = config.get('preprocessing', {}).get('skip_frames', 1)
-    
-    def process_video(self, video_path: str, 
+
+    def process_video(self, video_path: str,
                       roi: dict = None) -> TrajectoryData:
         """
         处理完整视频，输出标准化轨迹数据
-        
+
         Args:
             video_path: 视频文件路径
             roi: 感兴趣区域 {"type": "polygon", "points": [...]}
@@ -438,33 +589,33 @@ class VisionPipeline:
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        
+
         self.postprocessor.fps = fps
-        
+
         # 收集原始轨迹
         raw_tracks = {}  # {track_id: [(frame, x, y, conf), ...]}
-        
+
         frame_idx = 0
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
                 break
-            
+
             # 跳帧
             if frame_idx % self.skip_frames != 0:
                 frame_idx += 1
                 continue
-            
+
             # ROI 裁剪 (可选)
             if roi:
                 frame = self._apply_roi(frame, roi)
-            
+
             # 检测
             detections = self.detector.detect(frame)
-            
+
             # 跟踪
             tracks = self.tracker.update(detections, frame)
-            
+
             # 收集轨迹点 (像素坐标)
             if len(tracks) > 0:
                 for track in tracks:
@@ -472,29 +623,29 @@ class VisionPipeline:
                     # 取底边中点作为行人位置
                     px = (x1 + x2) / 2
                     py = y2  # 脚部
-                    
+
                     if track_id not in raw_tracks:
                         raw_tracks[track_id] = []
                     raw_tracks[track_id].append((frame_idx, px, py, conf))
-            
+
             frame_idx += 1
-        
+
         cap.release()
-        
+
         # 坐标变换 (像素 → 世界)
         for track_id in raw_tracks:
             points = raw_tracks[track_id]
             pixel_coords = np.array([[p[1], p[2]] for p in points])
             world_coords = self.transformer.transform(pixel_coords)
-            
+
             raw_tracks[track_id] = [
-                (p[0], w[0], w[1], p[3]) 
+                (p[0], w[0], w[1], p[3])
                 for p, w in zip(points, world_coords)
             ]
-        
+
         # 后处理
         processed_tracks = self.postprocessor.process(raw_tracks)
-        
+
         # 构建标准化输出
         return TrajectoryData(
             video_meta=VideoMetadata(
@@ -506,7 +657,7 @@ class VisionPipeline:
             ),
             tracks=processed_tracks,
         )
-    
+
     def _apply_roi(self, frame: np.ndarray, roi: dict) -> np.ndarray:
         """应用 ROI 遮罩"""
         if roi.get('type') == 'polygon':
@@ -531,15 +682,15 @@ class VisionBackend(Protocol):
     def configure(self, config: dict) -> None: ...
     def process_video(self, video_path: str, roi: dict = None) -> TrajectoryData: ...
     def process_frame(self, frame: np.ndarray) -> list: ...
-    
+
     @property
     def capabilities(self) -> set: ...
 
 class VisionRegistry:
     """插件注册表"""
-    
+
     _backends: Dict[str, Type] = {}
-    
+
     @classmethod
     def register(cls, name: str):
         """装饰器注册"""
@@ -547,7 +698,7 @@ class VisionRegistry:
             cls._backends[name] = backend_class
             return backend_class
         return decorator
-    
+
     @classmethod
     def discover(cls):
         """通过 entry_points 发现插件"""
@@ -557,19 +708,19 @@ class VisionRegistry:
                 cls._backends[ep.name] = ep.load()
         except Exception:
             pass
-    
+
     @classmethod
     def get(cls, name: str, config: dict) -> VisionBackend:
         """获取并初始化指定后端"""
         cls.discover()
-        
+
         if name not in cls._backends:
             available = list(cls._backends.keys())
             raise ValueError(f"Unknown backend '{name}'. Available: {available}")
-        
+
         backend = cls._backends[name](config)
         return backend
-    
+
     @classmethod
     def list_available(cls) -> list:
         cls.discover()
@@ -579,19 +730,19 @@ class VisionRegistry:
 @VisionRegistry.register("yolo26_bytetrack")
 class YOLO26ByteTrackBackend:
     """YOLO26 + ByteTrack 默认后端"""
-    
+
     def __init__(self, config: dict):
         self.pipeline = VisionPipeline(config)
-    
+
     def configure(self, config: dict) -> None:
         self.pipeline = VisionPipeline(config)
-    
+
     def process_video(self, video_path: str, roi: dict = None) -> TrajectoryData:
         return self.pipeline.process_video(video_path, roi)
-    
+
     def process_frame(self, frame: np.ndarray) -> list:
         return self.pipeline.detector.detect(frame)
-    
+
     @property
     def capabilities(self) -> set:
         return {"detection", "tracking", "coordinate_transform"}

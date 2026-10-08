@@ -1,215 +1,238 @@
-# Layer 1 指标形式化定义
+# Layer 1 指标协议
 
-*Retrieval 层指标的操作化定义，适配当前标注粒度 · status: plan · 2026-09-28*
+*PEARL Retrieval 指标定义与固定算例 · status: plan · protocol v0.2 · 2026-09-29*
 
-> 本文把 [design.md](design.md) §3 的指标落到当前可用标注上。design.md 采用 RARE 的 Coverage@10 / PerfRecall@10，其 required information 定义在 chunk 语义层；当前 Stage 2 标注定位到 `(resource_id, pdf_page_1based)`，是页级物理位置。两者不等价，因此本文建立三层指标，并明确每层的标注前置条件。
+本协议评价**原始有序 Top-K child 的实际文本是否取得至少一组完整答案证据**，独立于检索、融合、重排和切块算法。Gold 锚定版本化来源中的事实、原文片段与适用条件；实验生成的 chunk ID 只用于追溯映射。当前主实验使用新建的英文语料与英文查询，旧题集、标签、索引、排名和结果均不作为本协议输入。
 
-## 1. 指标分层
+本文定义评价规则及验证算例，不表示新 Gold、映射、评分器或实验已经完成。实验安排见 [experiments.md](experiments.md)，层间契约见 [PEARL 主框架](../PEARL-framework.md)。
 
-| 层级 | 指标 | 标注前置条件 | 当前可算 |
-| --- | --- | --- | --- |
-| 资源级 | Resource-Hit@K、Resource-MRR@K | `resource_id` | 是 |
-| 页级 | Page-Hit@K、Page-Coverage@K、Page-MRR@K | `resource_id` + `pdf_page_1based` | 是 |
-| 信息单元级 | Info-PerfRecall@K、Info-Coverage@K | 必要信息 → 可接受 chunk 集合 | 否，需细化标注 |
-| 语义等价级 | Equiv-PerfRecall@K | 跨资源等价证据网络 | 否，需等价发现 |
+## 1. 评价对象与报告项
 
-首轮主报页级。信息单元级是 RARE 定义的精确实现，在获得 chunk 级标注的子集上追加报告。资源级用于失败归因，不进主表。
+| 指标 | 地位 | 单题语义 |
+| --- | --- | --- |
+| CEGR@K（Complete Evidence Group Recall） | 主指标，主报告 K=10 | 至少一组完整证据被取得时为 1，否则为 0；汇总为成功 intent 比例 |
+| BestGroupCov@K | 次指标 | 所有可替代完整组中，已满足 requirement 比例的最大值 |
+| CompleteMRR@K | 排序诊断 | 首次使任意完整组齐备的原始排名前缀长度的倒数；未齐备为 0 |
 
-**命名约定**：本文不把页级结果命名为 PerfRecall@10 或 Coverage@10，避免与 RARE 的 chunk 级定义混淆。指标前缀标明测量粒度。
+预先报告 K∈{1,5,10,20}，主要比较固定在 K=10，不按结果改选截断值。保存最终排序的 D=100 深度日志，用于映射审查、候选池和漏检诊断；有效返回不足 D 时保存全部，并记录返回数量及原因。D 不是主指标的计分深度，也不代替各方法内部候选深度的配置记录。
 
-## 2. 符号
+CEGR 名称中的 Recall **不表示检回全部替代组的比例**。一组完整即可成功，多找出替代组不会增加该题分值。CompleteMRR 是 PEARL 对“完整证据首次齐备位置”的操作化定义，不能称为标准首个相关片段 MRR，也不与其他论文的 MRR 直接同口径比较。
 
-- $Q$：具有可用检索标签的可回答 intent 集合，$|Q| = N$。
-- $q \in Q$：一个 underlying intent。
-- $n_q$：intent $q$ 的必要信息单元数。
-- $f_{q,j}$：第 $j$ 个必要信息单元，$j \in [1, n_q]$。
-- $R_q^K = (c_1, \dots, c_K)$：返回的前 $K$ 个 child chunk，按排名有序。
-- $\mathrm{rank}(c)$：chunk $c$ 在 $R_q^K$ 中的排名，从 1 起。
-- $\mathrm{res}(c)$、$\mathrm{ps}(c)$、$\mathrm{pe}(c)$：chunk $c$ 的来源资源、起始页、结束页。
+## 2. Gold 与支持关系
 
-## 3. 资源级指标
+### 2.1 可计分题集与证据组
 
-### 3.1 可接受资源集合
+令 Q⁺ 为冻结语料内可回答、且 Gold 已审定有效的 underlying intent 集合。每个 q∈Q⁺ 具有非空完整证据组集合：
 
 $$
-\mathcal{R}_{q,j} = \{r_{q,j}\} \cup \mathcal{E}^{\mathrm{res}}_{q,j}
+\mathcal G_q=\{G_{q,1},\ldots,G_{q,m_q}\},\qquad m_q\ge1,\quad |G_{q,g}|\ge1.
 $$
 
-其中 $r_{q,j}$ 是标注来源资源，$\mathcal{E}^{\mathrm{res}}_{q,j}$ 是已识别的等价来源资源（当前为空集）。
+每个组 G 是一组必要 evidence requirements；满足其中**所有** requirement 才足以支持该题的预定答案范围。多个完整组是可替代的答案证据路径：**组内 AND，组间 OR**。不得把不同组的若干局部证据合计成一组完整证据。
 
-### 3.2 Resource-Hit@K
+一个 requirement e 包含待支持事实及不可缺少的限定：对象、研究或实验身份、场景、条件、单位，以及适用的比较或冲突角色。数值出现但单位、对应表头或必要条件缺失时，不能把该 requirement 判为满足。
 
-$$
-\mathrm{Resource\text{-}Hit}@K(q) = \mathbf{1}\left[\forall j \in [1, n_q]: \exists c \in R_q^K,\ \mathrm{res}(c) \in \mathcal{R}_{q,j}\right]
-$$
+跨论文比较若要求同时解释两篇论文，两方证据须是**同一完整组中的 AND requirements**；只有另一套证据可以独立完成整个比较时，才新增 OR 组。研究 A 的条件与研究 B 的数值不可拼成同一项实验结论。
 
-$$
-\mathrm{Resource\text{-}Hit}@K = \frac{1}{N}\sum_{q \in Q} \mathrm{Resource\text{-}Hit}@K(q)
-$$
+### 2.2 来源原子与支持 bundle
 
-**用途**：判断检索器能否定位到正确论文。Resource-Hit=0 说明失败发生在论文层，与页内定位无关。
+来源原子 a 保存 source_id、来源版本/哈希、原文锚点（文本位置或表格坐标）、原文内容，以及必要的对象和条件信息。页码和资源 ID 是定位信息，不能单独证明支持成立。来源原子可跨越一个或多个实验 child；它的身份不依赖切块结果。
 
-## 4. 页级指标
-
-### 4.1 可接受 chunk 集合
-
-给定必要信息单元 $f_{q,j}$，其标注为资源 $r_{q,j}$ 的第 $p_{q,j}$ 页（1-based）。定义：
+每个 requirement e 有非空的可接受支持 bundle 集合：
 
 $$
-A_{q,j} = \left\{c \in \mathrm{Chunks}(r_{q,j}) \;\middle|\; \mathrm{ps}(c) \le p_{q,j} \le \mathrm{pe}(c)\right\}
+\mathcal B_{q,e}=\{B_{q,e,1},\ldots,B_{q,e,b_e}\},\qquad b_e\ge1,\quad |B_{q,e,b}|\ge1.
 $$
 
-即**任何覆盖标注页的 child chunk 都视为可接受**。这是页级宽松映射（page-level permissive），记为映射规则 `mapping-v1-page-permissive`。
+一个 bundle 是共同支持 e 的来源原子集合，**原子间 AND，bundle 间 OR**。例如，“实验 A 在条件 C 下的流量为 V”可由同一实验的数值单元、表头与条件说明共同支持，也可由另一段完整、语义等价的原文单独支持。
 
-**该规则的性质**：
+各 requirement 的替代 bundle 必须能**独立互换**。若选择同一研究、同一实验或同一条件的要求存在跨 requirement 耦合，须把这些约束写入 requirement 身份，并把每一种允许的完整组合编码为独立的证据组；不能先分别取各 requirement 的任意替代来源，再将不相容结果相乘。
 
-- $|A_{q,j}|$ 在当前索引上通常为 5–12（单页含多个 child chunk），因此命中一个可接受 chunk 不等于命中目标信息。
-- 由此得到的指标测量"标注页是否进入 Top-K"，不测量"必要信息是否完整取得"。
-- 该规则**高估** RARE 意义下的 PerfRecall，因为同页无关 chunk 也算命中。
-- 未识别的等价来源造成**低估**。两种偏差方向相反，不互相抵消，须分别记录。
+### 2.3 从实际文本判定支持
 
-### 4.2 命中指示量
+给定被评价文本集合 X，定义：
 
 $$
-h_{q,j}(K) = \mathbf{1}\left[R_q^K \cap A_{q,j} \ne \varnothing\right]
+v_{q,a}(X)=\mathbf1[\text{X 的实际内容完整提供来源原子 a 所需的证据及限定}].
 $$
 
-这是计算中间量，不是指标。命中 $A_{q,j}$ 中任意一个 chunk 即满足该信息单元；重复命中不重复计分。
+该判断允许 X 内多个 child **共同**提供一个原子，但须保留可核验的来源关联、必要内容与条件。多个片段覆盖的源位置可用于候选映射；坐标重叠、同页或文本相似度本身都不能替代内容核验。解析丢失小数点、数值列或单位时，即使元数据位置正确，也不能判为支持。
 
-### 4.3 Page-Hit@K
-
-单题全命中指示：
+requirement 命中定义为：
 
 $$
-\mathrm{Page\text{-}Hit}@K(q) = \mathbf{1}\left[\sum_{j=1}^{n_q} h_{q,j}(K) = n_q\right]
+h_{q,e}(X)=\max_{B\in\mathcal B_{q,e}}\prod_{a\in B}v_{q,a}(X).
 $$
 
-题集宏平均：
+因此，一个 child 可以满足多项 requirement；多个 child 可以共同满足一项 requirement；重复出现同一内容不会增加分值。一项 requirement 的 bundle 只取得一部分时，该项仍为 0，不能按片段数量给分。BestGroupCov 的分母是 requirement 数，不是支持原子数、来源数或 chunk 数。
+
+每个实验保存来源到实际 child 文本的映射、支持判定、判定依据和版本。child ID、文本哈希及支持片段是实验映射产物，不写成跨切块配置通用的 Gold 身份。Layer 1 的 X 只能来自 Top-K 原始 child，不能补入 parent、摘要改写、未返回 sibling 或外部知识。
+
+### 2.4 Gold 规范化
+
+冻结前须去除组内重复 requirement、重复组和逻辑冗余的严格超集组；bundle 中也不重复计同一来源原子。若 G₁⊂G₂ 且各 requirement 的语义身份相同，G₂ 对“任一完整组即可”的逻辑没有贡献，不保留为额外覆盖路径。不同条件或不同实验的事实不能仅凭相似文字去重。
+
+每个保留组须对预定答案范围充分，且不能含无关或可随意删去的 requirement。事实拆分粒度、组数量及替代来源范围在评分前冻结；改变这些内容必须产生新 Gold 版本。否则，即使检索结果不变，部分覆盖分母或成功机会也会变化。
+
+## 3. 排名与指标公式
+
+令 R_q=(c₁,…,cₙ) 为本次有效返回的最终有序 child 列表，排名从 1 开始。定义 R_q^K=(c₁,…,c_min(K,n))，T(R_q^K) 为这些记录的原始文本。以下简写 h_q,e(K)=h_q,e(T(R_q^K))。
+
+同一 chunk 或重复文本再次返回时仍占一个排名槽位。评分器不去重后补入第 K+1 条，也不重新编号。证据支持按内容集合判断，重复记录不重复满足 requirement；若系统自己在输出前做去重，则该步骤属于已记录的算法配置。
+
+### 3.1 CEGR@K
 
 $$
-\mathrm{Page\text{-}Hit}@K = \frac{1}{N}\sum_{q \in Q} \mathrm{Page\text{-}Hit}@K(q)
-$$
-
-**语义**：所有必要信息所在页都进入 Top-K 的 intent 比例。对应 RARE PerfRecall 的页级近似，是首要比较指标。
-
-### 4.4 Page-Coverage@K
-
-$$
-\mathrm{Page\text{-}Coverage}@K(q) = \frac{1}{n_q}\sum_{j=1}^{n_q} h_{q,j}(K)
+S_q(K)=\max_{G\in\mathcal G_q}\prod_{e\in G}h_{q,e}(K),
 $$
 
 $$
-\mathrm{Page\text{-}Coverage}@K = \frac{1}{N}\sum_{q \in Q} \mathrm{Page\text{-}Coverage}@K(q)
+\operatorname{CEGR}@K=\frac1{|Q^+|}\sum_{q\in Q^+}S_q(K).
 $$
 
-**语义**：必要信息页的平均覆盖比例，用于解释部分命中程度。需要三个信息单元、命中两个时，单题得 $2/3$。
+单题 S_q(K)=1 当且仅当至少一个完整组被满足。分母始终是固定的可计分 intent 数，不能改成“当前方法能够检索到的题数”。
 
-### 4.5 Page-MRR@K
-
-对每个必要信息单元定义首次命中排名：
+### 3.2 BestGroupCov@K
 
 $$
-\rho_{q,j}(K) = \min\left(\{\mathrm{rank}(c) \mid c \in R_q^K \cap A_{q,j}\} \cup \{\infty\}\right)
+C_q(K)=\max_{G\in\mathcal G_q}\frac1{|G|}\sum_{e\in G}h_{q,e}(K),
 $$
 
-单元倒数排名：
-
 $$
-\mathrm{RR}_{q,j}(K) = \begin{cases} 1/\rho_{q,j}(K), & \rho_{q,j}(K) \le K \\ 0, & \text{否则} \end{cases}
+\operatorname{BestGroupCov}@K=\frac1{|Q^+|}\sum_{q\in Q^+}C_q(K).
 $$
 
-单题平均后取题集平均：
+该值表示最接近齐备的**单个允许组**的覆盖比例。不能用跨组已命中 requirement 的并集作分子，也不能先选本次命中最多的若干事实重构分母。不同组大小不同时，最大比例可能来自较短路径；这是该定义的性质，须结合组大小与替代路径数量分层报告。它不表示“答案已经正确了多少”。
+
+### 3.3 CompleteMRR@K
 
 $$
-\mathrm{Page\text{-}MRR}@K = \frac{1}{N}\sum_{q \in Q} \frac{1}{n_q}\sum_{j=1}^{n_q} \mathrm{RR}_{q,j}(K)
+\tau_q(K)=\min\bigl(\{r:1\le r\le\min(K,n),\ S_q(r)=1\}\cup\{\infty\}\bigr),
 $$
 
-**与 OmniEval MRR 的差异**：OmniEval 的 $\mathrm{RR} = 1/\mathrm{FRP}$ 只看首个相关文档，不按信息单元分解，且不截断。本定义按信息单元分解并截断到 $K$，因此不声称与其同口径。若需与 OmniEval 可比，另报单题首个相关 chunk 的 $\mathrm{MRR}@K$（记为 First-Hit-MRR@K）。
-
-## 5. 信息单元级指标（需细化标注）
-
-获得 chunk 级标注后，$A_{q,j}$ 由页级宽松集合替换为人工确认的可接受 chunk 集合：
-
 $$
-A^{\mathrm{info}}_{q,j} = \left\{c \;\middle|\; c \text{ 的文本确实承载 } f_{q,j}\right\}
+\operatorname{CompleteRR}_q@K=
+\begin{cases}
+1/\tau_q(K),&\tau_q(K)<\infty,\\
+0,&\text{前 K 条未使任何组完整。}
+\end{cases}
 $$
 
-代入 §4.3、§4.4 的公式即得 $\mathrm{Info\text{-}PerfRecall}@K$ 和 $\mathrm{Info\text{-}Coverage}@K$，此时与 RARE 定义一致，可正当使用 PerfRecall / Coverage 命名。
-
-**等价来源扩展**：$A^{\mathrm{equiv}}_{q,j} = A^{\mathrm{info}}_{q,j} \cup \mathcal{E}^{\mathrm{chunk}}_{q,j}$，其中 $\mathcal{E}^{\mathrm{chunk}}_{q,j}$ 是跨资源等价证据。等价性须包含场景、条件、单位和对象一致，不能仅凭主题相似认定。
-
-## 6. 当前标注的结构性限制
-
-对 `outputs/stage2-agent-adjudicated-20260927-03/annotations.jsonl` 的核查结果（2026-09-28）：
-
-| 项目 | 实测 |
-| --- | --- |
-| intent 总数 | 20 |
-| 可计分 intent | 18（2 题 `agent_disputed` 且 `required_facts` 为空） |
-| 每题必要事实数 | 1–3 |
-| 每题不同 `(resource, page)` 组合数 | **全部为 1** |
-| 每题证据组数 | **全部为 1** |
-| 标注页的 child chunk 数 | 均值 7.7，范围 5–12 |
-| 标注页为第 1 页的 intent | 15/18 |
-
-### 6.1 Coverage 与 PerfRecall 的退化
-
-由于每题的全部必要事实共享同一 $(resource, page)$，页级映射下所有 $A_{q,j}$ 相同：
-
 $$
-A_{q,1} = A_{q,2} = \dots = A_{q,n_q} \implies h_{q,1}(K) = \dots = h_{q,n_q}(K)
+\operatorname{CompleteMRR}@K=\frac1{|Q^+|}\sum_{q\in Q^+}\operatorname{CompleteRR}_q@K.
 $$
 
-因此在当前标注上：
+排名第一的片段即使相关，只要尚未取得完整组，CompleteRR 也不是 1。该指标衡量完成证据检索所需的前缀深度，不测量首个相关结果的位置。
+
+### 3.4 聚合与一致性检查
+
+上述公式按 underlying intent 宏平均。当前主实验每个 intent 使用预先固定的英文查询；如包含英文改写，应先按预先固定权重在 intent 内聚合，再对 intent 平均，不能将改写数当作独立样本数。
+
+对已审定 Gold 和同一固定排名，三项单题得分随 K 非递减，且 0≤S_q(K)≤C_q(K)≤1、C_q(K)=1 当且仅当 S_q(K)=1。CompleteRR>0 当且仅当 S_q(K)=1。所有组都只有一项 requirement 时，BestGroupCov 与 CEGR 恒等；发生退化须明确报告，不把两者当作独立证据。
+
+这些性质针对证据存在与完整性，不表示多加噪声不会影响生成器。改变切块长度也会改变每个 K 可容纳的文本量与完成排名；跨切块比较须同时报告 token 量和固定 token 预算结果，不能把固定 K 解释为相同信息或成本预算。
+
+### 3.5 资源与页定位诊断
+
+令 A_q 是该题所有已接受完整组及其支持 bundle 中的来源原子，D_q 是这些原子的版本化来源集合，P_q 是它们的 `(来源版本, 页码)` 锚点集合。src(c) 和 pages(c) 分别为返回 child 的来源版本和经核验的来源页集合。
 
 $$
-\mathrm{Page\text{-}Coverage}@K(q) \in \{0, 1\} = \mathrm{Page\text{-}Hit}@K(q)
+\mathrm{AnySourceHit}_q@K=\mathbf1[\exists c\in R_q^K:\mathrm{src}(c)\in D_q],
 $$
 
-两个指标**数值恒等**，Coverage 不提供额外信息，design.md §3.3 的"三个单元命中两个得 2/3"在当前开发集上不可能出现。
+$$
+\mathrm{AnyPageHit}_q@K=\mathbf1[\exists c\in R_q^K,\ p\in\mathrm{pages}(c):(\mathrm{src}(c),p)\in P_q].
+$$
 
-这一退化与 RARE 自身结果一致：RARE 附录 D 的 1-hop 列中 Coverage@10 与 PerfRecall@10 完全相同（如 BM25 Finance 82.9/82.9、OpenAI-Large 90.1/90.1），两者只在 2-hop 及以上分离。当前开发集全部为单组单页，等价于 1-hop 场景。
+这两项只判断任意一个已标注来源或页面被定位，不要求全部 requirements 或完整组。与主指标使用同一 Gold／mapping 版本，主诊断报 @10；同页无关段落可以使 AnyPageHit=1，而 CEGR 仍为 0。
 
-**处理**：首轮主报 Page-Hit@10，Page-Coverage@10 仅在表中标注"当前标注下与 Page-Hit 恒等"，不作为独立证据。要让 Coverage 产生信息量，需引入多页或多组证据的 intent。
+两项按 intent 宏平均。若来源没有页码，应预先声明共同的页诊断适用子集和 N；缺失页信息填 NA，不当 0。运行记录缺必要来源元数据属于输出无效，不能借此缩小某个方法的诊断分母。
 
-### 6.2 第 1 页集中
-
-15/18 题的标注页是第 1 页（标题页/摘要页）。摘要主题密度高、术语集中，检索难度显著低于正文页。这使页级指标偏乐观，且削弱了对正文定位能力的测量。报告须说明该分布。
-
-### 6.3 等价来源缺失
-
-当前每个证据组只有一个 alternative，$\mathcal{E}^{\mathrm{res}}_{q,j} = \varnothing$。design.md §3.2 的等价来源机制在当前数据上无测试用例，Page-Hit 会因未识别的等价来源而低估真实召回。
-
-## 7. 计分资格规则
+## 4. 计分资格、缺失与未审定映射
 
 | 情形 | 处理 |
 | --- | --- |
-| `required_facts` 为空或必要信息无法确定 | 不可计分，报告其数量，不记作失败也不记作满分 |
-| 原文确有证据但解析/切块丢失内容 | 保留该信息单元，计未命中；不通过删题提高分数 |
-| 标注资源不在当前索引 | 视为标签缺陷，不可计分，单独报告 |
-| 争议题但必要信息可确定 | 可进入汇总，标注争议状态 |
-| 空标签 | 不触发"全部命中" |
+| Q⁺ 非空、Gold 有效、所有计分记录已完成支持核验 | 按以上公式计分 |
+| 语料内不可回答 Q⁻ | 在运行前独立标记，不进入本层召回分母；保留给充分性与拒答评价 |
+| 空组集合、空完整组、空支持 bundle、缺失必要事实或未解决标注争议 | Gold 无效或未审定；不以空集合逻辑产生满分，也不当作检索失败；冻结前修复或从共同题集明确隔离并报告 |
+| Gold 来源不属于冻结语料，且语料内无其他完整支持路径 | 属于语料可回答性或数据设计问题；运行前修复或划入 Q⁻，不能按不同方法分别排除 |
+| Gold 在冻结原始语料中存在，但解析、切块或索引漏掉必要内容 | 仍保留 Q⁺；缺失的 requirement 判未命中，不删题提高分数；若其他替代组完整仍可成功 |
+| 有效返回为空或不足 K | 对实际有效返回的前缀计分；空返回为 0；记录数量和原因 |
+| 运行超时、记录缺失、文件损坏、排名或文本不可核验 | 运行输出无效，报告技术失败并按实验重试规则处理；不能静默填 0 成为检索质量分数 |
+| 返回的新片段或替代支持尚未核验 | 标记 unresolved，不自动视为无关或未命中；先审定再给冻结后的正式分数 |
+| Q⁺ 为空 | 汇总为 NA 并报告原因，不输出 0 或 1 |
 
-## 8. 双语汇总约定
+Q⁺ 的原始语料可回答性与某个实验索引的可取证性是两件事。可另报索引中是否存在任一完整组、是否存在不超过 K 个 child 的完整支持组合，作为解析/切块/索引诊断；这些条件不能替换共同主分母。
 
-同一 intent 的中英查询变体先取均值，再对 intent 取均值：
+## 5. 不完整 Gold 与支持候选池
 
-$$
-\mathrm{Metric}(q) = \frac{1}{|L_q|}\sum_{\ell \in L_q} \mathrm{Metric}(q, \ell), \quad L_q \subseteq \{\mathrm{zh}, \mathrm{en}\}
-$$
+正式分数以**相应评分深度内的支持判断已审定并冻结**为前提。候选池至少纳入本次对照各配置的 D=100 结果、已知来源锚点，以及为发现替代支持而收集的候选。先完成各方法前 20 及其实际前缀内支持组合的核验，即可正式报告 K=1/5/10/20；第 21–100 的未决项只阻止涉及该范围的深度诊断。审查时隐藏方法身份，核验单片段与共同支持组合；仅逐条做二元相关性判断会漏掉跨 child 的支持 bundle。
 
-这是项目汇总约定，不是新增指标，也不把双语查询视为独立意图。中英文另分别汇总以支持语言效应分析。报告须同时给出可计分 intent 数和查询数。
+记录每条标签的实际来源（Agent、人工或两者）、模型/提示版本、审查角色、争议与仲裁情况；未发生人工复核不得写为“人工 Gold”或“human verified”。前 20 计分范围内的 unresolved 项清理前，不发布本轮正式主表；深度诊断另报其核验覆盖范围。核验可以用原文验证意义，但实际支持不能借用该方法排名前缀之外的文字。审查完成不证明已穷尽全语料的全部替代支持。
 
-## 9. 指标使用边界
+若只使用已确认的正向支持，可给出明确标注的**临时已知支持分数**。仅在已有证据组确实充分、且未决部分只可能增加有效支持时，它至多可解释为真实支持得分的保守下界；若缺了必要条件或整个 requirement，得分可能偏高，不能称为下界。
 
-| 指标 | 地位 | 边界 |
+新系统返回未评估来源时，须进入相同支持审查流程。发现有效替代证据或错误标签后，新建 Gold/映射版本并重算所有受影响方法，保留旧结果；不能只为某个方法追加命中，也不能边看测试得分边调整 requirement、阈值或答案范围。未审定项数量及比例、候选池贡献来源和 Gold 修订记录须随结果报告。相关风险与文献依据见 [参考文献](../references/README.md)。
+
+## 6. 固定算例与预期结果
+
+以下仅为协议的合成算例，不是研究数据或已运行结果。各字母表示条件已固定的 requirement，除特别说明外，一个命中字母代表它的完整支持已出现。
+
+### 6.1 组内 AND、组间 OR 与完成排名
+
+Gold 为 (A AND B) OR (C AND D)，两个组都是独立充分的完整路径。
+
+| 原始返回顺序 | K | CEGR 单题值 | BestGroupCov 单题值 | CompleteRR | 解释 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| [A,D] | 2 | 0 | 1/2 | 0 | 两个不完整组不能拼成成功 |
+| [A,无关,B] | 2 | 0 | 1/2 | 0 | 只有 A |
+| [A,无关,B] | 3 | 1 | 1 | 1/3 | 第 3 条首次完成 A AND B |
+| [C,D] | 2 | 1 | 1 | 1/2 | 完成任一替代组即可 |
+| [A,A,B] | 2 | 0 | 1/2 | 0 | 重复 A 消耗排名槽，不补入 B |
+| [A,A,B] | 3 | 1 | 1 | 1/3 | 去重证据支持，但不压缩排名 |
+| [无关] | 10 | 0 | 0 | 0 | 有效短返回只按实际文本计分 |
+
+部分覆盖的非二值算例：Gold 仅有组 {A,B,C}，返回 [A,B] 时 CEGR=0、BestGroupCov=2/3、CompleteRR=0。
+
+### 6.2 一个事实跨 child 与等价支持
+
+Gold 仅有组 {F}。F 的支持为 B₁={数值原子 u, 条件原子 v} 或 B₂={完整等价陈述 w}。u 与 v 属于同一已核验实验，w 包含同一事实和全部必要条件。
+
+| 原始返回顺序 | K | CEGR | BestGroupCov | CompleteRR |
+| --- | ---: | ---: | ---: | ---: |
+| [u] | 1 | 0 | 0 | 0 |
+| [u,v] | 2 | 1 | 1 | 1/2 |
+| [w] | 1 | 1 | 1 | 1 |
+| [u,其他实验的条件] | 2 | 0 | 0 | 0 |
+
+若单个原子 w 自身横跨两个 child w_left、w_right，且两者实际文本联合完整提供 w，则 [w_left] 不命中，[w_left,w_right] 在第 2 条命中，CompleteRR=1/2。该判断依赖内容与来源关联，不依赖两条是否共享 parent ID。
+
+### 6.3 定位、空标签与层间边界
+
+| 情形 | 预期 |
+| --- | --- |
+| 返回 Gold 所在页的背景段落，但无必要事实 | Layer 1 三项得分均为 0，即使页定位命中 |
+| 上一行的 parent 含完整 Gold 且进入最终上下文 | Layer 1 仍为 0；Layer 2 可记录补证后完整，不回填 child 命中 |
+| child 原本完整，但组装时截掉必要条件 | Layer 1 成功；Layer 2 记录组装后的证据损失 |
+| Gold 组集合为空，或包含空组/空 bundle | 校验不通过，不能用空积=1 产生成功 |
+| 原始语料有必要证据，当前索引将其丢失，且无完整替代路径 | 仍计入 Q⁺；完整成功为 0，部分覆盖按其余实际支持计算 |
+| 已知支持以外的返回证据未审查 | unresolved；不作为正式零分案例 |
+
+## 7. Layer 2 衔接与使用限制
+
+Layer 2 可以在**最终实际送入生成器的上下文**上复用同一来源支持与组完整性定义，计算 Context-CEGR 和 Context-BestGroupCov，但评价输入必须重新核验：被截去、损坏或只存在于未使用 parent 中的内容不计入。Layer 1 原始观察保持不变。
+
+使用相同 Q⁺ 与 Gold 时，可报告 child/最终上下文完整性的四态计数 n₁₁、n₁₀、n₀₁、n₀₀；其中 n₀₁ 为补证，n₁₀ 为损失，完整率净变化为 (n₀₁−n₁₀)/|Q⁺|。两个阶段的总体完整率均可报告，但不能把同一传播缺失简单相加成为两次新增失败。上下文完整性也不等于系统“充分/不足”预测准确率；Sufficiency Accuracy 需要单独的预测与审定参考标签。详见 [Layer 2](../layer-2-evidence/README.md)。
+
+CEGR 与 BestGroupCov 测量证据取得情况，不评价答案正确性、引用准确性、噪声耐受或冲突处理能力。冲突型问题需要的双方证据及限定必须预先写入完整组，不能临时任选有利一方。它们也不估计全语料全部相关片段的召回率。
+
+## 8. 文献依据与 PEARL 自定部分
+
+| 来源 | 可借鉴内容 | 本协议的区别 |
 | --- | --- | --- |
-| Page-Hit@10 | 首要 | 测量页命中，非信息完整性 |
-| Page-Coverage@10 | 辅助 | 当前标注下与 Page-Hit 恒等 |
-| Page-MRR@10 | 辅助 | 只看位置，不能替代完整性评价 |
-| Resource-Hit@10 | 诊断 | 不进主表，用于失败归因 |
-| Info-PerfRecall@10 | 待启用 | 需 chunk 级标注 |
+| FEVER 官方任务说明 | 多句可共同构成证据；取得至少一套完整证据即可满足证据要求 | 本协议用来源锚定的 requirement/bundle 和原始 child 文本判定；CEGR 不包含答案或分类正确性 |
+| RARE §5.1 | 区分必要信息部分覆盖与完整取得，并考虑语义等价支持 | 本协议明确 DNF 组、条件约束、跨 child 支持与最大组覆盖，不声称直接复现其 chunk 级指标 |
+| KILT §2、§4、§5 | 来源文本 span 与多套 provenance；报告中区分来源追溯与检索结果 | KILT 的主检索指标采用页级口径，本协议不能用页命中替代内容命中，也不采用其排名折叠规则 |
+| NIST TREC 概览 §2.1.3 | 不完整相关性判断和浅候选池可能影响比较 | 本协议显式记录 unresolved 与池覆盖，不把未审定等同无关 |
 
-本轮不加入 MAP、nDCG，避免额外准备完整相关性标签和等级标签；不扩展多个 $K$ 的主报告。不可回答题不进入必要信息召回汇总，拒答评价属 Layer 4。
-
-不设置无研究依据的通过阈值。完整检索不保证生成答案正确——后者属 Layer 2。
+完整出处与访问入口集中于 [参考文献](../references/README.md)。CEGR 的具体支持组合规则、BestGroupCov、CompleteMRR、原始排名槽位和 Layer 1/2 四态归因是 PEARL 的操作化约定，须在实验前冻结；它们不构成上述来源已经验证本协议有效性的证据。

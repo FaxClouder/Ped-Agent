@@ -1,10 +1,10 @@
 # Layer 5: Agentic Decision
 
-*Agent 决策过程评价 · status: 待设计 · 2026-09-28*
+*Agent 决策过程评价 · status: plan · 2026-09-28*
 
 Layer 5 评价 Agent 的证据需求规划、迭代检索、充分性判断与停止决策。评价的失败模式是**错误停止或过度检索**。
 
-Layer 5 不是顺序链条中的一环，而是控制 Layer 1 / Layer 1.5 反复执行的决策器。
+Layer 5 不是顺序链条中的一环，而是控制 Layer 1 / Layer 2 反复执行的决策器。
 
 ## 职责边界
 
@@ -15,7 +15,7 @@ Layer 5 不是顺序链条中的一环，而是控制 Layer 1 / Layer 1.5 反复
 | 停止时机是否恰当 | 本层 |
 | 查询改写是否带来增益 | 本层 |
 | 单轮检索的召回质量 | Layer 1 |
-| 最终答案质量 | Layer 2/3 |
+| 最终答案质量 | Layer 3 / Layer 4 |
 | 额外轮次的代价 | Layer 6 |
 
 ## 待定义指标
@@ -50,7 +50,7 @@ Layer 5 不是顺序链条中的一环，而是控制 Layer 1 / Layer 1.5 反复
 
 1. **评测口径的固定**（[PEARL-framework.md](../PEARL-framework.md) §2.4）：多轮检索必须先明确是单轮还是最终合并的 Top-K。把多轮累计的全部证据直接与静态 Top-K 比较是不公平对照——前者的有效检索预算更大。合并口径下须同时报告累计检索量。
 
-2. **Gold requirements 的来源**：Requirement Coverage 需要"该题实际需要哪些证据"的参考标签。Stage 2 的 `required_facts` 与 `evidence_group_ids` 可作起点，但当前 18 题全为单组单页，多跳子集为空，Hop Retrieval Success 无测试用例。
+2. **Gold requirements 的来源**：Requirement Coverage 需要在新 PEARL 标注中定义"该题实际需要哪些证据"。若要报告 Hop Retrieval Success，新数据必须包含多跳/多证据子集。
 
 3. **多跳子集的构建**：Hop 指标仅在多跳/多证据 Gold 子集上报告。该子集须先存在——需要扩充跨论文比较、多数据点综合类 intent。
 
@@ -70,6 +70,6 @@ Layer 5 不是顺序链条中的一环，而是控制 Layer 1 / Layer 1.5 反复
 ## 前置依赖
 
 - Layer 1 选定并冻结检索底座
-- Layer 1.5 的充分性判断标签
+- Layer 2 的充分性判断标签
 - 多跳/多证据 intent 子集存在
 - 逐轮日志记录规范写定

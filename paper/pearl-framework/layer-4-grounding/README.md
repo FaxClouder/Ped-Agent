@@ -1,8 +1,10 @@
 # Layer 4 · Grounding
 
-*证据忠实与引用评价 · status: 待设计 · 2026-09-28*
+*证据忠实与引用评价 · status: current · 2026-09-28*
 
-> **编号**：本目录是 PEARL Layer 4 的 **Grounding 部分**，原为独立的 Layer 3。Layer 4 的另一部分 Reliability 在 [layer-4-reliability/](../layer-4-reliability/)。目录名 `layer-3-grounding/` 保留历史命名，未改名。合并理由见 [PEARL-framework.md](../PEARL-framework.md) §8.4，两部分分工见 §2.4。
+> **执行状态（2026-10-07 同步）**：本页是协议说明；80 题开发评价已执行，结果与限制见[Layer 4 实验入口](../../../experiments/pearl-layer4-dev80-20261004/README.md)。下文中“待定义”“尚未执行”等表述保留为协议起草时的状态。
+
+> **编号**：本目录是 PEARL Layer 4 的 **Grounding 部分**，原为独立的 Layer 3（目录 `layer-3-grounding/`）。Layer 4 的另一部分 Reliability 在 [layer-4-reliability/](../layer-4-reliability/)。合并理由见 [PEARL-framework.md](../PEARL-framework.md) §8.4，两部分分工见 §2.4。
 
 本部分检验答案中的每条可核查 claim 是否获得所给证据支持，以及所标引文是否真正支持其对应 claim。评价的失败模式是**无依据推断**。
 
@@ -46,7 +48,7 @@
 
 5. **领域特异的支持判定**：行人交通领域的数值、单位和实验条件须一并核对。证据给出 0.9 m 瓶颈的结果，答案陈述为 1.0 m 条件下成立，属不忠实而非近似正确。
 
-6. **Factuality 的 Gold 来源**：Factuality 需要独立于检索证据的事实判断依据。当前 Stage 2 标注不含此项，须明确其来源与标注成本。
+6. **Factuality 的 Gold 来源**：Factuality 需要独立于检索证据的事实判断依据，须在新 PEARL 标注中明确其来源与成本。
 
 ## 文档规划
 

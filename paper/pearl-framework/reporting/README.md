@@ -1,6 +1,12 @@
 # 报告规范
 
-*主表、诊断表、统计报告、发表检查清单 · status: 部分定义 · 2026-09-28*
+*PEARL 主表、诊断表与统计报告规则 · status: plan · 2026-09-29*
+
+## 当前结果入口
+
+[Layer 1至4结果汇总与架构问题分析](layer1-4-results-and-architecture-review-2026-10-05.md)汇总当前实际完成的200题检索评价与80题开发链结果，说明表现、架构瓶颈和验证边界。下文为2026-09-29的报告规范计划快照，其中“未执行”描述不代表2026-10-05的实验状态。
+
+旧评估资产和结果不填入 PEARL 报告。算法配置在具体实验中列为对照条件；指标名称、分母和判断规则应由 PEARL 协议预先固定，不能因某个算法的表现而更改。
 
 ## 文档规划
 
@@ -11,46 +17,48 @@
 | `statistical-reporting.md` | 跨层统一的统计报告规范 |
 | `publication-checklist.md` | 发表前的口径与声明检查清单 |
 
-Layer 1 的统计方法已在 [layer-1-retrieval/statistical-methods.md](../layer-1-retrieval/statistical-methods.md) 定义，可作跨层规范的蓝本。
+Layer 1 采用新的 [统计协议](../layer-1-retrieval/statistical-methods.md)：80/200 新样本计划、三项预设配对比较、精确 McNemar＋Holm 与 intent 配对分层 bootstrap。其他层须依据自己的数据类型另定检验。
 
 ## 主表六项
 
 口径见 [PEARL-framework.md](../PEARL-framework.md) §5.1。层编号为 v1.1 新编号，与目录名的映射见同文 §0.3。
 
-主表是**报告模板**，不是结果表。当前只有 Layer 1 的指标可算，其余五项未执行，填表时写"—（未执行）"而不留空——留空会被读成 0 或读成遗漏。
+主表是**报告模板**，不是结果表。Retrieval 指标已定义，新评估数据与支持映射尚未完成，所有层均未执行；填表时写"—（未执行）"。
 
 | # | 指标 | 方向 | 层 | 当前状态 |
 | --- | --- | --- | --- | --- |
-| 1 | Page-Hit@10 <sup>a</sup> | ↑ | 1 Retrieval | 可算，实验未运行 |
+| 1 | CEGR@10 <sup>a</sup> | ↑ | 1 Retrieval | 已定义，未执行 |
 | 2 | Answer Correctness | ↑ | 3 Answer | —（未执行） |
 | 3 | Faithfulness | ↑ | 4 · Grounding | —（未执行） |
 | 4 | Unsupported Claim Rate | ↓ | 4 · Grounding | —（未执行） |
 | 5 | Abstention F1 | ↑ | 4 · Reliability | —（未执行） |
 | 6 | Latency | ↓ | 6 Efficiency | —（未执行） |
 
-<sup>a</sup> Complete Evidence Group Recall 在当前页级标注下的实现，映射规则 `mapping-v1-page-permissive`；chunk 级标注就绪后升级为 Info-PerfRecall@10。定义见 [layer-1-retrieval/metrics.md](../layer-1-retrieval/metrics.md) §4.3。
-
-**列名用可算的指标名**：主表写 Page-Hit@10 而非 Complete Evidence Group Recall@10，目标指标名只出现在表注。后者在前会让读者把页级结果读成证据组级结果。
+<sup>a</sup> CEGR 表示原始 Top-K child 满足至少一组完整证据的 intent 比例；不是页定位，也不要求找全所有替代组。详见 [指标协议](../layer-1-retrieval/metrics.md)。
 
 资源受限场景可用 Tokens 替换 Latency，但须在实验前选定并对所有方法保持一致，不能按结果择优。
 
 ## 诊断表
 
-MRR、nDCG、Citation P/R、hop 指标、数值误差与题型细分放诊断表或附录。
+各层诊断按实际定义分别报告。Retrieval 详细表报告 CEGR@10、BestGroupCov@10、CompleteMRR@10、N 和延迟；其他 K、资源／页定位、题型和失败记录放附表。本轮不以未定义的标准 MRR、nDCG 替代这些指标。
 
-**Page-Coverage@10 进诊断表，不进主表**：当前 18 题全为单组单页，它与 Page-Hit@10 数值恒等（[layer-1-retrieval/metrics.md](../layer-1-retrieval/metrics.md) §6.1）。两列相同数字并列会被当作两项独立证据，表中须标注"当前标注下与 Page-Hit 恒等"。
+BestGroupCov 是解释部分覆盖的次指标。若它与 CEGR 在新样本中恒等，应说明原因，不把两个相同数值作为独立证据。不同 Gold 版本或证据拆分粒度的覆盖值不能直接合并。
+
+若新标注包含页码，可将资源／页定位与证据内容命中分列。层间诊断须分别记录原始 Top-K child 的内容状态和最终组装上下文的充分性；parent 补证作为独立转移类别，不能改写原始检索命中，也不能与新增 Layer 2 失败混算。
 
 **不使用** BLEU/ROUGE 或单一 LLM 总评分替代主表指标。
 
 ## 统计报告要求
 
-来自 [framework.md](../framework.md) §5：
+依据 [PEARL 主框架](../PEARL-framework.md) §5：
 
 1. 报告总体均值、每题型结果、样本数和置信区间。
-2. 成对比较与 bootstrap 以 **underlying intent** 聚类，不把同一问题的中英/改写版本当独立样本。
+2. 成对比较与 bootstrap 以 **underlying intent** 聚类，不把同一问题的英文改写当独立样本。
 3. 同时报告 answerable 与 insufficient-evidence 子集，区分"正确回答""正确拒答""有证据但答错""证据不足却编造"。
 4. 对数值、冲突和条件问题提供错误案例审计。
 5. 所有阈值、rubric 和缺失值规则在封存测试前写定。
+
+Retrieval 的三项主比较固定为 R2−R1、R3−R2、R4−R3。报告配对百分点差、CI、胜／负／平和调整前后 p 值；不按结果挑 `max(R1,R2)`。未运行与未完成单列，不静默删除出错 intent；诊断深度外未知不能填写为实测末位排名。详细规则以 Layer 1 统计与实验协议为准。
 
 ## 声明口径
 
@@ -58,14 +66,14 @@ MRR、nDCG、Citation P/R、hop 指标、数值误差与题型细分放诊断表
 
 | 事项 | 正确表述 | 禁止表述 |
 | --- | --- | --- |
-| 标注来源 | agent review / agent-adjudicated | 人工 Gold、`human_verified=true` |
-| 定位粒度 | 页级 | 元素级精确引用 |
-| 指标口径 | Page-Hit@10（RARE PerfRecall 的页级近似） | PerfRecall@10 |
-| 样本性质 | 开发集探索性结果 | 封存测试结论 |
-| 双语查询 | 18 intent / 36 条查询 | 36 个独立样本 |
-| 复现程度 | 采用其指标定义 | 复现 RARE / OmniEval 的完整流程 |
+| 标注来源 | 声明新标签的实际标注与质控过程 | 未核验却称人工 Gold |
+| 定位粒度 | 声明新标签的实际资源、页或片段粒度 | 用粗粒度标签宣称精确片段命中 |
+| 指标口径 | 按实际测量对象命名并给出公式 | 用页级代理指标冒充信息完整召回 |
+| 样本性质 | 区分开发集探索与封存测试结果 | 开发结果冒充封存测试结论 |
+| 查询语言 | 声明主实验的英文查询范围；英文改写归入原 intent | 将改写当独立 intent，或将结果解释为跨语言效果 |
+| 复现程度 | 声明实际采用的指标或方法 | 未运行完整流程却宣称复现其他研究 |
 | 层数表述 | 四层顺序链条 + 一个控制器 + 一个横切维度 | 泛称"N 层框架"而不说明角色 |
-| 主表状态 | 报告模板，五项未执行 | 主表结果 |
+| 主表状态 | 报告模板，各项未执行 | 主表结果 |
 | 项目命名 | PedRAGent | Ped-Agent、PedAgent（后者为 Xie et al. 的先行系统） |
 
 ## 可复现信息
@@ -74,8 +82,8 @@ MRR、nDCG、Citation P/R、hop 指标、数值误差与题型细分放诊断表
 
 ## 设计时须解决的问题
 
-1. **小样本脚注的统一格式**：$N = 18$ 的警告须在所有表格出现，格式统一。
+1. **样本量脚注的统一格式**：按新实验的实际 $N$ 报告可计分 intent、英文改写数量和不确定性。
 
-2. **跨层统计规范的统一**：各层的 bootstrap 参数、检验方法和校正方式应一致，避免各层用不同口径。
+2. **跨层统计规范的统一**：共享 intent／题族、版本和缺失报告规则；各层根据指标类型及假设选择检验，不能强制对所有指标套用二值 McNemar。
 
 3. **发表检查清单**：投稿前须逐项核对标注等级声明、样本量披露、指标命名准确性、可复现信息完整性。

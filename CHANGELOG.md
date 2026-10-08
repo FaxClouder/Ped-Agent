@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Renamed the project display name to PedRAGent and kept PEARL as its evaluation framework; repository paths and Python package names remain unchanged.
 - Repositioned Ped-Agent as a modular pedestrian-flow research project.
 - Added independent `Contracts/`, `Agent/`, `Knowledge-Base/`, and `Video-Analysis/` projects.
 - Added `experiments/` for reproducible cross-module studies and separated current documents from

@@ -1,4 +1,4 @@
-# Ped-Agent contribution guide
+# PedRAGent contribution guide
 
 _Repository-wide rules for agents and contributors · current research-engineering boundary_
 
@@ -13,6 +13,9 @@ Read documents in this order before changing the repository:
 3. [`docs/project-architecture.md`](docs/project-architecture.md) for the current module map
 4. The README of the module being changed
 5. [`docs/README.md`](docs/README.md) to locate the small set of maintained documents
+6. [`experiments/EVALUATION-STANDARD.md`](experiments/EVALUATION-STANDARD.md) before creating, revising, or
+   using any evaluation question set or starting an evaluation experiment; identities are registered in
+   [`experiments/EVALUATION-REGISTRY.yaml`](experiments/EVALUATION-REGISTRY.yaml)
 
 The repository is a **research engineering project**, not a Web product or a long-running service.
 
@@ -58,6 +61,17 @@ observability unless a new architecture decision explicitly changes this boundar
 - Run a narrower module test first, then the full suite when the change crosses a contract.
 - Do not claim real OCR, embedding, reranker, GPU, or video-model validation unless the required
   assets and models were actually available and executed.
+
+## Research review and acceptance
+
+- Follow the [research review standard](docs/research-review-standard.md): completed and
+  validated Agent evaluations are formal project content by default.
+- Human review is an acceptance requirement only for a phase explicitly designated by the
+  user. Do not add a human-review gate from older plans or default workflows.
+- Record review provenance truthfully. `human_verified=false` does not mean incomplete or
+  non-formal; preserve historical labels and frozen outputs rather than relabeling them.
+- Actual evidence, required validation, unresolved judgments, and development/evaluation
+  distinctions remain binding under this acceptance standard.
 
 ## 🔒 Data and security rules
 

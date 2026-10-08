@@ -1,6 +1,6 @@
 # Failed / Deprecated Assets
 
-**Status:** Historical archive (2026-09-29)  
+**Status:** Historical archive (2026-09-29)\
 **Purpose:** Deprecated experiments and void scoring outputs from pre-PEARL evaluation protocols
 
 ---
@@ -87,7 +87,12 @@ failed/outputs-void-scores/
 
 ## 🧪 What remains reusable in `outputs/`
 
-After this migration, `outputs/` retains **19 directories, 948 MB**:
+> **2026-10-07 note:** the table below is the 2026-09-29 snapshot. `gold-v2-snapshot-20260924-01/`
+> is in `failed/outputs-void-scores/`, not `outputs/`, and `outputs/` has since grown to 64
+> directories (~31 GB). The current directory-level classification is in
+> [`docs/rag-asset-audit-2026-10-07.md`](../docs/rag-asset-audit-2026-10-07.md).
+
+After this migration, `outputs/` retained **19 directories, 948 MB**:
 
 | Asset                                       | Size  | Status       | Why kept                                    |
 |---------------------------------------------|-------|--------------|---------------------------------------------|

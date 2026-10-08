@@ -1,6 +1,6 @@
 # 104 篇知识语料索引构建
 
-_独立构建 parent-child-v1 的 FTS5 与 BGE-M3 检索索引 · status: current_
+_独立构建 parent-child-v1 的 FTS5 与 BGE-M3 检索索引 · status: historical（2026-10-07 由 current 改标；不进入 PEARL）_
 
 本实验使用 [`core_manifest.jsonl`](../../memPed/knowledge/literature/records/core_manifest.jsonl) 中
 `include=true` 的 104 篇,以及 Catalog 中对应的活动版本。入口在运行前核对资源 ID、

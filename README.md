@@ -1,7 +1,8 @@
-# Ped-Agent
+# PedRAGent
 
-Ped-Agent 是面向行人流研究的模块化科研工程。当前目标是形成可独立实验、可组合、
-可复现的知识检索、视频分析和证据问答能力，而不是建设 Web 产品或长期运行服务。
+PedRAGent 是面向行人流与疏散交通研究的模块化科研工程。名称融合 **Ped**（行人领域）、**RAG**（检索增强问答）和 **Agent**（Agentic RAG 中的规划、迭代检索与证据校验）；具体实现状态以代码与实验记录为准。研究主线是 **Agent/RAG**：
+比较领域文献的解析、切块、检索、重排、证据编排和问答方法，并用可复现实验评估效果。
+视频分析提供可组合的轨迹与流动证据；项目不建设 Web 产品或长期运行服务。
 
 ## 研究模块
 
@@ -15,6 +16,9 @@ Ped-Agent 是面向行人流研究的模块化科研工程。当前目标是形�
 科研资产按用途分开：`memPed/` 保存本地研究数据，`experiments/` 保存可复现实验定义，
 `paper/` 保存论文工程，`outputs/` 保存本地实验产物，`docs/` 保存方法和设计记录。
 当前文档入口见 [`docs/README.md`](docs/README.md)；贡献与 Agent 规则见 [`AGENTS.md`](AGENTS.md)。
+[`PEARL`](paper/pearl-framework/README.md) 是评价 PedRAGent 的目标框架，不是另一个系统。
+评测问题集与实验设置的统一规范见 [`experiments/EVALUATION-STANDARD.md`](experiments/EVALUATION-STANDARD.md)，登记表见 [`experiments/EVALUATION-REGISTRY.yaml`](experiments/EVALUATION-REGISTRY.yaml)。
+仓库目录与现有 Python 包名暂不随展示名称变更。
 
 ## 当前阶段边界
 
@@ -40,11 +44,11 @@ $env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src
 
 ## 研究开发顺序
 
-1. 固定输入数据和实验问题。
-2. 在单个模块内运行算法并保存中间产物。
-3. 记录配置、代码版本、模型版本和输入哈希。
-4. 生成指标、图表和实验报告。
-5. 模块接口稳定后，再开展跨模块组合实验。
+1. 固定领域语料、Gold 问题和实验划分。
+2. 比较解析、切块、BM25、BGE-M3、融合与可选重排，保存逐题结果。
+3. 记录配置、代码版本、模型版本、索引指纹和输入哈希。
+4. 分别评估检索、证据完整性与 Agent 问答，生成指标和失败案例。
+5. 模块接口稳定后，再开展视频证据与 Agent 的组合实验。
 
 研究目标设计保存在 `docs/data-analysis-module-design.md` 和
 `docs/vision-module-design.md` 中；是否已实现必须以代码和测试为准。

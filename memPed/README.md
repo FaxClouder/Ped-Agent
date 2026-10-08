@@ -1,107 +1,118 @@
-# memPed 数据目录
+# memPed 数据根目录
 
-`memPed/` 是 Ped-Agent 的统一数据根目录，只保存数据资产，不包含 Python、前端或脚本业务代码。
+_PedRAGent 本地研究数据、治理记录与可重建资产说明 · status: current_
 
-## 三个数据组件
+`memPed/` 是 PedRAGent 的统一数据根目录，只保存研究数据及其治理记录，不保存 Python、前端或脚本业务代码。知识处理逻辑位于 [`Knowledge-Base/`](../Knowledge-Base/README.md)；实验定义和本地运行结果分别位于 [`experiments/`](../experiments/README.md) 与 `outputs/`。
+
+## 当前边界
+
+| 组件 | 状态 | 用途 |
+| --- | --- | --- |
+| `knowledge/` | current | 文献、法规和标准的治理记录、原文 Vault、Catalog、派生文档、检索索引与评测数据 |
+| `conversations/` | reserved | 按 `session_id` 保存会话和小型附件；当前未实现稳定存储契约 |
+| `methods/` | reserved | 预留候选与采用的方法记录；当前没有正式表结构 |
+
+`reserved` 表示目录边界已约定，但不能据此推断功能已经实现。
+
+## 目录结构
 
 ```text
 memPed/
 ├─ knowledge/
-│  ├─ literature/
-│  │  ├─ files/       # 本地文献原文；不提交 Git
-│  │  └─ records/     # 候选、筛选、质量快照和 Manifest
-│  ├─ regulations/
-│  │  ├─ files/       # 本地法规、标准和规范原文；不提交 Git
-│  │  └─ records/     # 来源、版本、筛选和 Manifest
-│  ├─ knowledge.sqlite3
-│  ├─ fts.sqlite3
-│  ├─ models/       # 本地 tokenizer 与模型权重；不提交 Git
-│  ├─ indexes/      # 按策略单独命名的稠密/混合索引；不提交 Git
-│  ├─ derived/      # Canonical Document、结构元素、表格/图片、Chunk 和解析报告
-│  └─ reports/
-├─ conversations/
-│  ├─ conversations.sqlite3
-│  └─ files/<session-id>/
-└─ methods/
-   ├─ candidates/
-   ├─ approved/
-   └─ methods.sqlite3
+│  ├─ literature/{files,records}/
+│  ├─ regulations/{files,records}/
+│  ├─ derived/<resource-id>/<sha>/  # 解析文档、元素、Chunk、可选 Adobe 资产；不提交 Git
+│  ├─ models/bge-m3/                # 本地 BGE-M3 权重；不提交 Git
+│  ├─ gold/2026-09-23-rebuild/      # Gold Questions v5 候选：280 queries, 120+20 intents
+│  ├─ knowledge.sqlite3             # 权威 Catalog；不提交 Git
+│  ├─ taxonomy.yaml, quotas.yaml, literature_quality_rules.yaml
+│  ├─ pilot_gold.jsonl, core_gold.jsonl  # 历史 Gold 问题；不再用于当前评测
+│  └─ pilot_config.json, core_config.json
+├─ conversations/                  # 预留；运行数据不提交 Git
+└─ methods/{candidates,approved}/
 ```
 
-## `knowledge/`
+实际目录按需创建；空的预留目录不构成功能完成证明。
 
-知识库只保存能够回查来源的外部领域知识。当前正式资源类型为文献、法规和标准；数据集名称、版本和链接只作为文献元数据，不建立独立数据集目录。
+## `knowledge/` 数据流
 
-- `literature/files/`：合法取得的文献 PDF。文件名使用稳定 `resource_id`；正式导入后允许在该目录下生成按 SHA-256 寻址的副本。
-- `literature/records/`：候选清单、检索日志、期刊与引用快照、筛选记录、例外审批和 pilot/core Manifest。
-- `regulations/files/`：法规、标准和规范原文。
-- `regulations/records/`：官方来源核验、版本历史、筛选记录和 pilot/core Manifest。
-- `knowledge.sqlite3`：正式资源、版本、正文切块、资源关系和 chunk build provenance 的权威 Catalog；不同 `policy_version` 的 Chunk 可并存。
-- `fts.sqlite3`、`indexes/`：从 Catalog 派生、可以重建的检索索引。V2 必须使用单独命名的候选路径，不能覆盖现有基线。
-- `models/`：本地 tokenizer 和模型权重。Git 只保存模型配置及 tokenizer/权重哈希。
-- `derived/`：按 `resource_id/version_id` 保存规范文档、结构元素、表格、图片、
-  Parent-child Chunk 和解析报告；可从原文与配置重建，不提交 Git。
-- `reports/`：本地导入、解析、检索和评测报告。
-- 根目录 YAML/JSONL：分类、配额、质量规则、Gold Questions 和评测配置。`pilot_gold.jsonl` 当前包含 31 条规范化问题，配置使用最小问题数门槛。
+```mermaid
+flowchart LR
+    selected["实验选定的 PDF"] --> manifest["技术导入 Manifest"]
+    manifest --> preflight["技术预检"]
+    preflight --> vault["SHA-256 原文 Vault"]
+    preflight --> catalog["knowledge.sqlite3"]
+    vault --> parse["解析与 Parent-child Chunking"]
+    parse --> derived["derived/"]
+    parse --> catalog
+    catalog --> fts["English analyzer + FTS5"]
+    catalog --> vector["BGE-M3 + Chroma"]
+    fts --> hybrid["RRF + 可选 Rerank"]
+    vector --> hybrid
+    hybrid --> evidence["可定位 EvidenceItem"]
+    gold["Gold Questions + 配置"] --> evaluation["检索评测"]
+    evidence --> evaluation
+    evaluation --> reports["reports/"]
+```
 
-资料选择在上传前完成。`memPed` 从准备入库的资料开始，只承接技术预检、版本登记、
-解析、Chunking、Catalog、索引和评测数据。技术预检检查文件、哈希、重复、元数据、
-版本关系和可解析性，不重复执行论文价值、主题相关性、JCI、CAS 或引用量判断。
+资料选择以 RAG 研究问题和可定位证据为中心；期刊、引用与主题元数据可用于语料分层。导入链检查文件、PDF 可读性、SHA-256、重复项、元数据及解析能力。实验语料与评测约定见 [`knowledge/collection_standard.md`](knowledge/collection_standard.md)。
 
-现有筛选表、质量规则和指标快照继续作为上游资料与历史兼容资产保存。活动导入链使用
-`ped_knowledge.ingestion.IngestionManifest` 与技术预检；`ResourceManifest`、`manifest.py`
-和 `governance.py` 的内容质量门禁只保留给历史兼容和离线审计。Gold Questions 用于
-检索配置和索引的发布验收，不用于单份文档的入库准入。
+当前程序使用 `IngestionManifest`、`preflight_manifest` 和 `ImportService` 完成技术预检与导入。`include=true` 激活后推导出 Catalog 的 `approved/official` 检索状态。旧质量规则用于离线语料统计；Gold Questions 评价检索配置与索引。
 
-## `conversations/`
+PDF 默认由 Adobe PDF Extract API 解析，所选原文会上传到 Adobe；需要本地解析时显式选择 PyMuPDF。两条路径的结果进入相同的规范文档、Chunk 和 Catalog 流程。原始 Adobe ZIP 及图表附件位于 `knowledge/derived/<resource-id>/<sha>/adobe/`，属于本地派生资产，不提交 Git。Catalog 记录原文哈希、解析器版本和派生资产哈希；同一 SHA-256 的活动版本按现有规则跳过。对照实验写入单独命名的 `outputs/` 目录，不改动这里的 Catalog 与索引。调用方式见 [`Knowledge-Base/README.md`](../Knowledge-Base/README.md)。
 
-会话与任务记忆以 `session_id` 为基本分区：
+Catalog 按 `policy_version` 保存可并存的 Chunk，并记录 tokenizer、输入来源和 chunk build
+provenance。`parent-child-v1` 是默认策略；`parent-child-v2` 已实现但仍是 candidate。
 
-- `conversations.sqlite3`：会话、消息、Run、事件、证据引用、摘要和用户反馈。
-- `files/<session-id>/`：会话关联的小型附件；大型视频和轨迹只保存路径、哈希与摘要。
+当前 PEARL 评价使用 106 篇 Adobe-only 语料上的 80 题开发 Gold 与 200 题封存评估 Gold，规范位置为 [`knowledge/gold/pearl-adobe106/`](knowledge/gold/pearl-adobe106/README.md)（含 80 题 r01/r02、200 题封存集、8 题试点、Layer 3 答案参考与 Layer 4 事实标注的只读副本），登记见 [`EVALUATION-REGISTRY.yaml`](../experiments/EVALUATION-REGISTRY.yaml)。`outputs/` 与 `paper/` 中的原件按原路径保留，供已完成实验复现。
 
-所有 Session 共用一个 SQLite 数据库，不为每个 Session 创建独立数据库。
+`knowledge/gold/2026-09-23-rebuild/` 的 v5 是 historical，不进入 PEARL 的题集、基线或评分，包含：
+- **280 query variants**：120 可回答意图 + 20 拒答意图，各含中英双语
+- **划分策略**：20 development intents（已评测）、100 test intents（封存）、20 refusal intents
+- **证据标注**：页级定位，支持 AND/OR 证据组，记录 PDF SHA-256 和资源映射
+- **评测状态**：开发集 BM25/BGE-M3/RRF 评测已迁至 `failed/outputs-void-scores/gold-v5-dev-exploratory-20260924-01/`，旧评分口径已作废
 
-## `methods/`
+历史的 `pilot_gold.jsonl`（31题）和 `core_gold.jsonl` 不再用于当前 104 资源语料的评测。
 
-方法记忆保存从场景分析中提炼的通用分析与评估方法：
+## 权威资产与可重建资产
 
-- `candidates/`：Agent 自动提炼的候选方法，不能用于正式检索。
-- `approved/`：人工审核通过的方法，可进入后续正式检索。
-- `methods.sqlite3`：方法检索与版本索引的预留位置；当前尚未定义正式方法表结构。
+| 类别 | 路径 | 说明 |
+| --- | --- | --- |
+| 治理与评测输入 | `knowledge/**/*.csv`、`*.jsonl`、`*.yaml`、`*_config.json` | 可提交 Git，保留来源和变更记录 |
+| 原始内容 Vault | `knowledge/{literature,regulations}/files/` | 本地权威原文，按 SHA-256 寻址，不提交 Git |
+| Catalog | `knowledge/knowledge.sqlite3` | 活动版本、分策略 Chunk 和 build provenance 的运行时目录，不提交 Git |
+| 派生文档 | `knowledge/derived/` | 由原文、解析器版本和 Chunk 策略重建；可包含 Adobe 原始 ZIP、图表附件及其哈希 |
+| 检索索引 | `outputs/knowledge-index-<corpus>-<version>-<date>-<seq>/` | 实验索引独立命名并保存在 `outputs/`，不在 `knowledge/` 下常驻 |
+| 模型权重 | `knowledge/models/` | 配置与权重 SHA-256 应在 Git 中记录，权重本身不提交 |
+| 运行报告 | `knowledge/reports/` | 单独命名，不覆盖既有研究输出 |
 
-候选方法必须保留来源 `session_id`、`run_id` 和知识证据引用。未经人工审核，不得升级为正式方法。
+## BGE-M3 本地资产与索引位置
 
-## Git 边界
+BGE-M3 的受版本控制配置位于 [`Knowledge-Base/config/embeddings/bge-m3/`](../Knowledge-Base/config/embeddings/bge-m3/README.md)：
+- **模型权重**：`memPed/knowledge/models/bge-m3/` ✅
+- **PEARL 当前冻结索引**：`outputs/pearl-index-106-adobe-20260929-01/`（106 篇 Adobe-only、6,433 child）
+- **旧 V1 历史索引**：`outputs/knowledge-index-104-v1-20260924-01/`，不进入 PEARL（不在 `memPed/knowledge/indexes/` 下）
+  - FTS5/BM25：`fts.sqlite3` (19MB)
+  - BGE-M3/Chroma：`chroma/chroma.sqlite3`
+- **向量维度**：1024，目标设备 CUDA/FP16
 
-提交 Git：
+**索引策略变更**：实验索引现独立命名并保存在 `outputs/` 目录，格式为 `knowledge-index-<corpus>-<version>-<date>-<seq>/`，避免与 `memPed/knowledge/` 的权威数据混淆，便于多版本索引并存和实验可复现性。
 
-- 本文件；
-- `knowledge/` 下的治理记录、规则、Manifest、Gold Questions 和配置；
-- `methods/approved/` 下通过审核且不含隐私的正式方法。
+V2 切块和词法配置位于 `Knowledge-Base/config/retrieval/`。新实验必须构建独立命名的索引与报告目录，记录 policy、tokenizer、词法分析器、embedding、Gold 和代码版本指纹。
 
-不提交 Git：
+## 本地资产边界
 
-- 文献、法规和标准原文；
-- SQLite、FTS、Chroma 等运行数据；
-- 会话内容和附件；
-- 候选方法；
-- 本地原始报告。
+提交 Git：本文件；`knowledge/` 下的分类、配额、质量规则、治理记录、Manifest、Gold Questions 和评测配置；`methods/approved/` 下经明确采用且不含隐私的方法；模型与索引的配置、版本和必要校验值。
 
-## 当前验证入口
+不提交 Git：文献、法规和标准原文；SQLite、FTS、Chroma、派生文档、模型权重和缓存；会话内容、附件和候选方法；API key、Cookie、受限来源文件和本地运行报告。
 
-仓库当前通过 Python 模块 API 执行导入、索引和评测，没有独立服务或产品 CLI。先运行知识模块测试：
+## 验证入口
+
+当前仓库没有面向 `memPed` 的稳定命令行入口；不要使用旧的 `backend` 或 `ped-agent library` 命令。知识数据行为由 `Knowledge-Base` 的 Python API 和测试定义：
 
 ```powershell
 $env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src"
 .\.venv\Scripts\python -m pytest Knowledge-Base/tests -q
 ```
 
-V2 配置位于 `Knowledge-Base/config/retrieval/`。正式实验应新建候选索引与报告目录，记录
-policy、tokenizer、词法分析器、embedding、Gold 和代码版本指纹，再通过发布门禁激活；
-不要原地覆盖 `fts.sqlite3`、已有索引或报告。
-
-知识业务代码位于 `Knowledge-Base/src/ped_knowledge/`；`memPed/` 只保存数据、配置和本地
-衍生产物，不放业务代码。当前程序边界见
-[`Knowledge-Base/README.md`](../Knowledge-Base/README.md)；数据与知识工程总览见
-[`docs/project-architecture.md`](../docs/project-architecture.md)。
+完整验证命令见 [`../README.md`](../README.md)；模块边界见 [`../Knowledge-Base/README.md`](../Knowledge-Base/README.md) 与 [`../docs/project-architecture.md`](../docs/project-architecture.md)。
