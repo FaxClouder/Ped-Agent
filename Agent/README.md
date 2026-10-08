@@ -1,6 +1,6 @@
 # Agent
 
-*Evidence orchestration and research QA module · status: current · 2026-10-05*
+*Evidence orchestration and research QA module · status: current · 2026-10-07*
 
 证据约束的科研问答模块。当前实现是**固定条件 EvidenceGraph**：两次本地检索、可选外部搜索、结构化草稿、引用规则与语义验证、至多一次修订。没有动态工具选择、需求规划、跨轮预算、通用运行循环或持久化运行记录；Agentic RAG 处于开发准备阶段。
 
@@ -65,4 +65,4 @@ $env:PYTHONPATH = "Contracts/src;Agent/src;Knowledge-Base/src;Video-Analysis/src
 .\.venv\Scripts\python -m pytest Agent/tests -q
 ```
 
-全部测试用伪造 gateway / retriever / HTTP 客户端，不调用真实模型或网络。2026-10-05 在 E 盘 `.venv` 下执行，33 项全部通过。
+全部测试用伪造 gateway / retriever / HTTP 客户端，不调用真实模型或网络。2026-10-07 使用 E 盘 `.venv` 验证组件抽取，34 项全部通过；冻结基线快照未更新。

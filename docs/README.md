@@ -87,3 +87,9 @@
 | [交付核验](../Agent-Harness/docs/delivery-verification.md) | 文档检查与代码保全范围 | current |
 
 以上为后续 Agentic 的研究准备，不表示动态 Harness、真实模型对照或 Layer 3–6 实验已经完成。
+
+## 分支资产核定（2026-10-07）
+
+- [Agentic RAG 开发准备](../Agent/docs/agentic-rag-dev-prep.md)：基线组件抽取已核定，其余开发为 plan。
+- [文献准备表历史设计](superpowers/specs/2026-09-23-literature-manifest-readiness-design.md)：原设计存档，旧人工确认要求不作为当前默认门禁（historical）。
+- [Agent 与文献设计分支资产核定](branch-asset-integration-2026-10-07.md)：来源、资产清单、验证范围和保全记录（current）。
