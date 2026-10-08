@@ -4,6 +4,8 @@
 
 ## 当前入口
 
+- [Agent core 云端开发基线](agent-core-cloud-baseline-2026-10-08.md)：后端分支起点、Agent/Harness 接口、轻量环境、离线测试与后续待决规格（current；2026-10-08）。
+
 - **[评测问题集与实验规范](../experiments/EVALUATION-STANDARD.md)**、[登记表](../experiments/EVALUATION-REGISTRY.yaml)：问题集身份、规范存放位置（`memPed/knowledge/gold/pearl-adobe106/`）、封存评估集访问规则、实验设置规范与扩充计划；新建或使用问题集、启动评测实验前必读（current；扩充计划为 plan；2026-10-07）。
 
 - [RAG 设计规范](rag-design-spec.md)：RAG 当前设计整理：文档优先级、系统流程与 PEARL 评价实验的关系（PEARL 只作评价，是否绑定待评估）、各环节当前设计与观察、版本与溯源字段、设计变更流程和设计待决事项 D1–D13（current；2026-10-07）。

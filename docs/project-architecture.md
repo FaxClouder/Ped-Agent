@@ -22,7 +22,7 @@ flowchart LR
     knowledge["Knowledge-Base\nknowledge and evidence"]
     video["Video-Analysis\ndetection and flow analysis"]
     agent["Agent\nevidence orchestration and QA"]
-    harness["Agent-Harness\ntool calling & orchestration\n(in design)"]
+    harness["Agent-Harness\ntyped tool execution\n(controller planned)"]
     experiments["experiments\nreproducible studies"]
     data[("memPed\nresearch data")]
 
@@ -68,7 +68,7 @@ flowchart LR
 | Knowledge and evidence | `Knowledge-Base/`, `Knowledge-Base/README.md` | Technical preflight, parsing, chunking, indexing, retrieval, rerank, evaluation | Final answer generation, video inference |
 | Detection and flow analysis | `Video-Analysis/`, `Video-Analysis/README.md` | Detection, tracking, calibration, trajectories, density/speed/flow/OD analysis | Document admission, natural-language QA |
 | Evidence orchestration and QA | `Agent/`, `Agent/README.md` | Evidence graph, citation rules, model adapters, research answers | FastAPI, SSE, sessions, task queues |
-| Agent orchestration (in design) | `Agent-Harness/`, `Agent-Harness/README.md` | Tool calling, agent runtime, execution tracing (future: multi-agent orchestration) | Domain logic, evidence collection |
+| Agent execution support | `Agent-Harness/`, `Agent-Harness/README.md` | Typed tool execution, scheduling, budgets and event recording; model tool port and controller planned | Domain logic, evidence collection |
 | Reproducible studies | `experiments/`, `experiments/README.md` | Inputs, hypotheses, versions, seeds, commands, metrics, outputs | Core reusable module implementation |
 
 ### Knowledge retrieval pipeline
@@ -164,8 +164,8 @@ data contract, reproducibility requirements, and tests are stable. If a future c
 Web/API integration layer, record that as a new architecture decision instead of reviving the
 archived product-integration tree implicitly.
 
-## Agentic research extension status — 2026-10-04
+## Agentic research extension status — 2026-10-08
 
-Agent-Harness is execution support for the Agent research capability, not an additional product capability. Its existing models and Protocol definitions do not implement a registry, executor, dynamic agent loop, or durable run recording. The current EvidenceGraph remains a fixed conditional workflow; `final_persist` constructs an answer without filesystem persistence.
+Agent-Harness is execution support for the Agent research capability, not an additional product capability. Since 2026-10-07 its source implements typed tool contracts, a registry, executor, scheduler, run budgets and JSONL event recording. The legacy Protocol definitions remain for compatibility. A model tool-call port, configuration loader, retrieval adapters and dynamic Agent controller are still planned. Agent does not currently invoke Harness. The current EvidenceGraph remains a fixed conditional workflow; `final_persist` constructs an answer without filesystem persistence. Current interfaces and cloud validation are recorded in the [Agent core cloud baseline](agent-core-cloud-baseline-2026-10-08.md).
 
 The [module integration assessment](../Agent/docs/harness-integration-assessment.md) records current contracts and gaps. The [configuration design](../Agent-Harness/docs/configuration-design.md) is a target, and the [Agentic research plan](../Agent-Harness/docs/agentic-research-plan.md) is unexecuted. Initial adapters and cross-module combinations belong in experiments; reusable interfaces move to modules only after validation. Neither knowledge nor video modules should import Harness internals.
