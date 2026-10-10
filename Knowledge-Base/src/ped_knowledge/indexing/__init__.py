@@ -9,21 +9,21 @@ from contextlib import closing
 from pathlib import Path
 
 from ped_knowledge.contracts import EmbeddingGateway, IndexHit
-from ped_knowledge.tokenization import JiebaLexicalAnalyzer
+from ped_knowledge.tokenization import EnglishLexicalAnalyzer, LexicalAnalyzer
 
 
 def tokenize_for_search(text: str) -> str:
-    return " ".join(JiebaLexicalAnalyzer().analyze(text))
+    return " ".join(EnglishLexicalAnalyzer().analyze(text))
 
 
 class FTSIndex:
     def __init__(
         self,
         path: Path,
-        analyzer: JiebaLexicalAnalyzer | None = None,
+        analyzer: LexicalAnalyzer | None = None,
     ) -> None:
         self.path = path
-        self.analyzer = analyzer or JiebaLexicalAnalyzer()
+        self.analyzer = analyzer or EnglishLexicalAnalyzer()
 
     def connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.path)
@@ -64,7 +64,7 @@ class FTSIndex:
         connection: sqlite3.Connection,
         chunks: list[dict[str, object]],
         source_fingerprint: str,
-        analyzer: JiebaLexicalAnalyzer,
+        analyzer: LexicalAnalyzer,
         policy_version: str,
         tokenizer_fingerprint: str,
         gold_sha256: str,

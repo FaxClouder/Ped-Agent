@@ -1,10 +1,15 @@
 """Verify FTS5/BM25 and BGE-M3 indexes are working correctly.
 
 Quick verification script to test both lexical and dense retrieval.
+
+Usage:
+    python Knowledge-Base/verify_indexes.py --index-dir outputs/knowledge-index-<corpus>-<version>-<date>-<seq>
+        [--policy-version parent-child-v1]
 """
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import sys
 from pathlib import Path
@@ -21,7 +26,7 @@ for stream in (sys.stdout, sys.stderr):
 
 from ped_knowledge.indexing import ChromaVectorIndex, FTSIndex
 from ped_knowledge.storage import Catalog
-from ped_knowledge.tokenization import JiebaLexicalAnalyzer
+from ped_knowledge.tokenization import EnglishLexicalAnalyzer
 
 
 class DummyEmbedding:
@@ -30,17 +35,13 @@ class DummyEmbedding:
         raise RuntimeError("Should not embed during verification")
 
 
-def verify_fts(index_path: Path, config_root: Path) -> None:
+def verify_fts(index_path: Path) -> None:
     """Verify FTS5/BM25 index."""
     print("\n" + "="*60)
     print("FTS5/BM25 Index Verification")
     print("="*60)
 
-    analyzer = JiebaLexicalAnalyzer(
-        domain_terms_path=config_root / "retrieval" / "pedestrian_terms.txt",
-        stopwords_path=config_root / "retrieval" / "stopwords_zh_en.txt",
-        version="jieba-lexical-v1",
-    )
+    analyzer = EnglishLexicalAnalyzer()
 
     index = FTSIndex(index_path, analyzer=analyzer)
 
@@ -55,12 +56,10 @@ def verify_fts(index_path: Path, config_root: Path) -> None:
 
     # Test queries
     test_cases = [
-        ("行人流", "Chinese: pedestrian flow"),
-        ("社会力模型", "Chinese: social force model"),
-        ("疏散", "Chinese: evacuation"),
-        ("pedestrian", "English: pedestrian"),
-        ("evacuation", "English: evacuation"),
-        ("bottleneck", "English: bottleneck"),
+        ("pedestrian flow", "phrase"),
+        ("social force model", "phrase"),
+        ("evacuation", "single term"),
+        ("bottleneck width 0.9 m", "numeric"),
     ]
 
     print(f"\nQuery tests (limit=5):")
@@ -103,12 +102,16 @@ async def verify_dense(index_path: Path, catalog_path: Path) -> None:
 
 
 def main() -> None:
-    memped_root = repo_root / "memPed" / "knowledge"
-    config_root = repo_root / "Knowledge-Base" / "config"
-    catalog_path = memped_root / "knowledge.sqlite3"
+    parser = argparse.ArgumentParser(description="Verify one index build directory")
+    parser.add_argument("--index-dir", type=Path, required=True)
+    parser.add_argument("--policy-version", default="parent-child-v1")
+    args = parser.parse_args()
 
-    fts_path = memped_root / "indexes" / "fts-parent-child-v1.sqlite3"
-    dense_path = memped_root / "indexes" / "bge-m3-1024"
+    index_dir = args.index_dir if args.index_dir.is_absolute() else repo_root / args.index_dir
+    catalog_path = repo_root / "memPed" / "knowledge" / "knowledge.sqlite3"
+
+    fts_path = index_dir / f"fts-{args.policy_version}.sqlite3"
+    dense_path = index_dir / "chroma"
 
     print("Knowledge Base Index Verification")
     print("="*60)
@@ -117,7 +120,7 @@ def main() -> None:
     # Verify FTS
     if fts_path.exists():
         try:
-            verify_fts(fts_path, config_root)
+            verify_fts(fts_path)
         except Exception as exc:
             print(f"\nERROR verifying FTS index: {exc}")
             import traceback

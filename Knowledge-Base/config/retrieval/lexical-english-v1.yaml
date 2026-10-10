@@ -1,0 +1,31 @@
+analyzer_version: english-lexical-v1
+status: candidate
+implementation: EnglishLexicalAnalyzer
+protocol: pearl-retrieval-v0.2
+scope: english-monolingual
+normalization:
+  unicode: NFKC
+  lowercase: true
+token_pattern: "[a-z]+|[0-9]+"
+stopwords: false
+stemming: false
+query_and_document_share_analyzer: true
+fingerprint_inputs:
+  - analyzer_version
+  - normalization
+  - token_pattern
+  - stopwords
+  - stemming
+fixed_samples:
+  - input: "Bottleneck width 0.9 m"
+    tokens: ["bottleneck", "width", "0", "9", "m"]
+  - input: "BGE-M3 reranker-v2"
+    tokens: ["bge", "m", "3", "reranker", "v", "2"]
+  - input: "ﬂow 1.2 persons/m/s"
+    tokens: ["flow", "1", "2", "persons", "m", "s"]
+notes: >
+  Alphanumeric runs split on every non-alphanumeric character, so decimal values
+  and hyphenated model identifiers are tokenized into separate numeric and
+  alphabetic tokens. This is the literal reading of the PEARL retrieval-v0.2
+  lexical rule; the protocol fixes it for the first round and forbids parameter
+  search before the sealed evaluation run.

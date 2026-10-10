@@ -112,7 +112,7 @@ class ImportService:
         *,
         chunking_policy: ChunkingPolicy | None = None,
         ocr_gateway: OCRGateway | None = None,
-        parser_backend: str = "pymupdf",
+        parser_backend: str = "adobe",
     ) -> None:
         if parser_backend not in {"pymupdf", "adobe"}:
             raise ValueError(f"unknown parser backend: {parser_backend}")

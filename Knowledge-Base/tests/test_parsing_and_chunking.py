@@ -38,6 +38,17 @@ class WordTokenCounter:
         return len(text.split())
 
 
+class NormalizingOffsetCounter(WordTokenCounter):
+    """Models a tokenizer whose decode collapses source newlines."""
+
+    def encode_with_offsets(self, text: str) -> tuple[list[int], list[tuple[int, int]]]:
+        import re
+
+        matches = list(re.finditer(r"\S+", text))
+        self._tokens = [match.group() for match in matches]
+        return list(range(len(matches))), [match.span() for match in matches]
+
+
 def test_canonical_parser_records_page_elements_and_observable_ocr(tmp_path: Path) -> None:
     pdf = tmp_path / "mixed.pdf"
     with fitz.open() as document:
@@ -218,5 +229,26 @@ def test_v2_marks_token_fallback_for_oversized_sentence() -> None:
     assert len(children) == 2
     assert all(child.token_count <= 80 for child in children)
     assert all(child.hard_split for child in children)
+
+
+def test_v2_token_fallback_preserves_source_newlines_with_offsets() -> None:
+    text = "\n".join(" ".join(f"cell{row}_{column}" for column in range(20)) for row in range(8))
+    document = CanonicalDocument(
+        resource_id="table-newlines", version_id="f" * 64, source_hash="f" * 64,
+        parser_version="test",
+        pages=[CanonicalPage(page_number=1, width=100, height=100, element_ids=("e1",))],
+        elements=[DocumentElement(element_id="e1", element_type=ElementType.TABLE,
+                                  text=text, page_number=1, order=0, locator="p.1")],
+    )
+    chunker = HierarchicalChunker(
+        ChunkingPolicy(policy_version="parent-child-v2", child_target_tokens=50,
+                       child_max_tokens=80, child_overlap_tokens=10),
+        token_counter=NormalizingOffsetCounter(),
+    )
+    children = [c for c in chunker.chunk(document) if c.chunk_level is ChunkLevel.CHILD]
+    assert len(children) > 1
+    assert all(child.hard_split for child in children)
+    assert all(child.text == text[child.character_start:child.character_end] for child in children)
+    assert any("\n" in child.text for child in children)
     assert children[0].character_start == 0
     assert children[-1].character_end == len(text)

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from ped_knowledge.governance.contracts import ResourceManifest
 from ped_knowledge.governance.manifest import ManifestPreflightError, load_and_preflight
 from ped_knowledge.storage import ContentVault, sha256_file
 
@@ -38,6 +39,9 @@ def approved_literature_record(
         "jci_quartile": "Q1",
         "jci_year": 2025,
         "jci_source": "clarivate_jcr",
+        "jif_quartile": "Q1",
+        "jif_year": 2025,
+        "jif_source": "clarivate_jcr",
         "cas_zone": 1,
         "cas_category": "Engineering",
         "cas_year": 2025,
@@ -51,6 +55,189 @@ def approved_literature_record(
     }
     record.update(overrides)
     return record
+
+
+def test_literature_content_score_65_is_rejected() -> None:
+    with pytest.raises(ValueError, match="content_quality_score > 65"):
+        ResourceManifest.model_validate(
+            approved_literature_record(
+                Path("paper.pdf"), "0" * 64, content_quality_score=65
+            )
+        )
+
+
+def test_literature_content_score_66_is_accepted() -> None:
+    record = ResourceManifest.model_validate(
+        approved_literature_record(
+            Path("paper.pdf"), "0" * 64, content_quality_score=66
+        )
+    )
+    assert record.content_quality_score == 66
+
+
+def test_content_score_does_not_override_integrity_gate() -> None:
+    with pytest.raises(ValueError, match="integrity-flagged literature"):
+        ResourceManifest.model_validate(
+            approved_literature_record(
+                Path("paper.pdf"), "0" * 64,
+                content_quality_score=66, integrity_status="retracted",
+            )
+        )
+
+
+def approved_record_with_only_journal_ranking(
+    *,
+    quality_tier: str,
+    **ranking: object,
+) -> dict[str, object]:
+    record = approved_literature_record(
+        Path("paper.pdf"),
+        "0" * 64,
+        quality_tier=quality_tier,
+        jci_value=None,
+        jci_quartile=None,
+        jci_year=None,
+        jci_source=None,
+        cas_zone=None,
+        cas_category=None,
+        cas_year=None,
+        cas_source=None,
+    )
+    record.update(
+        {
+            "jif_quartile": None,
+            "jif_year": None,
+            "jif_source": None,
+            **ranking,
+        }
+    )
+    return record
+
+
+@pytest.mark.parametrize(
+    ("quality_tier", "ranking"),
+    [
+        (
+            "A",
+            {
+                "cas_zone": 1,
+                "cas_category": "Engineering",
+                "cas_year": 2025,
+                "cas_source": "cas_journal_partition",
+            },
+        ),
+        (
+            "A",
+            {
+                "jci_quartile": "Q1",
+                "jci_year": 2025,
+                "jci_source": "clarivate_jcr",
+            },
+        ),
+        (
+            "A",
+            {
+                "jif_quartile": "Q1",
+                "jif_year": 2025,
+                "jif_source": "clarivate_jcr",
+            },
+        ),
+        (
+            "B",
+            {
+                "cas_zone": 2,
+                "cas_category": "Engineering",
+                "cas_year": 2025,
+                "cas_source": "cas_journal_partition",
+            },
+        ),
+        (
+            "B",
+            {
+                "jci_quartile": "Q2",
+                "jci_year": 2025,
+                "jci_source": "clarivate_jcr",
+            },
+        ),
+        (
+            "B",
+            {
+                "jif_quartile": "Q2",
+                "jif_year": 2025,
+                "jif_source": "clarivate_jcr",
+            },
+        ),
+    ],
+)
+def test_literature_accepts_any_official_best_ranking(
+    quality_tier: str,
+    ranking: dict[str, object],
+) -> None:
+    record = ResourceManifest.model_validate(
+        approved_record_with_only_journal_ranking(
+            quality_tier=quality_tier,
+            **ranking,
+        )
+    )
+
+    assert record.quality_tier.value == quality_tier
+
+
+def test_numeric_jci_does_not_gate_a_tier_with_q1() -> None:
+    record = ResourceManifest.model_validate(
+        approved_record_with_only_journal_ranking(
+            quality_tier="A",
+            jci_value=0.1,
+            jci_quartile="Q1",
+            jci_year=2025,
+            jci_source="clarivate_jcr",
+        )
+    )
+
+    assert record.quality_tier.value == "A"
+
+
+@pytest.mark.parametrize(
+    ("quality_tier", "ranking", "message"),
+    [
+        (
+            "A",
+            {
+                "jci_quartile": "Q2",
+                "jci_year": 2025,
+                "jci_source": "clarivate_jcr",
+            },
+            "rank 1",
+        ),
+        (
+            "B",
+            {
+                "jif_quartile": "Q3",
+                "jif_year": 2025,
+                "jif_source": "clarivate_jcr",
+            },
+            "rank 1 or 2",
+        ),
+        ("B", {}, "journal ranking"),
+        (
+            "B",
+            {"jif_quartile": "Q2", "jif_year": 2025},
+            "official JIF",
+        ),
+    ],
+)
+def test_literature_rejects_insufficient_or_unverified_journal_ranking(
+    quality_tier: str,
+    ranking: dict[str, object],
+    message: str,
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        ResourceManifest.model_validate(
+            approved_record_with_only_journal_ranking(
+                quality_tier=quality_tier,
+                **ranking,
+            )
+        )
 
 
 def test_preflight_rejects_hash_mismatch_without_creating_storage(tmp_path: Path) -> None:
@@ -94,7 +281,7 @@ def test_preflight_accepts_matching_hash(tmp_path: Path) -> None:
         ],
     )
 
-    assert load_and_preflight(manifest)[0].resource_id == "paper-preflight-2026"
+    assert load_and_preflight(manifest, as_of=date(2026, 7, 29))[0].resource_id == "paper-preflight-2026"
 
 
 def test_preflight_reports_duplicate_ids_and_missing_files(tmp_path: Path) -> None:
@@ -176,6 +363,9 @@ def test_preflight_rejects_stale_quality_snapshots(tmp_path: Path) -> None:
                 digest,
                 citation_checked_at="2025-01-01",
                 jci_year=2024,
+                jif_quartile="Q1",
+                jif_year=2024,
+                jif_source="clarivate_jcr",
                 cas_year=2024,
             )
         ],
@@ -187,6 +377,7 @@ def test_preflight_rejects_stale_quality_snapshots(tmp_path: Path) -> None:
     message = str(error.value)
     assert "citation snapshot is older than 90 days" in message
     assert "JCI snapshot is older than 12 months" in message
+    assert "JIF snapshot is older than 12 months" in message
     assert "CAS snapshot is older than 12 months" in message
 
 

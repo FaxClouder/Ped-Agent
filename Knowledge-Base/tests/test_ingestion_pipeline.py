@@ -88,7 +88,9 @@ def test_minimal_selected_document_imports_without_academic_quality_fields(
     )
 
     preflight = preflight_manifest(manifest)
-    report = ImportService(KnowledgeTestPaths.create(tmp_path)).import_manifest(manifest)
+    report = ImportService(
+        KnowledgeTestPaths.create(tmp_path), parser_backend="pymupdf"
+    ).import_manifest(manifest)
     catalog = Catalog(tmp_path / "memPed" / "knowledge" / "knowledge.sqlite3")
 
     assert preflight.is_valid is True
@@ -132,7 +134,7 @@ def test_new_version_becomes_active_and_old_chunks_leave_official_index(tmp_path
     manifest = tmp_path / "manifest.jsonl"
     first_hash = _create_pdf(first, "First active pedestrian evidence.")
     _manifest(manifest, first, first_hash)
-    service = ImportService(paths)
+    service = ImportService(paths, parser_backend="pymupdf")
     assert service.import_manifest(manifest).imported == 1
 
     second = tmp_path / "second.pdf"
@@ -305,7 +307,7 @@ def test_chunk_policies_coexist_for_the_same_resource_version(tmp_path: Path) ->
     assert build == ("tokenizer-sha256", 1, "complete")
 
 
-def test_optional_adobe_import_writes_provider_assets_and_parser_provenance(
+def test_default_adobe_import_writes_provider_assets_and_parser_provenance(
     tmp_path: Path, monkeypatch,
 ) -> None:
     import io
@@ -336,7 +338,7 @@ def test_optional_adobe_import_writes_provider_assets_and_parser_provenance(
     monkeypatch.setattr("ped_knowledge.ingestion.extract_adobe_pdf", lambda path: adobe_zip)
 
     paths = KnowledgeTestPaths.create(tmp_path)
-    report = ImportService(paths, parser_backend="adobe").import_manifest(manifest)
+    report = ImportService(paths).import_manifest(manifest)
 
     assert report.imported == 1
     assert report.failures == ()
@@ -446,7 +448,7 @@ def test_import_retries_after_catalog_failure_without_overwriting_derived(
     source_hash = _create_pdf(source, "Pedestrian evidence.")
     _manifest(manifest, source, source_hash)
     paths = KnowledgeTestPaths.create(tmp_path)
-    service = ImportService(paths)
+    service = ImportService(paths, parser_backend="pymupdf")
     original_activate = Catalog.activate_version
 
     def fail_activate(self, resource_id, version_id):

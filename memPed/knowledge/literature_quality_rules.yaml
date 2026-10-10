@@ -1,30 +1,62 @@
-version: 1
+# Machine-readable mirror of collection_standard.md and current offline governance checks.
+# This file documents rules; it is not loaded by the runtime ingestion path.
+version: 2
+source: collection_standard.md
+
 formal_publication_statuses:
   - version_of_record
   - early_access
+
+journal_ranking:
+  eligible_best_rank: 2
+  combine_sources: best_available
+  sources:
+    cas:
+      source: cas_journal_partition
+      select: best_rank_across_categories
+    jci:
+      source: clarivate_jcr
+      select: best_quartile_across_categories
+      numeric_value_role: reference_only
+    jif:
+      source: clarivate_jcr
+      select: best_quartile_across_categories
+      numeric_value_collected: false
+  unlisted_source: null
+  pass_if_any_source_rank_at_most: 2
+
 metric_sources:
-  jci: clarivate_jcr
-  cas: cas_journal_partition
   citation_primary: web_of_science
   citation_fallback: scopus
+
 hard_gates:
-  minimum_jci: 1.0
-  maximum_cas_zone: 2
-  minimum_content_quality_score: 80
-  maximum_metric_age_months: 12
-  maximum_citation_snapshot_age_days: 90
+  formal_publication_status_required: true
+  integrity_status: clear
+  minimum_content_quality_score: 66  # Integer equivalent of total_score > 65.
+  journal_ranking:
+    combine_sources: best_available
+    best_rank_at_most: 2
+  controlled_primary_topic_required: true
+  citation_snapshot:
+    maximum_age_days: 90
+    runtime_enforced: true
+  journal_metrics_snapshot:
+    maximum_age_months: 12
+    runtime_enforced: true
+
 quality_tiers:
   A:
-    cas_zone: 1
-    minimum_jci: 1.5
+    best_journal_rank: 1
     requires_age_adjusted_high_citations: true
+    up_to_18_months_requires_tier: A
   B:
-    maximum_cas_zone: 2
-    minimum_jci: 1.0
-    requires_high_citations_or_recent_publication: true
+    best_journal_rank_at_most: 2
+    requires_high_citations_or_high_quality_recent_work: true
+    recent_work_maximum_age_months: 36
   X:
     requires_exception_reason: true
     requires_approver: true
+
 corpus_limits:
   minimum_a_ratio: 0.40
   minimum_a_b_ratio: 0.90
@@ -32,13 +64,13 @@ corpus_limits:
   minimum_high_impact_ratio: 0.70
   maximum_recent_excellence_ratio: 0.20
   maximum_up_to_18_months_ratio: 0.10
+
 citation_thresholds:
   up_to_18_months:
-    minimum_citations: null
     requires_a_tier: true
   19_to_36_months:
-    minimum_citations: 20
+    high_impact_minimum_citations: 20
   37_to_84_months:
-    minimum_citations: 100
+    high_impact_minimum_citations: 100
   over_84_months:
-    minimum_citations: 500
+    high_impact_minimum_citations: 500

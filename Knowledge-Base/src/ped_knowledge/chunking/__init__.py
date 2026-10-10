@@ -215,7 +215,12 @@ class HierarchicalChunker:
         character_end: int,
     ) -> list[_BoundaryUnit]:
         unit_text = source_text[character_start:character_end]
-        token_ids = self.token_counter.encode(unit_text)
+        encode_with_offsets = getattr(self.token_counter, "encode_with_offsets", None)
+        offsets = None
+        if callable(encode_with_offsets):
+            token_ids, offsets = encode_with_offsets(unit_text)
+        else:
+            token_ids = self.token_counter.encode(unit_text)
         window = min(self.policy.child_target_tokens, self.policy.child_max_tokens)
         overlap = min(self.policy.child_overlap_tokens, max(0, window - 1))
         output: list[_BoundaryUnit] = []
@@ -223,13 +228,23 @@ class HierarchicalChunker:
         search_start = 0
         while start < len(token_ids):
             end = min(len(token_ids), start + window)
-            decoded = self.token_counter.decode(token_ids[start:end]).strip()
-            local_start = unit_text.find(decoded, search_start)
-            if local_start < 0:
-                local_start = unit_text.find(decoded)
-            if local_start < 0:
-                raise ValueError("decoded child text cannot be located in source text")
-            local_end = local_start + len(decoded)
+            if offsets is not None:
+                spans = [span for span in offsets[start:end] if span[1] > span[0]]
+                if not spans:
+                    raise ValueError("token window has no source text offsets")
+                local_start, local_end = spans[0][0], spans[-1][1]
+                raw_text = unit_text[local_start:local_end]
+                decoded = raw_text.strip()
+                local_start += len(raw_text) - len(raw_text.lstrip())
+                local_end -= len(raw_text) - len(raw_text.rstrip())
+            else:
+                decoded = self.token_counter.decode(token_ids[start:end]).strip()
+                local_start = unit_text.find(decoded, search_start)
+                if local_start < 0:
+                    local_start = unit_text.find(decoded)
+                if local_start < 0:
+                    raise ValueError("decoded child text cannot be located in source text")
+                local_end = local_start + len(decoded)
             output.append(
                 _BoundaryUnit(
                     text=decoded,

@@ -83,6 +83,8 @@ def _quality_errors(
             errors.append(f"line {line_number}: citation snapshot is older than 90 days")
     if record.jci_year is not None and record.jci_year < as_of.year - 1:
         errors.append(f"line {line_number}: JCI snapshot is older than 12 months")
+    if record.jif_year is not None and record.jif_year < as_of.year - 1:
+        errors.append(f"line {line_number}: JIF snapshot is older than 12 months")
     if record.cas_year is not None and record.cas_year < as_of.year - 1:
         errors.append(f"line {line_number}: CAS snapshot is older than 12 months")
     if record.metrics_checked_at is not None:

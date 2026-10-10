@@ -6,7 +6,7 @@ _Knowledge-Base 的本地向量模型配置与复现命令 · status: current_
 
 - 参数配置：`Knowledge-Base/config/embeddings/bge-m3/model.yaml`
 - 模型权重：`memPed/knowledge/models/bge-m3/`
-- 后续索引：`memPed/knowledge/indexes/bge-m3-1024/`
+- 向量索引：每次构建写入新的 `outputs/knowledge-index-<corpus>-<version>-<date>-<seq>/chroma/`，由 `Knowledge-Base/build_indexes.py --output-dir` 指定，不在 `memPed/knowledge/indexes/` 常驻
 
 模型权重和向量索引属于本地研究数据，不提交 Git。以下命令均从仓库根目录执行。
 
@@ -24,9 +24,7 @@ uv pip install --python .venv\Scripts\python.exe --reinstall `
 ## 下载模型
 
 ```powershell
-New-Item -ItemType Directory -Force -Path `
-  'memPed/knowledge/models/bge-m3', `
-  'memPed/knowledge/indexes/bge-m3-1024' | Out-Null
+New-Item -ItemType Directory -Force -Path 'memPed/knowledge/models/bge-m3' | Out-Null
 
 .\.venv\Scripts\python.exe -c "from huggingface_hub import snapshot_download; print(snapshot_download(repo_id='BAAI/bge-m3', local_dir='memPed/knowledge/models/bge-m3'))"
 ```
