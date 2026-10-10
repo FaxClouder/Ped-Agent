@@ -3,10 +3,19 @@ name = "ped-agent-research-workspace"
 version = "0.2.0"
 description = "Research workspace for evidence-grounded pedestrian-flow experiments."
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+  "torch==2.14.0+cu130",
+  "torchvision==0.29.0+cu130",
+]
 
 [tool.uv.workspace]
-members = ["Contracts", "Agent", "Knowledge-Base", "Video-Analysis"]
+members = ["Contracts", "Agent", "Agent-Harness", "Knowledge-Base", "Video-Analysis"]
+
+# 阿里云的 PyTorch wheel 镜像是平铺目录，不是 PEP 503 simple index。
+# 使用固定的 Windows/Python 3.12 wheel URL，使 uv.lock 与本地安装来源一致，避免重复下载。
+[tool.uv.sources]
+torch = { url = "https://mirrors.aliyun.com/pytorch-wheels/cu130/torch-2.14.0%2Bcu130-cp312-cp312-win_amd64.whl" }
+torchvision = { url = "https://mirrors.aliyun.com/pytorch-wheels/cu130/torchvision-0.29.0%2Bcu130-cp312-cp312-win_amd64.whl" }
 
 [dependency-groups]
 dev = [
@@ -20,12 +29,14 @@ dev = [
 testpaths = [
   "Contracts/tests",
   "Agent/tests",
+  "Agent-Harness/tests",
   "Knowledge-Base/tests",
   "Video-Analysis/tests",
 ]
 pythonpath = [
   "Contracts/src",
   "Agent/src",
+  "Agent-Harness/src",
   "Knowledge-Base/src",
   "Video-Analysis/src",
 ]
@@ -38,6 +49,8 @@ src = [
   "Contracts/tests",
   "Agent/src",
   "Agent/tests",
+  "Agent-Harness/src",
+  "Agent-Harness/tests",
   "Knowledge-Base/src",
   "Knowledge-Base/tests",
   "Video-Analysis/src",
@@ -50,7 +63,7 @@ ignore = ["B008"]
 
 [tool.mypy]
 python_version = "3.12"
-packages = ["ped_contracts", "ped_research_agent", "ped_knowledge", "ped_video_analysis"]
-mypy_path = ["Contracts/src", "Agent/src", "Knowledge-Base/src", "Video-Analysis/src"]
+packages = ["ped_contracts", "ped_research_agent", "ped_agent_harness", "ped_knowledge", "ped_video_analysis"]
+mypy_path = ["Contracts/src", "Agent/src", "Agent-Harness/src", "Knowledge-Base/src", "Video-Analysis/src"]
 ignore_missing_imports = true
 strict = false

@@ -1,6 +1,6 @@
 # Agentic 研究接入评估
 
-*模块实现、接入缺口与研究边界核查 · status: current · 2026-10-04；方案段落为 target*
+*模块实现、接入缺口与研究边界核查 · status: current · 2026-10-10 更新执行层状态；2026-10-04 调查范围保留，方案段落为 target*
 
 ## 结论与核查范围
 
@@ -8,7 +8,9 @@
 
 Agent 负责“缺什么证据、是否继续、如何形成可信回答”；Harness 负责“如何执行、如何限额、如何记录、如何结束”。固定流程图也是 Agent 的一种实现，不能仅凭有 LangGraph 或多个模型调用就宣称已实现自主规划。
 
-本次读取了两份本地目录，不能将它们合并描述为同一个当前版本：
+2026-10-10 本地整合补充：Harness 契约与执行层已实现，包含 registry、executor、预算、调度和 JSONL 记录；29 项模块测试通过。模型端口、配置 loader、领域适配器和 Agent 控制器仍未实现。以下版本表保留 2026-10-04 的历史调查范围，不代表当前工作树版本。
+
+原调查读取了两份本地目录，不能将它们合并描述为同一个版本：
 
 | 来源 | 本次版本标识 | 范围与限制 |
 | --- | --- | --- |
@@ -45,7 +47,7 @@ flowchart LR
 | Knowledge-Base | [HybridRetriever.retrieve](../../Knowledge-Base/src/ped_knowledge/retrieval/__init__.py)：FTS、向量召回、RRF、可选重排、child EvidenceItem 与 parent_contexts | 只读 `knowledge.search` 与按冻结 chunk/version 取上下文的适配工具 | HybridRetrievalResult 没有 sufficient，不能直接充当 Agent 的 RetrievalBatch；公共定向证据读取接口尚需定义 |
 | Agent | [EvidenceGraph.execute](../src/ped_research_agent/evidence_graph.py)：固定条件图；[ports](../src/ped_research_agent/ports.py) 接收注入的检索与模型协议 | 保留为基线；用工具适配实现既有 ports；控制器在取证端演进 | 没有模型可见工具循环、需求计划、跨轮预算、持久化运行日志和自动恢复 |
 | Video-Analysis | [公共 API](../../Video-Analysis/src/ped_video_analysis/api.py)：推理、轨迹后处理、世界坐标分析；导出由模块完成 | 先开放预计算分析产物读取，再实验轨迹分析工具，最后才研究视频推理动作 | PixelTrackSet、WorldTrackSet、ProcessedWorldTrackSet、AnalysisBundle 与通用 TrajectoryData 并非同一种结构；需要显式转换和分析证据包装 |
-| E 盘 Harness 骨架 | `protocols.py` 有 Tool、ToolCall、字符串 ToolResult 与 Protocol；其余包基本为空 | 可保留字段命名作兼容参照，重新明确 registry 与 executor 边界 | Protocol 不是实现；参数只检查根 type，未验证调用参数；没有执行器、循环、预算、取消传播和结果验证 |
+| E 盘 Harness 执行层 | 类型化 contracts、registry、executor、budget、scheduler、recorder 已实现；旧 `protocols.py` 暂留兼容 | 以新契约构建实验适配器；保持领域模块独立 | 模型工具端口、配置 loader、领域适配器、动态控制器尚未实现；Agent 图尚未接入执行层 |
 | experiments | 独立组合与可复现研究约定；E 盘已有 PEARL 研究资产 | 工具适配、配置解析试验、基线与消融先放独立实验 | 不能把较早 Pilot 或旧 README 状态当作当前实验发布依据 |
 
 ## 现有 Agent 的真实调用链
@@ -108,7 +110,7 @@ Agentic 研究应衔接 E 盘 PEARL Layer 5 控制器和 Layer 6 成本定义：
 
 | 路线 | 收益 | 代价与限制 | 建议 |
 | --- | --- | --- | --- |
-| Python 轻量 Harness + 现有 EvidenceGraph | 基线改动小，保留现有算法和证据保证，便于控制研究变量 | 需要实现类型化工具执行、预算与记录 | 主线 |
+| Python 轻量 Harness + 现有 EvidenceGraph | 基线改动小，保留现有算法和证据保证，便于控制研究变量 | 执行层已实现；仍需模型端口、适配器、配置加载与领域控制器 | 主线 |
 | DeepSeek Harness 外部运行时 + Python 领域工具桥 | 复用插件组合和工具循环，可做运行时对照 | TypeScript/Python 双运行时、桥接和版本升级成本；仍需领域充分性判断 | 隔离实验对照 |
 | 移植 AGI-Saber DAG / 多 Agent 框架 | 适合复杂依赖与并行任务 | Go/Python 迁移大，容易先引入调度复杂度而没有证据收益 | 先借鉴有限重规划；后期按需求验证 DAG |
 
