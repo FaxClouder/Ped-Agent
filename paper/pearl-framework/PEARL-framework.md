@@ -1,10 +1,10 @@
 # PEARL 分层评价框架
 
-*Pedestrian Evidence-based Assessment of Retrieval-augmented Language Systems · status: target · 2026-09-28*
+*Pedestrian Evidence-based Assessment of Retrieval-augmented Language Systems · status: target · 2026-09-28；执行状态同步至 2026-10-07*
 
 > **PedRAGent 是本项目研究和构建的系统；PEARL 是用于评价 PedRAGent 的方法框架，不是另一个系统。** 本文是 PEARL 的主索引：它规定评价链条、层间接口和报告口径，各层的指标定义、实验设计与失败分析收录在对应子目录。使用 PEARL 名称不表示各层实验已经完成——各层状态见 §7。
 >
-> **v1.1 编号变更**：层编号改为无小数的 1–6。原 Layer 1.5 → Layer 2，原 Layer 2 → Layer 3，原 Layer 3 与 Layer 4 合并为 Layer 4。对外不报"N 层"这一单一数字，改用结构表述：**四层顺序链条 + 一个控制器 + 一个横切维度**。编号与目录名映射见 §0.3，变更理由见 §8.4。
+> **v1.1 编号变更**：层编号改为无小数的 1–6，目录名同步对齐。原 Layer 1.5 → Layer 2，原 Layer 2 → Layer 3，原 Layer 3 与 Layer 4 合并为 Layer 4。对外不报"N 层"这一单一数字，改用结构表述：**四层顺序链条 + 一个控制器 + 一个横切维度**。层与目录见 §0.3，变更理由见 §8.4。
 
 ## 0. 框架定位
 
@@ -17,26 +17,31 @@
 | PEARL 职责 | 规定标注口径、指标定义、对照实验与报告方式 |
 | PEARL 不负责 | 系统实现、检索器选型本身、生成模型训练 |
 
-### 0.2 三条设计原则
+### 0.2 设计原则
 
 1. **分层归因**：每层对应一种可定位的失败（漏检、证据不够、读错证据、无依据推断、错误停止、代价过高），失败归因到层而不是归因到"系统整体表现不好"。
 2. **证据可追溯**：每个指标值都能回溯到标注证据和检索记录；不使用无法定位来源的总评分。
 3. **口径先于结果**：指标定义、标注版本和输入哈希固定后，实验结果才能声明为 PEARL 对照结果。
+4. **框架与算法分离**：PEARL 固定评价对象、层间契约、指标和比较规则；解析、切块、检索、融合及重排的改进作为具体实验的配置变量记录。算法变化本身不修改评价体系。
 
-### 0.3 编号与目录映射
+**评估资产边界**：旧评估题集、标签、索引快照、排名和结果全部退出 PEARL。新实验从 PEARL 的数据与标注要求出发，独立定义、构建、版本化和冻结评估输入；不得用旧结果重算或改名替代新实验。
 
-层编号是对外口径，目录名保留历史命名，两者按下表对应。目录未改名，因此**目录名中的数字不是层编号**，引用时以本表为准。
+**当前 Retrieval 主实验范围**：英文文献语料、英文查询；中英差异不作为本轮研究问题或主要实验因素。这是当前实验的范围选择，不改变 PEARL 对证据、指标和层间归因的定义。
 
-| 层 | 名称 | 角色 | 目录 | 原编号 | 状态 |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Retrieval | 链条 | [layer-1-retrieval/](layer-1-retrieval/) | 1 | design 与指标形式化完成，实验未运行 |
-| 2 | Evidence | 链条 | [layer-1.5-evidence/](layer-1.5-evidence/) | 1.5 | 待设计 |
-| 3 | Answer | 链条 | [layer-2-answer/](layer-2-answer/) | 2 | 待设计 |
-| 4 | Grounding & Reliability | 链条 | [layer-3-grounding/](layer-3-grounding/)、[layer-4-reliability/](layer-4-reliability/) | 3 + 4 | 待设计 |
-| 5 | Agentic | 控制器 | [layer-5-agentic/](layer-5-agentic/) | 5 | 待设计 |
-| 6 | Efficiency | 横切维度 | [layer-6-efficiency/](layer-6-efficiency/) | 6 | 待设计 |
+### 0.3 层与目录
 
-Layer 4 由两个目录承载：`layer-3-grounding/` 对应其 Grounding 部分（忠实性与引用），`layer-4-reliability/` 对应其 Reliability 部分（拒答决策）。两部分指标不合并计算，只合并编号，理由见 §8.4。
+目录名与层编号一致。
+
+| 层 | 名称 | 角色 | 目录 | 状态 |
+| --- | --- | --- | --- | --- |
+| 1 | Retrieval | 链条 | [layer-1-retrieval/](layer-1-retrieval/) | retrieval-v0.2 已定义；80 题开发与 200 题独立评价已执行（见 §7） |
+| 2 | Evidence | 链条 | [layer-2-evidence/](layer-2-evidence/) | 执行协议在[实验目录](../../experiments/pearl-evidence-dev80-20261004/protocol.md)；80 题开发评价已执行 |
+| 3 | Answer | 链条 | [layer-3-answer/](layer-3-answer/) | 执行协议在[实验目录](../../experiments/pearl-answer-dev80-20261004/protocol.md)；80 题开发评价已执行 |
+| 4 | Grounding & Reliability | 链条 | [layer-4-grounding/](layer-4-grounding/)、[layer-4-reliability/](layer-4-reliability/) | 执行协议在[实验目录](../../experiments/pearl-layer4-dev80-20261004/protocol.md)；80 题开发评价已执行 |
+| 5 | Agentic | 控制器 | [layer-5-agentic/](layer-5-agentic/) | 待设计 |
+| 6 | Efficiency | 横切维度 | [layer-6-efficiency/](layer-6-efficiency/) | 待设计 |
+
+Layer 4 由两个目录承载：`layer-4-grounding/` 对应其 Grounding 部分（忠实性与引用），`layer-4-reliability/` 对应其 Reliability 部分（拒答决策）。两部分指标不合并计算，只合并编号，理由见 §8.4。
 
 跨层与支撑目录：
 
@@ -56,7 +61,7 @@ PEARL 的结构是**四层顺序链条 + 一个控制器 + 一个横切维度**�
 
 ```mermaid
 flowchart TB
-    Q[问题 + 固定索引] --> L1
+    Q[新实验冻结的问题 + 索引] --> L1
     L1[Layer 1 Retrieval<br/>Top-K chunks] --> L2
     L2[Layer 2 Evidence<br/>上下文充分性] --> L3
     L3[Layer 3 Answer<br/>答案正确性] --> L4
@@ -66,7 +71,7 @@ flowchart TB
     L6[Layer 6 Efficiency<br/>延迟与成本] -.横切计量.-> OUT
 ```
 
-**顺序链条**：Layer 1 → 2 → 3 → 4。上游输出是下游输入，上游失败会传播到下游，因此每层只对本层新增的失败计分（§2 的层间契约）。
+**顺序链条**：Layer 1 → 2 → 3 → 4。上游输出是下游输入，上游失败会传播到下游；各层分别评价自己的输出状态，并区分本层新增失败与上游传播失败，避免重复归因（§2 的层间契约）。
 
 **控制器**：Layer 5 不是链条中的一环，而是控制 Layer 1 / Layer 2 反复执行的决策器。它的指标衡量"何时检索、何时停止"，不衡量单轮检索质量。
 
@@ -74,10 +79,10 @@ flowchart TB
 
 | 层 | 失败模式 | 主指标 | 详细设计 |
 | --- | --- | --- | --- |
-| 1 Retrieval | 漏检 | Page-Hit@10（目标：Complete Evidence Group Recall@10） | [metrics.md](layer-1-retrieval/metrics.md) |
-| 2 Evidence | 证据不够 | Evidence Coverage、Sufficiency Accuracy | 待设计 |
-| 3 Answer | 读错证据 | Answer Correctness | 待设计 |
-| 4 Grounding & Reliability | 无依据推断；该拒答却作答 | Faithfulness、Unsupported Claim Rate；Abstention F1、False Answer Rate | 待设计 |
+| 1 Retrieval | 漏检 | CEGR@10；BestGroupCov 与 CompleteMRR 辅助解释 | [指标协议](layer-1-retrieval/metrics.md) |
+| 2 Evidence | 证据不够 | Evidence Coverage、Sufficiency Accuracy | [Layer 2 开发协议](../../experiments/pearl-evidence-dev80-20261004/protocol.md) |
+| 3 Answer | 读错证据 | Answer Correctness | [Layer 3 开发协议](../../experiments/pearl-answer-dev80-20261004/protocol.md) |
+| 4 Grounding & Reliability | 无依据推断；该拒答却作答 | Faithfulness、Unsupported Claim Rate；Abstention F1、False Answer Rate | [Layer 4 开发协议](../../experiments/pearl-layer4-dev80-20261004/protocol.md) |
 | 5 Agentic | 错误停止或过度检索 | Requirement Coverage、Hop Success | 待设计 |
 | 6 Efficiency | 代价过高 | Latency、Tokens、Calls、Rounds | 待设计 |
 
@@ -89,9 +94,18 @@ Layer 4 含两个失败模式，是全框架唯一的一层多模式。合并的
 
 ### 2.1 Layer 1 → Layer 2
 
-Layer 1 输出最终排序的 Top-K child chunks，每条含排名、chunk ID、文本、来源文档、页码、检索分数和 parent ID。Layer 2 按固定规则用 parent ID 展开上下文。
+Layer 1 输出最终排序的 Top-K child chunks，每条含排名、chunk ID、文本、来源文档、页码、检索分数和 parent ID。**进入 Top-K 只是进入评价范围，不自动算命中。**Layer 1 只看这些 child 的实际文本：一个或多个返回片段须明确承载预先标注的必要证据及其适用条件，才能记相应证据内容命中。只命中正确资源或证据所在页、但返回文本不含目标信息时，内容命中为 0；资源和页定位可另作诊断。CEGR 按组内 AND、组间 OR 判断至少一组完整；公式与固定算例见 [指标协议](layer-1-retrieval/metrics.md)。
 
-**不重复计分**：chunk 进入 Top-K 算 Layer 1 成功；展开后上下文仍不足以支持答案，算 Layer 2 失败。命中正确论文但返回片段不含目标信息，Layer 1 不算命中。
+Layer 2 按实验前固定的规则展开 parent、去重、截断与组装，评价**实际送入生成器的上下文**是否足以支持答案。Layer 1 的观察对象是原始 Top-K child 文本，Layer 2 的观察对象是组装后的上下文；两层不得对同一份文本的同一种充分性重复计分。
+
+| Top-K child 的必要证据 | 组装后上下文 | 归因记录 |
+| --- | --- | --- |
+| 完整 | 充分 | 两阶段均成功 |
+| 完整 | 不足 | Layer 2 新增的组装或充分性失败，不回溯修改 Layer 1 |
+| 不完整 | 充分 | parent 展开等带来的补证，单列为挽回案例；不追改 Layer 1 的原始检索观察 |
+| 不完整 | 不足 | Layer 1 漏检或定位不足；Layer 2 不重复计为新增失败 |
+
+表中的「完整」指原始 Top-K child 文本满足至少一组完整证据。本轮 Retrieval 主报 CEGR@10，补报 K=1/5/20，诊断排名保存到 100；具体取值属于 [实验协议](layer-1-retrieval/experiments.md)。Layer 2 充分性判断器尚待设计。两层总体状态可以分别报告，不重复计数约束针对新增失败归因，不能因此将下游实际不足改记成功。文献依据与自行制定的边界见 [references/](references/)。
 
 ### 2.2 Layer 2 → Layer 3
 
@@ -133,11 +147,13 @@ Agent 多轮检索必须先固定评测口径：明确是单轮还是最终合�
 
 ## 3. 数据与标注
 
-每个 underlying intent 至少记录：`intent_id`、题型、推理深度、答案类型、语言变体、参考答案及必要 atomic claims、可回答性、条件依赖、冲突状态、Gold evidence groups、等价证据、来源文档及页码。数值题另记单位、合理容差和实验条件；拒答题注明缺失的证据以及为何不足。
+每个 underlying intent 至少记录：`intent_id`、题型、推理深度、答案类型、英文查询、参考答案及必要 atomic claims、可回答性、条件依赖、冲突状态、Gold evidence groups、等价证据、来源文档及页码。数值题另记单位、合理容差和实验条件；拒答题注明缺失的证据以及为何不足。
+
+检索证据标注锚定版本化来源中的事实、原文片段及必要条件，不以某一算法生成的 chunk ID 作为唯一 Gold。每个实验将来源锚点映射到其返回的 child 文本，并保存支持该判断的 chunk ID 与核验依据；切块或解析策略变化时须重新核验映射，但不因算法变化改写 PEARL 的命中定义。
 
 **Evidence group 语义**：一个 evidence group 是足以独立支持答案的一组必要证据；组内为 AND，多个可替代组之间为 OR。标注应允许不同论文提供同一 atomic fact，不把唯一指定的页当作唯一正确证据。
 
-**统计单位**：underlying intent。中英问法与改写必须同组划分，不作为独立样本。
+**统计单位**：underlying intent。当前主实验对每个 intent 使用英文查询；若存在英文改写，应同组划分，不作为独立样本。
 
 标注细则、质量分级和一致性验证方法收录在 [annotation/](annotation/)；开发集与封存测试集的划分原则收录在 [datasets/](datasets/)。
 
@@ -151,9 +167,11 @@ Agent 多轮检索必须先固定评测口径：明确是单轮还是最终合�
 | 3 Agent 消融 | A0 No-RAG；A1 Static；A2 +规划与迭代；A3 +充分性判断；A4 +claim 验证与拒答 | 定位每一步的收益与成本 |
 | 4 Hop 诊断 | 多证据、跨论文和冲突题逐轮记录 | Hop Success、Premature Stop、Over-retrieval |
 | 5 压力测试 | 逐级加噪；移除关键证据；条件错配与冲突 | 噪声下跌幅、条件感知、冗余鲁棒性 |
-| 6 专项与成本 | 表格/数值子集；中英配对；复杂度分层 | 单位归一化误差、成对一致性、质量–成本曲线 |
+| 6 专项与成本 | 表格/数值子集；复杂度分层 | 单位归一化误差、质量–成本曲线 |
 
 **流程约束**：先在开发集选定 Best Static RAG，再固定其底层检索器进行 Agent 消融。封存测试集不参与选择模型、阈值或提示。
+
+表中的解析、切块、检索器及重排仅是实验因素；每个具体实验另行声明对照组、控制变量和算法版本。PEARL 的指标及层间接口不随候选算法的改进而改变。
 
 跨层实验设计、整体消融策略和错误传播分析收录在 [cross-layer/](cross-layer/)。
 
@@ -161,20 +179,18 @@ Agent 多轮检索必须先固定评测口径：明确是单轮还是最终合�
 
 ### 5.1 主表六项
 
-主表是**报告模板**，不是结果表。当前只有 Layer 1 的指标可算，其余五项按 §7 尚未执行，填表时写"—（未执行）"而不留空——留空会被读成 0 或读成遗漏。
+主表是**报告模板**，不是结果表。“当前状态”列只说明各项是否已有执行结果及其范围，数值以对应实验报告为准；仍未执行的项填表时写"—（未执行）"。开发集结果不得填入独立评价主表。
 
 | # | 指标 | 方向 | 层 | 当前状态 |
 | --- | --- | --- | --- | --- |
-| 1 | Page-Hit@10 <sup>a</sup> | ↑ | 1 Retrieval | 可算，实验未运行 |
-| 2 | Answer Correctness | ↑ | 3 Answer | —（未执行） |
-| 3 | Faithfulness | ↑ | 4 · Grounding | —（未执行） |
-| 4 | Unsupported Claim Rate | ↓ | 4 · Grounding | —（未执行） |
-| 5 | Abstention F1 | ↑ | 4 · Reliability | —（未执行） |
-| 6 | Latency | ↓ | 6 Efficiency | —（未执行） |
+| 1 | CEGR@10 <sup>a</sup> | ↑ | 1 Retrieval | 200 题独立评价已执行：R1–R4 为 116/118/126/139（[阶段 D 分析](../../experiments/pearl-retrieval-eval200-20261003/evaluation-analysis-2026-10-03.md)） |
+| 2 | Answer Correctness | ↑ | 3 Answer | 仅 80 题开发评价（[Layer 3 分析](../../experiments/pearl-answer-dev80-20261004/answer-analysis-2026-10-04.md)）；200 题未执行 |
+| 3 | Faithfulness | ↑ | 4 · Grounding | 仅 80 题开发评价（[Layer 4 分析](../../experiments/pearl-layer4-dev80-20261004/grounding-reliability-analysis-2026-10-04.md)）；200 题未执行 |
+| 4 | Unsupported Claim Rate | ↓ | 4 · Grounding | 同上 |
+| 5 | Abstention F1 | ↑ | 4 · Reliability | 同上 |
+| 6 | Latency | ↓ | 6 Efficiency | —（未执行；Layer 6 待设计） |
 
-<sup>a</sup> Complete Evidence Group Recall 在当前页级标注下的实现，映射规则 `mapping-v1-page-permissive`。chunk 级标注就绪后升级为 Info-PerfRecall@10，届时改用 RARE 命名。定义见 [layer-1-retrieval/metrics.md](layer-1-retrieval/metrics.md) §4.3。
-
-**列名用可算的指标名，不用目标指标名。** 主表写 Page-Hit@10 而非 Complete Evidence Group Recall@10：后者在前会让读者把页级结果读成证据组级结果。目标指标名只出现在表注。
+<sup>a</sup> CEGR 是原始 Top-K child 完整覆盖至少一组证据的 intent 比例，不是页命中或检回全部替代组的比例。BestGroupCov 与 CompleteMRR 在 Retrieval 详细表报告；定义见 [指标协议](layer-1-retrieval/metrics.md)。
 
 资源受限场景可用 Tokens 替换 Latency，但须在实验前选定并对所有方法保持一致，不能按结果择优。
 
@@ -182,7 +198,7 @@ Agent 多轮检索必须先固定评测口径：明确是单轮还是最终合�
 
 MRR、nDCG、Citation P/R、hop 指标、数值误差与题型细分放诊断表或附录。不使用 BLEU/ROUGE 或单一 LLM 总评分替代主表指标。
 
-Page-Coverage@10 进诊断表，不进主表：当前 18 题全为单组单页，它与 Page-Hit@10 数值恒等（[metrics.md](layer-1-retrieval/metrics.md) §6.1），并列会被当作两项独立证据。表中须标注"当前标注下与 Page-Hit 恒等"。
+BestGroupCov 衡量最接近齐备的一组证据的覆盖比例；若与 CEGR 在实际样本上恒等，应说明原因，不作为第二项独立证据。资源／页定位只进诊断表。
 
 ### 5.3 统计与可复现
 
@@ -205,24 +221,24 @@ Page-Coverage@10 进诊断表，不进主表：当前 18 题全为单组单页�
 
 | 项目 | 状态 |
 | --- | --- |
-| 框架定义 | 已完成（framework.md，2026-09-27；编号于 v1.1 调整） |
-| Layer 1 设计方案 | 已完成（layer-1-retrieval/design.md） |
-| Layer 1 指标形式化 | 已完成（layer-1-retrieval/metrics.md） |
-| Layer 2–6 设计 | 待开始（仅有 README 界定职责边界） |
-| 标注质量验证 | 未执行（当前为 agent-adjudicated，未抽样复核） |
-| 各层实验 | 全部未执行 |
+| 框架定义 | 本文件为现行目标框架；[framework.md](framework.md) 仅保留历史沿革 |
+| Layer 1 设计方案 | retrieval-v0.2：英文四方法（R1 BM25、R2 BGE-M3、R3 RRF、R4 RRF＋重排），80 个开发／200 个独立评估 intent |
+| Layer 1 指标形式化 | CEGR、BestGroupCov、CompleteMRR 已定义，评分器已在实验目录实现并独立复算 |
+| 新评估标注与质量验证 | [80 开发／200 评估题集](../../experiments/pearl-dataset-80-200-20261003/README.md)已构建并冻结；开发 Gold 修订至 r02；Agent 复核，`human_verified=false` |
+| Layer 1 实验 | 80 题开发对照与 200 题独立评价均已完成；R4 CEGR@10 为 139/200（[阶段 D 分析](../../experiments/pearl-retrieval-eval200-20261003/evaluation-analysis-2026-10-03.md)） |
+| Layer 2 实验 | 80 题开发评价已完成（[实验入口](../../experiments/pearl-evidence-dev80-20261004/README.md)）；200 题未执行 |
+| Layer 3 实验 | 80 题开发评价已完成，四实际臂 Strict 60/58/57/61（[分析](../../experiments/pearl-answer-dev80-20261004/answer-analysis-2026-10-04.md)）；200 题未执行 |
+| Layer 4 实验 | 80 题开发评价已完成（[分析](../../experiments/pearl-layer4-dev80-20261004/grounding-reliability-analysis-2026-10-04.md)）；200 题未执行 |
+| Layer 5、Layer 6、跨层评价 | 待设计，未执行 |
+| 切片与上下文恢复研究 | E0–E4 完成，E5 答案已生成，6B 评价进行中（[实验入口](../../experiments/pearl-chunking-dev80-20261005/README.md)） |
 
-当前代码、候选开发集结果及标签限制，分别以 [Knowledge-Base README](../../Knowledge-Base/README.md)、[Gold v5 实验说明](../../experiments/benchmark-gold-20260923/README.md) 和 [Stage 2 标注说明](../../experiments/stage2-annotation/README.md) 为准。
+Layer 2–4 的开发结果汇总见 [Layer 1–4 结果与架构问题分析](reporting/layer1-4-results-and-architecture-review-2026-10-05.md)。本节只记录执行状态；层定义和指标口径仍以 §1–§5 为准。
 
-## 8. 已知口径差异
+旧评估资产只保留历史溯源价值，不是本框架的输入或基线。新实验的资产清单与复现信息将在具体实验协议中冻结。
 
-在使用既有数据填入 PEARL 表格前，须先处理三项差异：
+## 8. 旧方案与新实验的隔离
 
-1. **证据组语义**：PEARL 将完整证据组内设为 AND、替代证据组间设为 OR；当前 Gold v2 评分器将必需组间设为 AND、组内替代来源设为 OR。两者的完整证据分数不能直接混用。
-2. **截断深度**：PEARL 主报 `@10`，当前 Gold v5 开发集主报 `@5`。既有 Top-K 离线重算不是独立检索运行。
-3. **层级适用范围**：答案、忠实性、拒答及 Agent 过程指标在 PEARL 中是目标设计。当前开发集标签和已执行结果须单独标注适用范围，不得写成封存测试或人工 Gold 的结果。
-
-Layer 1 设计文档对原框架 Retrieval 口径提出了调整（以 RARE 的 Coverage@10 / PerfRecall@10 替换项目自定义指标名），该调整尚未迁移到代码或结果。
+旧评估方案与 PEARL 的证据组语义、截断深度和层间归因并不一致。它们的题集、标签、索引和结果全部不用于新实验，也不通过映射或离线重算转成 PEARL 成绩。Layer 1 细化文档已重写为 retrieval-v0.2，具体资产版本与哈希须在新运行前实际构建和冻结。
 
 ### 8.4 编号变更（v1.1）
 
@@ -241,19 +257,21 @@ Layer 1 设计文档对原框架 Retrieval 口径提出了调整（以 RARE 的 
 
 **合并的代价**：Layer 4 是唯一含两个失败模式的层。为不损失归因粒度，§2.4 规定两部分指标分别汇总、主表分别出现、不构造合成分数。若后续拒答子集标注完成并形成独立实验，可再拆分为两层，届时对外标签改为"五层顺序链条 + 一个控制器 + 一个横切维度"。
 
-**目录未改名**：编号是对外口径，目录名保留历史命名（`layer-1.5-evidence/` 等），映射见 §0.3。目录名中的数字不是层编号。
+**目录同步改名**：`layer-1.5-evidence/` → `layer-2-evidence/`，`layer-2-answer/` → `layer-3-answer/`，`layer-3-grounding/` → `layer-4-grounding/`。`layer-4-reliability/` 路径不变，但其含义由独立的 Layer 4 变为 Layer 4 的 Reliability 部分。改名在设计阶段完成，各层实验与代码尚未引用这些路径。
 
 ## 9. 术语表
 
 | 术语 | 定义 |
 | --- | --- |
-| Underlying intent | 问题的本质意图；中英问法与改写属同一 intent |
+| Underlying intent | 问题的本质意图；同一问题的改写属同一 intent |
 | Evidence group | 足以独立支持答案的一组必要证据；组内 AND，组间 OR |
 | Atomic claim | 不可再分的最小可核查事实单元 |
-| Complete Evidence Group Recall | Top-K 及其展开上下文完整覆盖至少一个证据组的题目比例；当前以 Page-Hit@10 近似实现 |
-| Page-Hit@10 | 所有必要信息所在页都进入 Top-10 的 intent 比例，映射规则 `mapping-v1-page-permissive` |
+| Complete Evidence Group Recall（CEGR） | Top-K 原始 child 完整覆盖至少一组证据的 intent 比例；见 Layer 1 指标协议 |
+| BestGroupCov | 单个允许完整组内已满足 requirement 比例的最大值，再按 intent 汇总 |
+| CompleteMRR | 首次完成任一完整组的排名前缀长度倒数，再按 intent 汇总 |
+| Page-Hit@10 | 已弃用的旧页级代理主指标；页定位在新协议中仅作诊断 |
 | Best Static RAG | 在开发集上选定并冻结的最优静态检索配置 |
-| 顺序链条 | Layer 1–4：上游输出是下游输入，每层只对本层新增失败计分 |
+| 顺序链条 | Layer 1–4：上游输出是下游输入；各层状态分别计分，新增与传播失败分别归因 |
 | 控制器 | Layer 5：控制 Layer 1 / Layer 2 反复执行的决策器，不占链条位置 |
 | 横切维度 | Layer 6：对所有层分阶段计量代价再累计 |
 
@@ -261,6 +279,8 @@ Layer 1 设计文档对原框架 Retrieval 口径提出了调整（以 RARE 的 
 
 | 版本 | 日期 | 变更 |
 | --- | --- | --- |
+| v1.2-draft（状态同步） | 2026-10-07 | 仅同步 §0.3、§1 表的状态与协议链接、§5.1 主表状态列和 §7 执行状态；框架定义、层间契约和指标口径未改 |
+| v1.2-draft | 2026-09-29 | 明确旧资产退出和英文单语范围；Layer 1 重写为 retrieval-v0.2，定义证据组指标、80/200 新数据计划、四组对照及统计／失败归因 |
 | v1.1-draft | 2026-09-28 | 层编号改为无小数 1–6（1.5→2、2→3、3+4→4）；对外标签改为结构表述；主表列名改用 Page-Hit@10 并加状态列；补 §2.4 Layer 4 内部分工与 §8.4 变更记录 |
 | v1.0-draft | 2026-09-28 | 建立主索引与分层目录；补充层间接口约定；迁移 Retrieval 设计到 layer-1 |
 | v0.1 | 2026-09-27 | 框架原始定义（framework.md，旧项目名 Ped-Agent） |

@@ -1,6 +1,6 @@
 # Adobe PDF Extract optional parser design
 
-_Optional document parsing adapter for the Knowledge-Base module · status: target_
+_Original design record for the Knowledge-Base Adobe adapter · status: historical_
 
 ## Goal
 
@@ -19,3 +19,7 @@ Use Adobe PDF Extract JSON to improve reading order and table extraction in a co
 - Unit tests use a small synthetic Adobe ZIP and cover reading order, page mapping, table rows, figure assets, malformed ZIP, and service selection.
 - Run the Knowledge-Base module suite and then all repository tests because the CanonicalDocument contract is consumed by chunking and storage.
 - Run one smoke request using the Adobe sample PDF. Compare extracted structure to PyMuPDF without asserting that one parser is inherently more accurate.
+
+## Implementation record (2026-09-23)
+
+The optional adapter, explicit import selection, derived assets, and independent comparison command are implemented. The default parser remains PyMuPDF. The Adobe sample PDF was used for an actual API smoke request; no research-corpus accuracy result is established. Current usage and data boundaries are documented in [`Knowledge-Base/README.md`](../../../Knowledge-Base/README.md) and [`memPed/README.md`](../../../memPed/README.md).

@@ -1,0 +1,17 @@
+{
+  "protocol": "openai_compatible",
+  "model": "deepseek-flash",
+  "base_url": "https://api.deepseek.com",
+  "timeout_seconds": 120,
+  "output_tokens": 2048,
+  "temperature_supported": true,
+  "seed_supported": false,
+  "provider_window_tokens": 1000000,
+  "provider_input_tokens": 100000,
+  "capability_evidence": "provider-docs-r01.json official DeepSeek docs verified by root; conservative full-request UTF8-byte admission bound",
+  "extra_body": {
+    "thinking": {
+      "type": "disabled"
+    }
+  }
+}

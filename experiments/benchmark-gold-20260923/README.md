@@ -1,6 +1,6 @@
 # Rebuilt Gold question benchmark
 
-_Status: plan · 2026-09-23 · evaluation definition for the new question set_
+_Status: historical (was plan; relabeled 2026-10-07) · 2026-09-23 · Gold v5 evaluation definition, not used by PEARL_
 
 This experiment compares RAG retrieval methods on Chinese and English questions about pedestrian flow and evacuation transport. The legacy `pilot_gold.jsonl` and `core_gold.jsonl` are historical inputs and are not used to author, validate, or score this set.
 

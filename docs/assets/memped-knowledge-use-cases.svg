@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1320" viewBox="0 0 1180 1320">
+  <rect width="1180" height="1320" fill="white"/>
+  <text x="590" y="44" text-anchor="middle" font-size="22" font-weight="bold" fill="#111" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">memPed 与 Knowledge-Base - 当前角色与能力</text>
+
+  <!-- 资料维护者，W=180 -->
+  <circle cx="60" cy="162" r="18" fill="none" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="180" x2="60" y2="220" stroke="#333" stroke-width="2"/>
+  <line x1="35" y1="198" x2="85" y2="198" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="220" x2="38" y2="250" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="220" x2="82" y2="250" stroke="#333" stroke-width="2"/>
+  <text x="60" y="270" text-anchor="middle" font-size="14" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">资料维护者</text>
+  <ellipse cx="200" cy="180" rx="90" ry="32" fill="#7b5ea7" stroke="#7b5ea7" stroke-width="1.5"/>
+  <text x="200" y="185" text-anchor="middle" font-size="13" fill="white" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">语料治理域</text>
+  <line x1="78" y1="180" x2="108" y2="180" stroke="#aaa" stroke-width="1.2"/>
+  <ellipse cx="460" cy="100" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="105" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">筛选文献与法规</text>
+  <ellipse cx="460" cy="180" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="185" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">维护治理记录</text>
+  <ellipse cx="460" cy="260" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="265" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">形成技术 Manifest</text>
+  <line x1="290" y1="180" x2="360" y2="100" stroke="#ccc" stroke-width="1"/>
+  <line x1="290" y1="180" x2="360" y2="180" stroke="#ccc" stroke-width="1"/>
+  <line x1="290" y1="180" x2="360" y2="260" stroke="#ccc" stroke-width="1"/>
+
+  <!-- 数据工程者，W=500 -->
+  <circle cx="60" cy="482" r="18" fill="none" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="500" x2="60" y2="540" stroke="#333" stroke-width="2"/>
+  <line x1="35" y1="518" x2="85" y2="518" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="540" x2="38" y2="570" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="540" x2="82" y2="570" stroke="#333" stroke-width="2"/>
+  <text x="60" y="590" text-anchor="middle" font-size="14" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">数据工程者</text>
+  <ellipse cx="200" cy="500" rx="90" ry="32" fill="#3a7bd5" stroke="#3a7bd5" stroke-width="1.5"/>
+  <text x="200" y="505" text-anchor="middle" font-size="13" fill="white" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">导入与派生域</text>
+  <line x1="78" y1="500" x2="108" y2="500" stroke="#aaa" stroke-width="1.2"/>
+  <ellipse cx="460" cy="420" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="425" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">技术预检与 Vault</text>
+  <ellipse cx="460" cy="500" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="505" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">解析与生成派生资产</text>
+  <ellipse cx="460" cy="580" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="585" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">维护版本化 Catalog</text>
+  <line x1="290" y1="500" x2="360" y2="420" stroke="#ccc" stroke-width="1"/>
+  <line x1="290" y1="500" x2="360" y2="500" stroke="#ccc" stroke-width="1"/>
+  <line x1="290" y1="500" x2="360" y2="580" stroke="#ccc" stroke-width="1"/>
+
+  <!-- 检索研究者，W=820 -->
+  <circle cx="60" cy="802" r="18" fill="none" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="820" x2="60" y2="860" stroke="#333" stroke-width="2"/>
+  <line x1="35" y1="838" x2="85" y2="838" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="860" x2="38" y2="890" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="860" x2="82" y2="890" stroke="#333" stroke-width="2"/>
+  <text x="60" y="910" text-anchor="middle" font-size="14" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">检索研究者</text>
+  <ellipse cx="200" cy="820" rx="90" ry="32" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5"/>
+  <text x="200" y="825" text-anchor="middle" font-size="13" fill="white" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">检索实验域</text>
+  <line x1="78" y1="820" x2="108" y2="820" stroke="#aaa" stroke-width="1.2"/>
+  <ellipse cx="460" cy="740" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="745" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">构建 V1/V2 Chunk</text>
+  <ellipse cx="460" cy="820" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="825" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">构建稀疏/稠密索引</text>
+  <ellipse cx="460" cy="900" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="905" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">Gold 评测与发布</text>
+  <line x1="290" y1="820" x2="360" y2="740" stroke="#ccc" stroke-width="1"/>
+  <line x1="290" y1="820" x2="360" y2="820" stroke="#ccc" stroke-width="1"/>
+  <line x1="290" y1="820" x2="360" y2="900" stroke="#ccc" stroke-width="1"/>
+  <ellipse cx="700" cy="780" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="700" y="785" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">FTS5 / BM25</text>
+  <ellipse cx="700" cy="860" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="700" y="865" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">BGE-M3 / Chroma</text>
+  <line x1="560" y1="820" x2="600" y2="780" stroke="#ccc" stroke-width="1"/>
+  <line x1="560" y1="820" x2="600" y2="860" stroke="#ccc" stroke-width="1"/>
+
+  <!-- Agent，W=1140 -->
+  <circle cx="60" cy="1122" r="18" fill="none" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="1140" x2="60" y2="1180" stroke="#333" stroke-width="2"/>
+  <line x1="35" y1="1158" x2="85" y2="1158" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="1180" x2="38" y2="1210" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="1180" x2="82" y2="1210" stroke="#333" stroke-width="2"/>
+  <text x="60" y="1230" text-anchor="middle" font-size="14" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">Agent（外部系统）</text>
+  <ellipse cx="200" cy="1140" rx="90" ry="32" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="200" y="1145" text-anchor="middle" font-size="13" fill="white" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">证据消费域</text>
+  <line x1="78" y1="1140" x2="108" y2="1140" stroke="#aaa" stroke-width="1.2"/>
+  <ellipse cx="460" cy="1060" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="1065" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">检索 child 证据</text>
+  <ellipse cx="460" cy="1140" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="1145" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">读取 parent 上下文</text>
+  <ellipse cx="460" cy="1220" rx="100" ry="28" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="460" y="1225" text-anchor="middle" font-size="13" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">消费 EvidenceItem</text>
+  <line x1="290" y1="1140" x2="360" y2="1060" stroke="#ccc" stroke-width="1"/>
+  <line x1="290" y1="1140" x2="360" y2="1140" stroke="#ccc" stroke-width="1"/>
+  <line x1="290" y1="1140" x2="360" y2="1220" stroke="#ccc" stroke-width="1"/>
+
+  <!-- 图例 -->
+  <rect x="860" y="72" width="250" height="250" rx="8" fill="white" stroke="#ccc" stroke-width="1.2"/>
+  <text x="985" y="102" text-anchor="middle" font-size="14" font-weight="bold" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">图例</text>
+  <ellipse cx="955" cy="140" rx="70" ry="22" fill="#f8f8f8" stroke="#bbb" stroke-width="1.5"/>
+  <text x="955" y="145" text-anchor="middle" font-size="12" fill="#222" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">当前已有能力</text>
+  <ellipse cx="955" cy="190" rx="70" ry="22" fill="#7b5ea7" stroke="#7b5ea7" stroke-width="1.5"/>
+  <text x="955" y="195" text-anchor="middle" font-size="12" fill="white" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">治理域</text>
+  <ellipse cx="955" cy="240" rx="70" ry="22" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5"/>
+  <text x="955" y="245" text-anchor="middle" font-size="12" fill="white" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">检索实验域</text>
+  <ellipse cx="955" cy="290" rx="70" ry="22" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="955" y="295" text-anchor="middle" font-size="12" fill="white" font-family="Noto Sans SC, Microsoft YaHei, sans-serif">外部消费域</text>
+</svg>

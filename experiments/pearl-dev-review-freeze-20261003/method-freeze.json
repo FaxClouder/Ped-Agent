@@ -1,0 +1,298 @@
+{
+  "schema_version": "pearl-layer1-method-freeze-v1",
+  "freeze_id": "pearl-layer1-adobe106-r1-r4-20261003-r01",
+  "status": "frozen_unchanged_method_configuration_only",
+  "created_at_utc": "2026-10-03T08:48:03.212436+00:00",
+  "basis": {
+    "development_run": "outputs/pearl-retrieval-dev80-20261003-01",
+    "run_manifest_sha256": "1e619d163756a9e59b58e47b556f1d75c20f7917460e9a6f657798b92ccfa10f",
+    "delivery_manifest_sha256": "6539488c5ea10d6fa1b7737c6c24b7b75c1b5244b3aaa17ae7bc8ebc1ac343b0",
+    "stage_preflight_path": "outputs/pearl-dev-review-freeze-20261003-01/stage-preflight.json",
+    "stage_preflight_sha256": "4fb17c3505b6aa1004af779917067b520038c3f6c33139b44e22c7119a4bb3d9",
+    "development_preflight_path": "outputs/pearl-retrieval-dev80-20261003-01/preflight.json"
+  },
+  "methods": {
+    "R1": {
+      "analyzer_fingerprint": "english-lexical-v1:5004937334f6c88b453f7e3d02b0725b599e912ea8116c7af495510a1676bb75",
+      "bm25": {
+        "b": 0.75,
+        "idf": "max(ln((N-df+0.5)/(df+0.5)),1e-6)",
+        "k1": 1.2,
+        "log1p": false,
+        "score": "negative SQLite rank"
+      },
+      "fields": "body only; title and heading empty",
+      "idf": "SQLite FTS5 log((N-n+0.5)/(n+0.5)); nonpositive values floor 1e-6; k1=1.2, b=0.75",
+      "old_scores_comparable": false,
+      "ordering": "SQLite rank ASC, chunk_id ASC",
+      "query": "sorted unique EnglishLexicalAnalyzer tokens OR; body only; negated SQLite bm25",
+      "sqlite_version": "3.45.3"
+    },
+    "R2": {
+      "actual_asset_sha256": {
+        "1_Pooling/config.json": "e54c164a07274f2eb45bb724f54a79d1efcc90c41573887cd9a29aeee0597352",
+        "colbert_linear.pt": "19bfbae397c2b7524158c919d0e9b19393c5639d098f0a66932c91ed8f5f9abb",
+        "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+        "config_sentence_transformers.json": "1eef72430e7194a1e59680e635aed81ffa083f05668dbc5bb1c56c04c0999c38",
+        "model_manifest.json": "22263517166faf3af1c03155ee82f843933dbb4b1cd79e372e91aa86f5dd8972",
+        "modules.json": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf",
+        "pytorch_model.bin": "b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38",
+        "sentence_bert_config.json": "eb9b44b13c0f52a3b3685c3b1cbdea1ba8b04bea123b98f61610048940776eb1",
+        "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+        "sparse_linear.pt": "45c93804d2142b8f6d7ec6914ae23a1eee9c6a1d27d83d908a20d2afb3595ad9",
+        "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+        "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+        "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4"
+      },
+      "ann": {
+        "collection_configuration": {
+          "ef_construction": 100,
+          "ef_search": 100,
+          "max_neighbors": 16,
+          "resize_factor": 1.2,
+          "space": "cosine",
+          "sync_threshold": 1000
+        },
+        "engine": "Chroma HNSW",
+        "metric": "cosine",
+        "num_threads": 1,
+        "seed": "not exposed by installed Chroma configuration; no ANN bitwise guarantee"
+      },
+      "batch_size": 8,
+      "content_digest_spec": "sort by chunk_id; UTF-8 compact sorted JSON {chunk_id,text,metadata} + newline + little-endian float32 vector bytes",
+      "content_sha256": "814f2bd5686dc06ce455ce2221094864b3f720f024266a8e0a10272b07152f19",
+      "dense_dimensions": 1024,
+      "deterministic_algorithms": true,
+      "device": "NVIDIA GeForce RTX 3080",
+      "exact_scoring": "float32 dot product of stored unit vectors; ties by chunk_id ascending",
+      "input_view": "model_inputs.jsonl: unpadded input IDs and attention masks; batches dynamically padded",
+      "max_length": 1024,
+      "model_manifest": {
+        "model_id": "BAAI/bge-m3",
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "runtime": {
+          "device": "cuda:0",
+          "dimensions": 1024,
+          "flagembedding": "1.4.2",
+          "torch": "2.14.0+cu130",
+          "use_fp16": true
+        },
+        "source_url": "https://huggingface.co/BAAI/bge-m3",
+        "verified_at": "2026-09-08",
+        "weights": {
+          "pytorch_model.bin": {
+            "bytes": 2271145830,
+            "sha256": "b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38"
+          }
+        }
+      },
+      "normalize_embeddings": true,
+      "query_instruction": null,
+      "raw_lengths_include_special_tokens": true,
+      "storage_dtype": "float32",
+      "torch_cuda": "13.0",
+      "truncation_count": 0,
+      "truncation_side": "right",
+      "use_fp16": true
+    },
+    "R3": {
+      "depth": 100,
+      "equal_weights": true,
+      "rrf_k": 60
+    },
+    "R4": {
+      "batch_size": 4,
+      "device": "cuda:0",
+      "input_candidates": "frozen_R3_Top100_only",
+      "local_model_dir": "memPed/knowledge/models/bge-reranker-v2-m3",
+      "max_length": 1024,
+      "model_id": "BAAI/bge-reranker-v2-m3",
+      "normalize": false,
+      "passage_instruction": null,
+      "query_instruction": null,
+      "query_max_length": 768,
+      "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+      "score_order": "raw_logit_descending_then_chunk_id_ascending",
+      "seed": 20260929,
+      "use_fp16": true,
+      "verified_files_sha256": {
+        "config.json": "13dcd6c31d9fec9d1d8e158702072f62d7fa7d312a64b9fe057bec9a08cfe41a",
+        "model.safetensors": "d9e3e081faff1eefb84019509b2f5558fd74c1a05a2c7db22f74174fcedb5286",
+        "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+        "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+        "tokenizer.json": "69564b696052886ed0ac63fa393e928384e0f8caada38c1f4864a9bfbf379c15",
+        "tokenizer_config.json": "7e4c1cc848840aeccdd763458c18dd525eb0f795c992e00ebe9c28554e7db2d4"
+      }
+    }
+  },
+  "active_dense_engine": "exact float32 dot product of stored unit vectors; Chroma HNSW metadata retained for provenance only and is not the executed R2 retrieval path",
+  "source_count": 106,
+  "child_count": 6433,
+  "parent_retrieval": false,
+  "candidate_depth": 100,
+  "rrf_input_depth_per_channel": 100,
+  "rrf_union_preserved_maximum": 200,
+  "reranker_candidate_identity": "Same R3 Top100 IDs and full body text; no additions or parent expansion",
+  "seed": 20260929,
+  "tie_break": "chunk_id ascending",
+  "execution": {
+    "passes": 3,
+    "warmup_queries": 5,
+    "warmup_protocol": "first 5 distinct dev queries in fixed shuffled order, one full pipeline call each",
+    "deterministic_algorithms": true,
+    "tf32": false,
+    "dependencies": {
+      "FlagEmbedding": "1.4.2",
+      "numpy": "2.5.3",
+      "tokenizers": "0.23.2",
+      "torch": "2.14.0+cu130",
+      "transformers": "5.16.1"
+    },
+    "cuda": {
+      "device": "NVIDIA GeForce RTX 3080",
+      "properties": "_CudaDeviceProperties(name='NVIDIA GeForce RTX 3080', major=8, minor=6, total_memory=10239MB, multi_processor_count=68, uuid=29de42b5-2775-f627-aad3-6809e479887e, pci_bus_id=1, pci_device_id=0, pci_domain_id=0, L2_cache_size=5MB)",
+      "torch_cuda": "13.0"
+    },
+    "latency_protocol": "gross synchronized inference/pipeline are real instrumented measurements; method totals are adjusted estimates excluding explicit input audit/validation and measured forward-hook CPU time, not clean uninstrumented latency; one sequential query, cached frozen indexes/models, FlagEmbedding adaptive batch probe retained"
+  },
+  "scoring_policy": {
+    "unit": "intent",
+    "primary": "CEGR@10",
+    "K": [
+      1,
+      5,
+      10,
+      20
+    ],
+    "requirements": "support_bundle AND atoms; OR bundles; AND requirements inside group; OR complete groups",
+    "shared_mapping": true,
+    "mandatory_review": "All method-pooled Top20 child relationships and joint support decisions resolved",
+    "D21_100": "Unreviewed is unknown; no negative absence or full-depth invariance claim",
+    "preset_pairs": [
+      [
+        "R2",
+        "R1"
+      ],
+      [
+        "R3",
+        "R2"
+      ],
+      [
+        "R4",
+        "R3"
+      ]
+    ],
+    "adjustment": "exact McNemar; Holm three preset comparisons",
+    "development_bootstrap": "stratum-paired 10000 resamples, seed 20260929; Gold-source components sensitivity separately"
+  },
+  "parameter_search_performed": false,
+  "asset_hashes_verified_now": {
+    "outputs/pearl-index-106-adobe-20260929-01/child_chunks.jsonl": "d07712d6d3c2ee1904cfa0ad95d4136090cbc1e2943be2bd676e18fbd48fee3a",
+    "outputs/pearl-index-106-adobe-20260929-01/dense_ids.json": "2e729196310227c9067a870ddf16abd0cafeaa911483c1e3bf0d349fe59f9453",
+    "outputs/pearl-index-106-adobe-20260929-01/dense_vectors.npy": "de9ed2bd7899a9fb089660fb8f95e68ebed8bbffee6b337a97479b520b8c47b7",
+    "outputs/pearl-index-106-adobe-20260929-01/fts.sqlite3": "3d46e678712f3890080d64459fa7135e0972b6c3f7334c62a78d6c0bb8aa9f68",
+    "outputs/pearl-index-106-adobe-20260929-01/model_inputs.jsonl": "852d27696b64c05afc20843b2d2fbbe6003ff58fbbeb84ab3e8ba359cf61c030",
+    "outputs/pearl-index-106-adobe-20260929-01/parent_chunks.jsonl": "64e944ccffdf1ced38d72ac0aee7ca66ca0f4214795343f3e6cc99e3647ce9cd",
+    "outputs/pearl-index-106-adobe-20260929-01/smoke.json": "5ced5b023eaaa88d7202a13afae53f43f9b490479887d5bc80190bdbc64e5be1",
+    "outputs/pearl-index-106-adobe-20260929-01/smoke_query_vector.npy": "5b5951e3345dc54ed5d35d9be73344ead33082e009e68ed4719f227e3878c641",
+    "outputs/pearl-index-106-adobe-20260929-01/sources.jsonl": "a8e612405805ce87a82fef2a6e60cedbeb5991f11bb16a9778138efa0c66a94d",
+    "outputs/pearl-index-106-adobe-20260929-01/token_lengths.jsonl": "74790d304a44d4887c77a618bf3c489f580434f0210a42e0b81e9cbc6a15efdd",
+    "outputs/pearl-index-106-adobe-20260929-01/truncated_child_ids.json": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+    "memPed/knowledge/models/bge-m3/1_Pooling/config.json": "e54c164a07274f2eb45bb724f54a79d1efcc90c41573887cd9a29aeee0597352",
+    "memPed/knowledge/models/bge-m3/colbert_linear.pt": "19bfbae397c2b7524158c919d0e9b19393c5639d098f0a66932c91ed8f5f9abb",
+    "memPed/knowledge/models/bge-m3/config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+    "memPed/knowledge/models/bge-m3/config_sentence_transformers.json": "1eef72430e7194a1e59680e635aed81ffa083f05668dbc5bb1c56c04c0999c38",
+    "memPed/knowledge/models/bge-m3/model_manifest.json": "22263517166faf3af1c03155ee82f843933dbb4b1cd79e372e91aa86f5dd8972",
+    "memPed/knowledge/models/bge-m3/modules.json": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf",
+    "memPed/knowledge/models/bge-m3/pytorch_model.bin": "b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38",
+    "memPed/knowledge/models/bge-m3/sentence_bert_config.json": "eb9b44b13c0f52a3b3685c3b1cbdea1ba8b04bea123b98f61610048940776eb1",
+    "memPed/knowledge/models/bge-m3/sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+    "memPed/knowledge/models/bge-m3/sparse_linear.pt": "45c93804d2142b8f6d7ec6914ae23a1eee9c6a1d27d83d908a20d2afb3595ad9",
+    "memPed/knowledge/models/bge-m3/special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+    "memPed/knowledge/models/bge-m3/tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+    "memPed/knowledge/models/bge-m3/tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4",
+    "memPed/knowledge/models/bge-reranker-v2-m3/config.json": "13dcd6c31d9fec9d1d8e158702072f62d7fa7d312a64b9fe057bec9a08cfe41a",
+    "memPed/knowledge/models/bge-reranker-v2-m3/model.safetensors": "d9e3e081faff1eefb84019509b2f5558fd74c1a05a2c7db22f74174fcedb5286",
+    "memPed/knowledge/models/bge-reranker-v2-m3/sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+    "memPed/knowledge/models/bge-reranker-v2-m3/special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+    "memPed/knowledge/models/bge-reranker-v2-m3/tokenizer.json": "69564b696052886ed0ac63fa393e928384e0f8caada38c1f4864a9bfbf379c15",
+    "memPed/knowledge/models/bge-reranker-v2-m3/tokenizer_config.json": "7e4c1cc848840aeccdd763458c18dd525eb0f795c992e00ebe9c28554e7db2d4"
+  },
+  "consumed_code_sha256": {
+    "Contracts/src/ped_contracts/__init__.py": "de76fd1307c787385aa51054bc65d04c0c0f377112d56267d314817c31048b0a",
+    "Contracts/src/ped_contracts/evidence.py": "45a2838086882d6563a997e483233c0cf9becbcc7c74b6f7cebce009cc0594ab",
+    "Contracts/src/ped_contracts/trajectory.py": "10e022ab94348babe564f6dfb29c1d4162089fe058a515ef7facc095c86e1594",
+    "Knowledge-Base/src/ped_knowledge/__init__.py": "dc46d962e306d8c076e7d9c1863977e1ef2b356a251c259ab16a985f95f9dc63",
+    "Knowledge-Base/src/ped_knowledge/chunking/__init__.py": "1c448aa1469dec3b2e5d2132d028424edcc57576c99bfb0a0352f5081a4e8c7d",
+    "Knowledge-Base/src/ped_knowledge/contracts/__init__.py": "43a15ad6516fe7b54c684cf87e5c5e04644fedb512f7ef457483c502bc8803be",
+    "Knowledge-Base/src/ped_knowledge/evaluation/__init__.py": "c1a929e8ef109f9f8d8688db541419ee9cea5d639f094d805aae8bb262927429",
+    "Knowledge-Base/src/ped_knowledge/evaluation/gold_v2.py": "bd3c3302a6f5e941222309b50fb739ce18616fe17d37e2667a34e2eeffa0fdaf",
+    "Knowledge-Base/src/ped_knowledge/governance/__init__.py": "fdf016f3bad9e87275e3981dac6515d07b0db5106c3ea5811fdad44f272ad2c7",
+    "Knowledge-Base/src/ped_knowledge/governance/audit.py": "25f64d910f5b83b960c0903749b4ed3e617487dcca9f9749e68d74080b11d945",
+    "Knowledge-Base/src/ped_knowledge/governance/contracts.py": "e304a7aafbb2c59b4f8aa66fbafe67355d3b3995a0d8efdd04f3bc5990ac4447",
+    "Knowledge-Base/src/ped_knowledge/governance/manifest.py": "75df62ef7feecf2bc02e522352b8c799c7cfd029d94c5eb3fc85685fab3b07ea",
+    "Knowledge-Base/src/ped_knowledge/governance/readiness.py": "33d40608b9f93ebb4c3d95d4a0ba33fdddd24e0b82727ef9cadee274be8a2eea",
+    "Knowledge-Base/src/ped_knowledge/indexing/__init__.py": "aa61238bc560a787cb1583ebdc551eade67e3e39ec61f625db40337cc1426f2b",
+    "Knowledge-Base/src/ped_knowledge/ingestion/__init__.py": "5678893cb7929e6213ad092212256a6584c90655787850b0fb5d173771747b86",
+    "Knowledge-Base/src/ped_knowledge/parsing/__init__.py": "19be0d190af1b79a454aac5caee2d8160ed4b22b1104c843ceb67e98bc6911ca",
+    "Knowledge-Base/src/ped_knowledge/parsing/adobe.py": "279fd1f647597b129371cb0fc8da592bb8cbb759d3975bbfa5658e8dc26f0e47",
+    "Knowledge-Base/src/ped_knowledge/parsing/compare.py": "c494281e5f7f214922644d87be723864bae7f5759c0f9e3bd017deb4ba3d0660",
+    "Knowledge-Base/src/ped_knowledge/reranking/__init__.py": "f4c096f5c8bf85b4f52c8dc5d1b03dec8e3c5401cc39b48fa85aab8ba675ab7a",
+    "Knowledge-Base/src/ped_knowledge/retrieval/__init__.py": "81d364bd4d1f95f1c335a9863f04e7a068cc4f2b6b436925fb1b3df72e010023",
+    "Knowledge-Base/src/ped_knowledge/storage/__init__.py": "997b7b03e7d98e3e08760774a77f1551d21e3c8474c390782c888d6a7bc5f43a",
+    "Knowledge-Base/src/ped_knowledge/tokenization/__init__.py": "1447dd942215e107d033fa0357deb126b3713bff1d948af8ae238af95dbcaf53",
+    "experiments/pearl-index-106-adobe-20260929/build.py": "f3216eab476cac0db3fe2a2a2a479092e876d92bf9a0a2bc374436f16c81fc66",
+    "experiments/pearl-index-106-adobe-20260929/compare_pilot.py": "f981240bb5ed84470dcb0a37340a2bb208616fec2d1d2e03fe892a3943c2fccd",
+    "experiments/pearl-index-106-adobe-20260929/rerank_pilot.py": "829202518f215f62610a7891ec41ea9d35e91f986997241986a85d8e865c1bd9",
+    "experiments/pearl-retrieval-dev80-20261003/run.py": "176217b9186afee5378fdc469ca7c10be3b121e5bbd01718713c3a7e780241e4"
+  },
+  "scoring_and_protocol_snapshot_sha256": {
+    "Contracts/src/ped_contracts/__init__.py": "de76fd1307c787385aa51054bc65d04c0c0f377112d56267d314817c31048b0a",
+    "Contracts/src/ped_contracts/evidence.py": "45a2838086882d6563a997e483233c0cf9becbcc7c74b6f7cebce009cc0594ab",
+    "Contracts/src/ped_contracts/trajectory.py": "10e022ab94348babe564f6dfb29c1d4162089fe058a515ef7facc095c86e1594",
+    "Knowledge-Base/src/ped_knowledge/__init__.py": "dc46d962e306d8c076e7d9c1863977e1ef2b356a251c259ab16a985f95f9dc63",
+    "Knowledge-Base/src/ped_knowledge/chunking/__init__.py": "1c448aa1469dec3b2e5d2132d028424edcc57576c99bfb0a0352f5081a4e8c7d",
+    "Knowledge-Base/src/ped_knowledge/contracts/__init__.py": "43a15ad6516fe7b54c684cf87e5c5e04644fedb512f7ef457483c502bc8803be",
+    "Knowledge-Base/src/ped_knowledge/evaluation/__init__.py": "c1a929e8ef109f9f8d8688db541419ee9cea5d639f094d805aae8bb262927429",
+    "Knowledge-Base/src/ped_knowledge/evaluation/gold_v2.py": "bd3c3302a6f5e941222309b50fb739ce18616fe17d37e2667a34e2eeffa0fdaf",
+    "Knowledge-Base/src/ped_knowledge/governance/__init__.py": "fdf016f3bad9e87275e3981dac6515d07b0db5106c3ea5811fdad44f272ad2c7",
+    "Knowledge-Base/src/ped_knowledge/governance/audit.py": "25f64d910f5b83b960c0903749b4ed3e617487dcca9f9749e68d74080b11d945",
+    "Knowledge-Base/src/ped_knowledge/governance/contracts.py": "e304a7aafbb2c59b4f8aa66fbafe67355d3b3995a0d8efdd04f3bc5990ac4447",
+    "Knowledge-Base/src/ped_knowledge/governance/manifest.py": "75df62ef7feecf2bc02e522352b8c799c7cfd029d94c5eb3fc85685fab3b07ea",
+    "Knowledge-Base/src/ped_knowledge/governance/readiness.py": "33d40608b9f93ebb4c3d95d4a0ba33fdddd24e0b82727ef9cadee274be8a2eea",
+    "Knowledge-Base/src/ped_knowledge/indexing/__init__.py": "aa61238bc560a787cb1583ebdc551eade67e3e39ec61f625db40337cc1426f2b",
+    "Knowledge-Base/src/ped_knowledge/ingestion/__init__.py": "5678893cb7929e6213ad092212256a6584c90655787850b0fb5d173771747b86",
+    "Knowledge-Base/src/ped_knowledge/parsing/__init__.py": "19be0d190af1b79a454aac5caee2d8160ed4b22b1104c843ceb67e98bc6911ca",
+    "Knowledge-Base/src/ped_knowledge/parsing/adobe.py": "279fd1f647597b129371cb0fc8da592bb8cbb759d3975bbfa5658e8dc26f0e47",
+    "Knowledge-Base/src/ped_knowledge/parsing/compare.py": "c494281e5f7f214922644d87be723864bae7f5759c0f9e3bd017deb4ba3d0660",
+    "Knowledge-Base/src/ped_knowledge/reranking/__init__.py": "f4c096f5c8bf85b4f52c8dc5d1b03dec8e3c5401cc39b48fa85aab8ba675ab7a",
+    "Knowledge-Base/src/ped_knowledge/retrieval/__init__.py": "81d364bd4d1f95f1c335a9863f04e7a068cc4f2b6b436925fb1b3df72e010023",
+    "Knowledge-Base/src/ped_knowledge/storage/__init__.py": "997b7b03e7d98e3e08760774a77f1551d21e3c8474c390782c888d6a7bc5f43a",
+    "Knowledge-Base/src/ped_knowledge/tokenization/__init__.py": "1447dd942215e107d033fa0357deb126b3713bff1d948af8ae238af95dbcaf53",
+    "experiments/pearl-index-106-adobe-20260929/build.py": "f3216eab476cac0db3fe2a2a2a479092e876d92bf9a0a2bc374436f16c81fc66",
+    "experiments/pearl-index-106-adobe-20260929/compare_pilot.py": "f981240bb5ed84470dcb0a37340a2bb208616fec2d1d2e03fe892a3943c2fccd",
+    "experiments/pearl-index-106-adobe-20260929/rerank_pilot.py": "829202518f215f62610a7891ec41ea9d35e91f986997241986a85d8e865c1bd9",
+    "experiments/pearl-index-106-adobe-20260929/reranker-config.json": "391527cb67ab17b556b8cec2db182ca1b0b5a61bb73143b6c245bee13aa7997b",
+    "experiments/pearl-index-106-adobe-20260929/score_pilot.py": "52d9db3a0c943ed1106c4aec0cc5972fc025233cde2b5c6136bc174f94d82701",
+    "experiments/pearl-retrieval-dev80-20261003/analyze.py": "698701d9a7e19a0c92234bb4b2998656d187a85fbfcc7c645b62aab58ee3309e",
+    "experiments/pearl-retrieval-dev80-20261003/blind.py": "e96bdd0530630c88b72334215c5400839a9c3745c71b301b0ebf8e990a8d024a",
+    "experiments/pearl-retrieval-dev80-20261003/prepare.py": "21d63e80baddb344602bfaf9d993f86b57eea01819db9e0fc629dd3d7fc80932",
+    "experiments/pearl-retrieval-dev80-20261003/protocol.py": "0cab2a84e17a285750e3d2fa1c023d1ff57e695b68e5ee8e3baa37cc6cda561e",
+    "experiments/pearl-retrieval-dev80-20261003/run.py": "176217b9186afee5378fdc469ca7c10be3b121e5bbd01718713c3a7e780241e4",
+    "experiments/pearl-retrieval-dev80-20261003/score.py": "a5109b9b7e36f97a748d048311ea20bbe5b3355a9b7f64561cfc7e538c94a4b4",
+    "experiments/pearl-retrieval-dev80-20261003/verify.py": "8ef728c8f342798d4f6c7016c18f4e95dc742c8269e80f7e8a17563d32548afc",
+    "paper/pearl-framework/layer-1-retrieval/experiments.md": "686b85dc74365e4961731be1559e64deecbd2a94cc9fb276e5322b948e7c8d24",
+    "paper/pearl-framework/layer-1-retrieval/metrics.md": "9c4694cb1c41933e9fa6c7bf81d962e6a32018cc79bfec2e70f86e3a37313073",
+    "paper/pearl-framework/layer-1-retrieval/statistical-methods.md": "9fca967c88e41802457adaa393fb679115aba7d50cbe005ac4bd625dcd723223"
+  },
+  "snapshot_root": "outputs/pearl-dev-review-freeze-20261003-01/configuration-snapshot",
+  "release_scope": {
+    "method_configuration_frozen": true,
+    "semantic_gold_release_frozen": false,
+    "eval200_adapter_ready": false,
+    "independent_evaluation_started": false,
+    "human_verified": false,
+    "Gold_r01": "Retained immutable as prior development baseline; source review decisions are separately versioned.",
+    "release_gate": "Full release registration follows source-scope disposition and validated split-aware evaluation implementation. This manifest is not an evaluation run command or permission to open sealed labels."
+  }
+}

@@ -1,0 +1,1077 @@
+{
+  "status": "current",
+  "date": "2026-09-29",
+  "purpose": "Read-only Adobe-only membership verification; not a frozen retrieval index or child library",
+  "corpus_version": "pearl-retrieval-corpus-2026-09-29-02",
+  "corpus_manifest_sha256": "50daa8469adf6cda5c68f7ad84197eedd93f639a54278ccc47174d916b22630a",
+  "source_count": 106,
+  "parser_version": "adobe-pdf-extract-v1",
+  "catalog_chunk_inventory": {
+    "child": 6433,
+    "parent": 2830
+  },
+  "pilot_v4_all_sources_retained": true,
+  "pilot_v4_requires_new_corpus_binding_and_child_mapping": true,
+  "sources": [
+    {
+      "source_id": "pearl-src-0a7abbfdb1e0fe2e",
+      "source_sha256": "0a7abbfdb1e0fe2edd80193314ac66ee8fcfaebcb122b2410a326986a612ada0",
+      "resource_id": "lit-10-1007-s11069-022-05208-y",
+      "active_version_id": "0a7abbfdb1e0fe2edd80193314ac66ee8fcfaebcb122b2410a326986a612ada0",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1007-s11069-022-05208-y\\0a7abbfdb1e0fe2edd80193314ac66ee8fcfaebcb122b2410a326986a612ada0",
+      "document_path": "memPed/knowledge/derived/lit-10-1007-s11069-022-05208-y/0a7abbfdb1e0fe2edd80193314ac66ee8fcfaebcb122b2410a326986a612ada0/document.json",
+      "document_sha256": "f9025b3acd20f4132e891527a2c0d2f1c4a0406fcb6c9d2615341cc2231bfb53"
+    },
+    {
+      "source_id": "pearl-src-6d44c24ebbf9c0d0",
+      "source_sha256": "6d44c24ebbf9c0d01d6b86ade86099750615ec15a9725674ad8f05c9a401849e",
+      "resource_id": "lit-10-1103-physreve-92-042809",
+      "active_version_id": "6d44c24ebbf9c0d01d6b86ade86099750615ec15a9725674ad8f05c9a401849e",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1103-physreve-92-042809\\6d44c24ebbf9c0d01d6b86ade86099750615ec15a9725674ad8f05c9a401849e",
+      "document_path": "memPed/knowledge/derived/lit-10-1103-physreve-92-042809/6d44c24ebbf9c0d01d6b86ade86099750615ec15a9725674ad8f05c9a401849e/document.json",
+      "document_sha256": "21c2128dc35da23484d5b960b7728c39197c6453b466cc387188a2bf0387d3b9"
+    },
+    {
+      "source_id": "pearl-src-0e8d201180bcd044",
+      "source_sha256": "0e8d201180bcd044a9329cc9adf1c8255d12719d3ce56ce5fd5aefb0cfc65f5a",
+      "resource_id": "lit-10-1038-s41598-020-79454-0",
+      "active_version_id": "0e8d201180bcd044a9329cc9adf1c8255d12719d3ce56ce5fd5aefb0cfc65f5a",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1038-s41598-020-79454-0\\0e8d201180bcd044a9329cc9adf1c8255d12719d3ce56ce5fd5aefb0cfc65f5a",
+      "document_path": "memPed/knowledge/derived/lit-10-1038-s41598-020-79454-0/0e8d201180bcd044a9329cc9adf1c8255d12719d3ce56ce5fd5aefb0cfc65f5a/document.json",
+      "document_sha256": "c59a9ae62eba9594ae08080f4767f2c36ee732e684138c4579cc9fce8dba13cf"
+    },
+    {
+      "source_id": "pearl-src-aa99c4690a1ccb24",
+      "source_sha256": "aa99c4690a1ccb2444aaaf4106f650ad805c8bf3a0f6520268bc420b3efc21f7",
+      "resource_id": "lit-10-1038-s41598-022-18142-7",
+      "active_version_id": "aa99c4690a1ccb2444aaaf4106f650ad805c8bf3a0f6520268bc420b3efc21f7",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1038-s41598-022-18142-7\\aa99c4690a1ccb2444aaaf4106f650ad805c8bf3a0f6520268bc420b3efc21f7",
+      "document_path": "memPed/knowledge/derived/lit-10-1038-s41598-022-18142-7/aa99c4690a1ccb2444aaaf4106f650ad805c8bf3a0f6520268bc420b3efc21f7/document.json",
+      "document_sha256": "993af7c4f3b45f1148308e01493eef431f93e7b1d2e25f3f64da2856555c035b"
+    },
+    {
+      "source_id": "pearl-src-cb8416711b3b22c9",
+      "source_sha256": "cb8416711b3b22c9ec4576a4f120e75fd91fb031792878ba84df7a16475d4140",
+      "resource_id": "lit-10-1103-physreve-51-4282",
+      "active_version_id": "cb8416711b3b22c9ec4576a4f120e75fd91fb031792878ba84df7a16475d4140",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1103-physreve-51-4282\\cb8416711b3b22c9ec4576a4f120e75fd91fb031792878ba84df7a16475d4140",
+      "document_path": "memPed/knowledge/derived/lit-10-1103-physreve-51-4282/cb8416711b3b22c9ec4576a4f120e75fd91fb031792878ba84df7a16475d4140/document.json",
+      "document_sha256": "f66e0c37b18b3595a5cf44d58c50b090b729255e749f75c570ba04c5669d28a5"
+    },
+    {
+      "source_id": "pearl-src-59f25c300daa2ba2",
+      "source_sha256": "59f25c300daa2ba2973770715cf1cb21111f0ff76f280395f0cf4e1ed663fda6",
+      "resource_id": "lit-10-1140-epjds7",
+      "active_version_id": "59f25c300daa2ba2973770715cf1cb21111f0ff76f280395f0cf4e1ed663fda6",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1140-epjds7\\59f25c300daa2ba2973770715cf1cb21111f0ff76f280395f0cf4e1ed663fda6",
+      "document_path": "memPed/knowledge/derived/lit-10-1140-epjds7/59f25c300daa2ba2973770715cf1cb21111f0ff76f280395f0cf4e1ed663fda6/document.json",
+      "document_sha256": "1ecee11994a6d5c6870b0cefd58ab4af3d48fb9dd238ce12d31485ce3ce592e2"
+    },
+    {
+      "source_id": "pearl-src-7bb98df43e00bda3",
+      "source_sha256": "7bb98df43e00bda366c28a4250b0be8aa8bb2d0b4368cfb0f47ebf8a62ed2741",
+      "resource_id": "lit-10-1038-s41598-021-84324-4",
+      "active_version_id": "7bb98df43e00bda366c28a4250b0be8aa8bb2d0b4368cfb0f47ebf8a62ed2741",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1038-s41598-021-84324-4\\7bb98df43e00bda366c28a4250b0be8aa8bb2d0b4368cfb0f47ebf8a62ed2741",
+      "document_path": "memPed/knowledge/derived/lit-10-1038-s41598-021-84324-4/7bb98df43e00bda366c28a4250b0be8aa8bb2d0b4368cfb0f47ebf8a62ed2741/document.json",
+      "document_sha256": "902e62d1dedb35d21159861823f8b80daf44c880b1ae8a09216c48831069d923"
+    },
+    {
+      "source_id": "pearl-src-6447477bdd8b532e",
+      "source_sha256": "6447477bdd8b532e6a62cae813d3c7481ad0ddc60b4724a37c9ed45af05645db",
+      "resource_id": "lit-10-1007-s11269-026-04694-0",
+      "active_version_id": "6447477bdd8b532e6a62cae813d3c7481ad0ddc60b4724a37c9ed45af05645db",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1007-s11269-026-04694-0\\6447477bdd8b532e6a62cae813d3c7481ad0ddc60b4724a37c9ed45af05645db",
+      "document_path": "memPed/knowledge/derived/lit-10-1007-s11269-026-04694-0/6447477bdd8b532e6a62cae813d3c7481ad0ddc60b4724a37c9ed45af05645db/document.json",
+      "document_sha256": "2dde93373a4d63c5428e82ee1a064ce6e9cf8e48492fb297de4b0520116035b9"
+    },
+    {
+      "source_id": "pearl-src-4d5e06c459e428ae",
+      "source_sha256": "4d5e06c459e428aeec66b400fd8fc7aa816bf317457a72c0affbbd4a24be632b",
+      "resource_id": "lit-10-1038-s41598-024-61007-4",
+      "active_version_id": "4d5e06c459e428aeec66b400fd8fc7aa816bf317457a72c0affbbd4a24be632b",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1038-s41598-024-61007-4\\4d5e06c459e428aeec66b400fd8fc7aa816bf317457a72c0affbbd4a24be632b",
+      "document_path": "memPed/knowledge/derived/lit-10-1038-s41598-024-61007-4/4d5e06c459e428aeec66b400fd8fc7aa816bf317457a72c0affbbd4a24be632b/document.json",
+      "document_sha256": "18cd6395b9a34a1a89dd4dffe38ccfc077733631e1e19754e6905f17b9aa9116"
+    },
+    {
+      "source_id": "pearl-src-3274cebad51fb72d",
+      "source_sha256": "3274cebad51fb72d650442ec4ad8f3c05df14f2930711877396d4aa93236c9f4",
+      "resource_id": "lit-10-1371-journal-pone-0117856",
+      "active_version_id": "3274cebad51fb72d650442ec4ad8f3c05df14f2930711877396d4aa93236c9f4",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1371-journal-pone-0117856\\3274cebad51fb72d650442ec4ad8f3c05df14f2930711877396d4aa93236c9f4",
+      "document_path": "memPed/knowledge/derived/lit-10-1371-journal-pone-0117856/3274cebad51fb72d650442ec4ad8f3c05df14f2930711877396d4aa93236c9f4/document.json",
+      "document_sha256": "5b6648bdbc85c31a9d8a8b8407ad9292e5de3204e98e58a301d2920f1cc05d42"
+    },
+    {
+      "source_id": "pearl-src-786237ff86268f24",
+      "source_sha256": "786237ff86268f2405f2d2bec0f2490b1651654c6b5b3c0e402d36e9ebeae52a",
+      "resource_id": "lit-10-1007-s12144-024-06806-8",
+      "active_version_id": "786237ff86268f2405f2d2bec0f2490b1651654c6b5b3c0e402d36e9ebeae52a",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1007-s12144-024-06806-8\\786237ff86268f2405f2d2bec0f2490b1651654c6b5b3c0e402d36e9ebeae52a",
+      "document_path": "memPed/knowledge/derived/lit-10-1007-s12144-024-06806-8/786237ff86268f2405f2d2bec0f2490b1651654c6b5b3c0e402d36e9ebeae52a/document.json",
+      "document_sha256": "9d6315f885bb9ecf123a80692619742e8ef783f128dbf307129bfd719d28ee0b"
+    },
+    {
+      "source_id": "pearl-src-089b2487ffb24826",
+      "source_sha256": "089b2487ffb248268afbc0d6ead32952cec3b4b8155560024b84cfd792ae678d",
+      "resource_id": "lit-10-1371-journal-pone-0240963",
+      "active_version_id": "089b2487ffb248268afbc0d6ead32952cec3b4b8155560024b84cfd792ae678d",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1371-journal-pone-0240963\\089b2487ffb248268afbc0d6ead32952cec3b4b8155560024b84cfd792ae678d",
+      "document_path": "memPed/knowledge/derived/lit-10-1371-journal-pone-0240963/089b2487ffb248268afbc0d6ead32952cec3b4b8155560024b84cfd792ae678d/document.json",
+      "document_sha256": "576c16f5241dadb3183f003e3b4e54db9aed9bf7dbc392b8265633c560ac82a6"
+    },
+    {
+      "source_id": "pearl-src-4e58ae08e48f6688",
+      "source_sha256": "4e58ae08e48f6688ce8c52f960101469e4b932a59545a069075344cf17bee13c",
+      "resource_id": "lit-10-1038-s41598-025-19403-x",
+      "active_version_id": "4e58ae08e48f6688ce8c52f960101469e4b932a59545a069075344cf17bee13c",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "knowledge\\derived\\lit-10-1038-s41598-025-19403-x\\4e58ae08e48f6688ce8c52f960101469e4b932a59545a069075344cf17bee13c",
+      "document_path": "memPed/knowledge/derived/lit-10-1038-s41598-025-19403-x/4e58ae08e48f6688ce8c52f960101469e4b932a59545a069075344cf17bee13c/document.json",
+      "document_sha256": "49450e191fc59a00b86cf8d3824dba8cc6c1339ff715258bfb25f5e12d5615a3"
+    },
+    {
+      "source_id": "pearl-src-4c32a7203b84fd3e",
+      "source_sha256": "4c32a7203b84fd3ef46b8dd10b0cfa95c3bdb0c8d98669fd2b173956e066d580",
+      "resource_id": "b3-09",
+      "active_version_id": "4c32a7203b84fd3ef46b8dd10b0cfa95c3bdb0c8d98669fd2b173956e066d580",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-09\\4c32a7203b84fd3ef46b8dd10b0cfa95c3bdb0c8d98669fd2b173956e066d580",
+      "document_path": "memPed/knowledge/derived/b3-09/4c32a7203b84fd3ef46b8dd10b0cfa95c3bdb0c8d98669fd2b173956e066d580/document.json",
+      "document_sha256": "5fa088a5d86ecb6563ec42a8b6419445fae4f2712e4ae416525fb3628b8c90ca"
+    },
+    {
+      "source_id": "pearl-src-48101ba7d6ac7448",
+      "source_sha256": "48101ba7d6ac74483d5bce069abfc164da51554e7101d0aa71561aeba0dcd7b5",
+      "resource_id": "b3-08",
+      "active_version_id": "48101ba7d6ac74483d5bce069abfc164da51554e7101d0aa71561aeba0dcd7b5",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-08\\48101ba7d6ac74483d5bce069abfc164da51554e7101d0aa71561aeba0dcd7b5",
+      "document_path": "memPed/knowledge/derived/b3-08/48101ba7d6ac74483d5bce069abfc164da51554e7101d0aa71561aeba0dcd7b5/document.json",
+      "document_sha256": "fd19b431d449d87c8fcff47a684686f41897c44974ae96e10dde05997a19996b"
+    },
+    {
+      "source_id": "pearl-src-5bd280c855f70cd4",
+      "source_sha256": "5bd280c855f70cd4209a52cbcf71cc58d444168787c85699086c70064db33383",
+      "resource_id": "b3-11",
+      "active_version_id": "5bd280c855f70cd4209a52cbcf71cc58d444168787c85699086c70064db33383",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-11\\5bd280c855f70cd4209a52cbcf71cc58d444168787c85699086c70064db33383",
+      "document_path": "memPed/knowledge/derived/b3-11/5bd280c855f70cd4209a52cbcf71cc58d444168787c85699086c70064db33383/document.json",
+      "document_sha256": "3d9cc119de00dfd460b0eba9e0345c01b4f4ccd0cd23d1cbe8898c7dc6dad26e"
+    },
+    {
+      "source_id": "pearl-src-b805951c663c1536",
+      "source_sha256": "b805951c663c15362fc8c41af13bfa7f7cabdaac371ccc49d6dba8322d976159",
+      "resource_id": "b3-02",
+      "active_version_id": "b805951c663c15362fc8c41af13bfa7f7cabdaac371ccc49d6dba8322d976159",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-02\\b805951c663c15362fc8c41af13bfa7f7cabdaac371ccc49d6dba8322d976159",
+      "document_path": "memPed/knowledge/derived/b3-02/b805951c663c15362fc8c41af13bfa7f7cabdaac371ccc49d6dba8322d976159/document.json",
+      "document_sha256": "d683669ee997408dff2822f92396203e98877b75117f9dd3a55af1153e1f02bc"
+    },
+    {
+      "source_id": "pearl-src-ca90e9f03ed777a6",
+      "source_sha256": "ca90e9f03ed777a6c756f0b1a74dc98f1ef2753aadb6c04d4fe5313f8967c922",
+      "resource_id": "b3-05",
+      "active_version_id": "ca90e9f03ed777a6c756f0b1a74dc98f1ef2753aadb6c04d4fe5313f8967c922",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-05\\ca90e9f03ed777a6c756f0b1a74dc98f1ef2753aadb6c04d4fe5313f8967c922",
+      "document_path": "memPed/knowledge/derived/b3-05/ca90e9f03ed777a6c756f0b1a74dc98f1ef2753aadb6c04d4fe5313f8967c922/document.json",
+      "document_sha256": "ec7452069426c16bb455cefce0edd07598c1faf60f6e03a17aa96b1002c2e010"
+    },
+    {
+      "source_id": "pearl-src-031a5779bd83192e",
+      "source_sha256": "031a5779bd83192e847846be4b73c4814d2a72d2abc05549caebf5c8c1440a81",
+      "resource_id": "b3-03",
+      "active_version_id": "031a5779bd83192e847846be4b73c4814d2a72d2abc05549caebf5c8c1440a81",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-03\\031a5779bd83192e847846be4b73c4814d2a72d2abc05549caebf5c8c1440a81",
+      "document_path": "memPed/knowledge/derived/b3-03/031a5779bd83192e847846be4b73c4814d2a72d2abc05549caebf5c8c1440a81/document.json",
+      "document_sha256": "a6de107a47a6136a730b16664bd605c295962f70fc01854699b12ab0a1840422"
+    },
+    {
+      "source_id": "pearl-src-eb2d10e0bd947934",
+      "source_sha256": "eb2d10e0bd94793488624993c6e69b53123fd9bccadbd256b210d7f3fa60d038",
+      "resource_id": "b3-13",
+      "active_version_id": "eb2d10e0bd94793488624993c6e69b53123fd9bccadbd256b210d7f3fa60d038",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-13\\eb2d10e0bd94793488624993c6e69b53123fd9bccadbd256b210d7f3fa60d038",
+      "document_path": "memPed/knowledge/derived/b3-13/eb2d10e0bd94793488624993c6e69b53123fd9bccadbd256b210d7f3fa60d038/document.json",
+      "document_sha256": "bfb266cb4dab952c4c6ee0473b9f23d29ef882ce6ae70cb0fd76ed3088b3770d"
+    },
+    {
+      "source_id": "pearl-src-630cddfaf9b1cb6d",
+      "source_sha256": "630cddfaf9b1cb6d03e7e33476d4f372eb5d028747d0898da2f177e61666367e",
+      "resource_id": "b3-14",
+      "active_version_id": "630cddfaf9b1cb6d03e7e33476d4f372eb5d028747d0898da2f177e61666367e",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-14\\630cddfaf9b1cb6d03e7e33476d4f372eb5d028747d0898da2f177e61666367e",
+      "document_path": "memPed/knowledge/derived/b3-14/630cddfaf9b1cb6d03e7e33476d4f372eb5d028747d0898da2f177e61666367e/document.json",
+      "document_sha256": "6a6e93ccb24da24b547b5f13913c77865627c298c805edb5f9cc5b2d992feb5d"
+    },
+    {
+      "source_id": "pearl-src-05c9756b8656905f",
+      "source_sha256": "05c9756b8656905fecfba5c74ca69af27a3a978049201756b15bac49a5693654",
+      "resource_id": "b3-18",
+      "active_version_id": "05c9756b8656905fecfba5c74ca69af27a3a978049201756b15bac49a5693654",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-18\\05c9756b8656905fecfba5c74ca69af27a3a978049201756b15bac49a5693654",
+      "document_path": "memPed/knowledge/derived/b3-18/05c9756b8656905fecfba5c74ca69af27a3a978049201756b15bac49a5693654/document.json",
+      "document_sha256": "97e1a8065d96f80668f163f2463a272bc73729be77ccba9d242bfd662a5ec04a"
+    },
+    {
+      "source_id": "pearl-src-579f028f9623b157",
+      "source_sha256": "579f028f9623b157259a61bc65ca54b9f9be940358f716d33f2b7efc8237fbab",
+      "resource_id": "b3-04",
+      "active_version_id": "579f028f9623b157259a61bc65ca54b9f9be940358f716d33f2b7efc8237fbab",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\b3-04\\579f028f9623b157259a61bc65ca54b9f9be940358f716d33f2b7efc8237fbab",
+      "document_path": "memPed/knowledge/derived/b3-04/579f028f9623b157259a61bc65ca54b9f9be940358f716d33f2b7efc8237fbab/document.json",
+      "document_sha256": "25dfa2f72146d0a4676206e202dad98034758420bea957eb13cab95487771f19"
+    },
+    {
+      "source_id": "pearl-src-9104119ce4755ec6",
+      "source_sha256": "9104119ce4755ec6c03923247599b8147f180c66867c6150065af23678ec7796",
+      "resource_id": "lit-10-1111-bjso-12666",
+      "active_version_id": "9104119ce4755ec6c03923247599b8147f180c66867c6150065af23678ec7796",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1111-bjso-12666\\9104119ce4755ec6c03923247599b8147f180c66867c6150065af23678ec7796",
+      "document_path": "memPed/knowledge/derived/lit-10-1111-bjso-12666/9104119ce4755ec6c03923247599b8147f180c66867c6150065af23678ec7796/document.json",
+      "document_sha256": "d1f2e80ab4ae60b5112924c8ed8246371d8a438d388d3d423ccda0fcc86ec72f"
+    },
+    {
+      "source_id": "pearl-src-80cb8e9188ee9b89",
+      "source_sha256": "80cb8e9188ee9b89fd262d3dc5cc0172f06c4b0227bc43fc8292bb3e98c12dfe",
+      "resource_id": "lit-10-1007-s13753-024-00608-z",
+      "active_version_id": "80cb8e9188ee9b89fd262d3dc5cc0172f06c4b0227bc43fc8292bb3e98c12dfe",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1007-s13753-024-00608-z\\80cb8e9188ee9b89fd262d3dc5cc0172f06c4b0227bc43fc8292bb3e98c12dfe",
+      "document_path": "memPed/knowledge/derived/lit-10-1007-s13753-024-00608-z/80cb8e9188ee9b89fd262d3dc5cc0172f06c4b0227bc43fc8292bb3e98c12dfe/document.json",
+      "document_sha256": "141d2755a4243120a1d3b40057c7c1d9f9c36822bf550102d8d86bc1c41e4ae7"
+    },
+    {
+      "source_id": "pearl-src-6bbceb8663aa0757",
+      "source_sha256": "6bbceb8663aa0757237b08bfe97cfffb5eeec4c583274e39919d87548588813b",
+      "resource_id": "lit-10-1016-j-trc-2018-03-027",
+      "active_version_id": "6bbceb8663aa0757237b08bfe97cfffb5eeec4c583274e39919d87548588813b",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2018-03-027\\6bbceb8663aa0757237b08bfe97cfffb5eeec4c583274e39919d87548588813b",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2018-03-027/6bbceb8663aa0757237b08bfe97cfffb5eeec4c583274e39919d87548588813b/document.json",
+      "document_sha256": "c0694a55f3633967cd02ff1946aa371857064f00d0380e23803bf1b035a08461"
+    },
+    {
+      "source_id": "pearl-src-09919083d9484bce",
+      "source_sha256": "09919083d9484bce34e045d43e3ee7c653462ac6afc20bf25dd40636ac679257",
+      "resource_id": "lit-10-1016-j-ssci-2023-106292",
+      "active_version_id": "09919083d9484bce34e045d43e3ee7c653462ac6afc20bf25dd40636ac679257",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2023-106292\\09919083d9484bce34e045d43e3ee7c653462ac6afc20bf25dd40636ac679257",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2023-106292/09919083d9484bce34e045d43e3ee7c653462ac6afc20bf25dd40636ac679257/document.json",
+      "document_sha256": "aa26375e1e40cabef24f522d7191bc7748a7c8a2dde2f8fb7b034e818f7658b3"
+    },
+    {
+      "source_id": "pearl-src-e283656d05fb33d6",
+      "source_sha256": "e283656d05fb33d67db9ac1dcf5c89bd7749ddca937138b6248c758e94958e43",
+      "resource_id": "lit-10-1016-j-simpat-2017-03-010",
+      "active_version_id": "e283656d05fb33d67db9ac1dcf5c89bd7749ddca937138b6248c758e94958e43",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-simpat-2017-03-010\\e283656d05fb33d67db9ac1dcf5c89bd7749ddca937138b6248c758e94958e43",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-simpat-2017-03-010/e283656d05fb33d67db9ac1dcf5c89bd7749ddca937138b6248c758e94958e43/document.json",
+      "document_sha256": "3b6169446f1861294cb96d0bedc7e977d984dae112ac02f1fa1b41f487b38927"
+    },
+    {
+      "source_id": "pearl-src-f5f2ef2b3dab00a0",
+      "source_sha256": "f5f2ef2b3dab00a05f7564d17bc317079c636e39c82588053651067404d0bb7c",
+      "resource_id": "lit-10-1016-j-trb-2016-10-017",
+      "active_version_id": "f5f2ef2b3dab00a05f7564d17bc317079c636e39c82588053651067404d0bb7c",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2016-10-017\\f5f2ef2b3dab00a05f7564d17bc317079c636e39c82588053651067404d0bb7c",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2016-10-017/f5f2ef2b3dab00a05f7564d17bc317079c636e39c82588053651067404d0bb7c/document.json",
+      "document_sha256": "a24d11fb2be8b7856620e38f78a0aa29d29f375b36fb4fc2ad7cb49ae1a40f67"
+    },
+    {
+      "source_id": "pearl-src-fc7375ffc5f94a19",
+      "source_sha256": "fc7375ffc5f94a19d0ef9897cee6db45bb64e4a598460f3cf98dca2a84e7b1e5",
+      "resource_id": "lit-10-1016-j-trc-2019-10-013",
+      "active_version_id": "fc7375ffc5f94a19d0ef9897cee6db45bb64e4a598460f3cf98dca2a84e7b1e5",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2019-10-013\\fc7375ffc5f94a19d0ef9897cee6db45bb64e4a598460f3cf98dca2a84e7b1e5",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2019-10-013/fc7375ffc5f94a19d0ef9897cee6db45bb64e4a598460f3cf98dca2a84e7b1e5/document.json",
+      "document_sha256": "5ded3c396470ad1dc4f6ae06366fc04d02a075fd961f4fe591b9cd93856e158b"
+    },
+    {
+      "source_id": "pearl-src-a1d94e43220548c2",
+      "source_sha256": "a1d94e43220548c26c3e54a2354887dadadb3f1475a68edec60f5337ad32da7b",
+      "resource_id": "lit-10-1016-j-ssci-2021-105215",
+      "active_version_id": "a1d94e43220548c26c3e54a2354887dadadb3f1475a68edec60f5337ad32da7b",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2021-105215\\a1d94e43220548c26c3e54a2354887dadadb3f1475a68edec60f5337ad32da7b",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2021-105215/a1d94e43220548c26c3e54a2354887dadadb3f1475a68edec60f5337ad32da7b/document.json",
+      "document_sha256": "309bf3520d900ee4ffa0e561cb9cdc10edc1c571e4726d3c85dc47ecfa1bcdaa"
+    },
+    {
+      "source_id": "pearl-src-486515cd9939adcf",
+      "source_sha256": "486515cd9939adcf6303aa686b5eca3ee76e8223185db3f7dd31dd2c2d874cbc",
+      "resource_id": "lit-10-1371-journal-pone-0010047",
+      "active_version_id": "486515cd9939adcf6303aa686b5eca3ee76e8223185db3f7dd31dd2c2d874cbc",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1371-journal-pone-0010047\\486515cd9939adcf6303aa686b5eca3ee76e8223185db3f7dd31dd2c2d874cbc",
+      "document_path": "memPed/knowledge/derived/lit-10-1371-journal-pone-0010047/486515cd9939adcf6303aa686b5eca3ee76e8223185db3f7dd31dd2c2d874cbc/document.json",
+      "document_sha256": "5f9d54f2273dfcc2a3bd9a02a8eb2312d48b8e19a53c4f094e3cf829d1fd8767"
+    },
+    {
+      "source_id": "pearl-src-15c1100e05ee58e4",
+      "source_sha256": "15c1100e05ee58e49116bf61495fc38dc63b5dfaa47211e7ad5e1f08acbc9306",
+      "resource_id": "lit-10-1016-j-trb-2017-01-008",
+      "active_version_id": "15c1100e05ee58e49116bf61495fc38dc63b5dfaa47211e7ad5e1f08acbc9306",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2017-01-008\\15c1100e05ee58e49116bf61495fc38dc63b5dfaa47211e7ad5e1f08acbc9306",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2017-01-008/15c1100e05ee58e49116bf61495fc38dc63b5dfaa47211e7ad5e1f08acbc9306/document.json",
+      "document_sha256": "0cbb11738eff017a477625716da62e7a5e0ca4183d2a9824c6e6b3ff763db1be"
+    },
+    {
+      "source_id": "pearl-src-8cce53301f2fbdfa",
+      "source_sha256": "8cce53301f2fbdfacfd60045fbebbc2451d2a633f363f0a03a0d0092eb8d34b6",
+      "resource_id": "lit-10-18564-jasss-3997",
+      "active_version_id": "8cce53301f2fbdfacfd60045fbebbc2451d2a633f363f0a03a0d0092eb8d34b6",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-18564-jasss-3997\\8cce53301f2fbdfacfd60045fbebbc2451d2a633f363f0a03a0d0092eb8d34b6",
+      "document_path": "memPed/knowledge/derived/lit-10-18564-jasss-3997/8cce53301f2fbdfacfd60045fbebbc2451d2a633f363f0a03a0d0092eb8d34b6/document.json",
+      "document_sha256": "0ea91189548f0f07622db4f1fe990e98359e415806d1dd75e0b7751c29e301a9"
+    },
+    {
+      "source_id": "pearl-src-551c6f4b4febcc8a",
+      "source_sha256": "551c6f4b4febcc8a5cf03b32f6563c2526a802844983bceb6f526f132e6b970a",
+      "resource_id": "lit-10-1016-j-ssci-2024-106623",
+      "active_version_id": "551c6f4b4febcc8a5cf03b32f6563c2526a802844983bceb6f526f132e6b970a",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2024-106623\\551c6f4b4febcc8a5cf03b32f6563c2526a802844983bceb6f526f132e6b970a",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2024-106623/551c6f4b4febcc8a5cf03b32f6563c2526a802844983bceb6f526f132e6b970a/document.json",
+      "document_sha256": "e4d845f0b84afde4bc2b6b8c97dd78baa06fde89b4e60ab210b32b6739516a9d"
+    },
+    {
+      "source_id": "pearl-src-b215383357daae16",
+      "source_sha256": "b215383357daae16c2a545f95c83c81a46bff2ca96838ef8a4fea6db61151628",
+      "resource_id": "lit-10-1016-j-firesaf-2011-09-005",
+      "active_version_id": "b215383357daae16c2a545f95c83c81a46bff2ca96838ef8a4fea6db61151628",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-firesaf-2011-09-005\\b215383357daae16c2a545f95c83c81a46bff2ca96838ef8a4fea6db61151628",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-firesaf-2011-09-005/b215383357daae16c2a545f95c83c81a46bff2ca96838ef8a4fea6db61151628/document.json",
+      "document_sha256": "a20c33cd556a5ca08fe3851298584ea3a6b14b4579c3728b21172961ff4c07cc"
+    },
+    {
+      "source_id": "pearl-src-796e20731652c53b",
+      "source_sha256": "796e20731652c53bf02b7721a27ec274eeff468a1e145434f547d6b814d1831d",
+      "resource_id": "lit-10-1098-rsif-2022-0061",
+      "active_version_id": "796e20731652c53bf02b7721a27ec274eeff468a1e145434f547d6b814d1831d",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1098-rsif-2022-0061\\796e20731652c53bf02b7721a27ec274eeff468a1e145434f547d6b814d1831d",
+      "document_path": "memPed/knowledge/derived/lit-10-1098-rsif-2022-0061/796e20731652c53bf02b7721a27ec274eeff468a1e145434f547d6b814d1831d/document.json",
+      "document_sha256": "bacbcbbd70457e1464a4d598946cd0cfca8e8bbce4b5b2cf570e2367b1c9efb8"
+    },
+    {
+      "source_id": "pearl-src-72f5997118149dbe",
+      "source_sha256": "72f5997118149dbe1faeac6a1abdcce5a27c98212da14cf843005e76ae13306e",
+      "resource_id": "lit-10-1016-j-ssci-2016-07-001",
+      "active_version_id": "72f5997118149dbe1faeac6a1abdcce5a27c98212da14cf843005e76ae13306e",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2016-07-001\\72f5997118149dbe1faeac6a1abdcce5a27c98212da14cf843005e76ae13306e",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2016-07-001/72f5997118149dbe1faeac6a1abdcce5a27c98212da14cf843005e76ae13306e/document.json",
+      "document_sha256": "1516c8e198c5d0d776ca4807deae0c511aad7c066d5facee138ddac48226fa96"
+    },
+    {
+      "source_id": "pearl-src-5fe5e8ee03c930c7",
+      "source_sha256": "5fe5e8ee03c930c7da9151f78c5c29a907db77b8ab7abeae9010f840aff605be",
+      "resource_id": "lit-10-1016-j-firesaf-2019-04-008",
+      "active_version_id": "5fe5e8ee03c930c7da9151f78c5c29a907db77b8ab7abeae9010f840aff605be",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-firesaf-2019-04-008\\5fe5e8ee03c930c7da9151f78c5c29a907db77b8ab7abeae9010f840aff605be",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-firesaf-2019-04-008/5fe5e8ee03c930c7da9151f78c5c29a907db77b8ab7abeae9010f840aff605be/document.json",
+      "document_sha256": "a8b899d475f027e41d01cc78e10f573627fe3ce2579fa18cde989dbe5669722d"
+    },
+    {
+      "source_id": "pearl-src-9a4f2d471b96e89f",
+      "source_sha256": "9a4f2d471b96e89fb9c3121eae31cb515de4a0e926323cf0fb27c0dbafc5afc4",
+      "resource_id": "lit-10-1016-j-ijdrr-2021-102254",
+      "active_version_id": "9a4f2d471b96e89fb9c3121eae31cb515de4a0e926323cf0fb27c0dbafc5afc4",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ijdrr-2021-102254\\9a4f2d471b96e89fb9c3121eae31cb515de4a0e926323cf0fb27c0dbafc5afc4",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ijdrr-2021-102254/9a4f2d471b96e89fb9c3121eae31cb515de4a0e926323cf0fb27c0dbafc5afc4/document.json",
+      "document_sha256": "9849e2f6dd12f63eabb7d200dbcfe34f5c1797d3a88a2605e0d83f13769cf19a"
+    },
+    {
+      "source_id": "pearl-src-df9bec9b2e281134",
+      "source_sha256": "df9bec9b2e2811349f19862a8475290bd568ff906dd2fc43bfa6355dadb12f38",
+      "resource_id": "lit-10-1016-j-trc-2023-104041",
+      "active_version_id": "df9bec9b2e2811349f19862a8475290bd568ff906dd2fc43bfa6355dadb12f38",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2023-104041\\df9bec9b2e2811349f19862a8475290bd568ff906dd2fc43bfa6355dadb12f38",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2023-104041/df9bec9b2e2811349f19862a8475290bd568ff906dd2fc43bfa6355dadb12f38/document.json",
+      "document_sha256": "5ca624ce3373a5cafc81ab718c825fc6e3f5d42cdd2a35c232fd9ef77eb26f84"
+    },
+    {
+      "source_id": "pearl-src-f8d9c2f4d7bebd89",
+      "source_sha256": "f8d9c2f4d7bebd89e9ba8a2cc7356e5ed327e24609a6d3e4a9ef0031709b250f",
+      "resource_id": "lit-10-1098-rsos-140410",
+      "active_version_id": "f8d9c2f4d7bebd89e9ba8a2cc7356e5ed327e24609a6d3e4a9ef0031709b250f",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1098-rsos-140410\\f8d9c2f4d7bebd89e9ba8a2cc7356e5ed327e24609a6d3e4a9ef0031709b250f",
+      "document_path": "memPed/knowledge/derived/lit-10-1098-rsos-140410/f8d9c2f4d7bebd89e9ba8a2cc7356e5ed327e24609a6d3e4a9ef0031709b250f/document.json",
+      "document_sha256": "2f7371eb877970a56c8d32ade56d949ebc61edb47831f1ce3ceadb4b7d93e4c9"
+    },
+    {
+      "source_id": "pearl-src-b40f5056a160d4e9",
+      "source_sha256": "b40f5056a160d4e909d4f84a5a1249bf3c1e29b241bf4b5618dcb970ef388770",
+      "resource_id": "lit-10-1371-journal-pone-0208496",
+      "active_version_id": "b40f5056a160d4e909d4f84a5a1249bf3c1e29b241bf4b5618dcb970ef388770",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1371-journal-pone-0208496\\b40f5056a160d4e909d4f84a5a1249bf3c1e29b241bf4b5618dcb970ef388770",
+      "document_path": "memPed/knowledge/derived/lit-10-1371-journal-pone-0208496/b40f5056a160d4e909d4f84a5a1249bf3c1e29b241bf4b5618dcb970ef388770/document.json",
+      "document_sha256": "6c640b0c3ec92cfe8bb6877d876d3f9e1d0e831d6d7c29d49afc5bf4d6785bc7"
+    },
+    {
+      "source_id": "pearl-src-ffc3734fcd145140",
+      "source_sha256": "ffc3734fcd145140fea543d0dd1aba7446f92828581378b8ab4dfdcc132b0c63",
+      "resource_id": "lit-10-1016-j-ssci-2019-04-048",
+      "active_version_id": "ffc3734fcd145140fea543d0dd1aba7446f92828581378b8ab4dfdcc132b0c63",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2019-04-048\\ffc3734fcd145140fea543d0dd1aba7446f92828581378b8ab4dfdcc132b0c63",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2019-04-048/ffc3734fcd145140fea543d0dd1aba7446f92828581378b8ab4dfdcc132b0c63/document.json",
+      "document_sha256": "f1acb314788c656c98bcf0c407c7d6f36c1d6b8df134a0a8c2ac1f136d04e1d7"
+    },
+    {
+      "source_id": "pearl-src-e741c6bfedd59a19",
+      "source_sha256": "e741c6bfedd59a1977b8f23236bde1d3b62148972740622de861ba8ee1089b7a",
+      "resource_id": "lit-10-1016-j-ssci-2022-105723",
+      "active_version_id": "e741c6bfedd59a1977b8f23236bde1d3b62148972740622de861ba8ee1089b7a",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2022-105723\\e741c6bfedd59a1977b8f23236bde1d3b62148972740622de861ba8ee1089b7a",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2022-105723/e741c6bfedd59a1977b8f23236bde1d3b62148972740622de861ba8ee1089b7a/document.json",
+      "document_sha256": "b38045021d526b186d17215f4ef00ac7464dff6b19626e482bdee505b07d9d36"
+    },
+    {
+      "source_id": "pearl-src-c699aada46c6b10b",
+      "source_sha256": "c699aada46c6b10bf80519fde486d3ca103ffadc8ba9a40e10427a9ff8920846",
+      "resource_id": "lit-10-1016-j-trb-2017-06-017",
+      "active_version_id": "c699aada46c6b10bf80519fde486d3ca103ffadc8ba9a40e10427a9ff8920846",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2017-06-017\\c699aada46c6b10bf80519fde486d3ca103ffadc8ba9a40e10427a9ff8920846",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2017-06-017/c699aada46c6b10bf80519fde486d3ca103ffadc8ba9a40e10427a9ff8920846/document.json",
+      "document_sha256": "3724c4437b60004a710c09910290e1758c12f21b0b744e87836fd4326f94e25c"
+    },
+    {
+      "source_id": "pearl-src-4b758ccb41af532c",
+      "source_sha256": "4b758ccb41af532c4fadeb2182ce2b7d41e0eaee6abe140c209f6140842322d5",
+      "resource_id": "lit-10-1016-j-ssci-2020-104743",
+      "active_version_id": "4b758ccb41af532c4fadeb2182ce2b7d41e0eaee6abe140c209f6140842322d5",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2020-104743\\4b758ccb41af532c4fadeb2182ce2b7d41e0eaee6abe140c209f6140842322d5",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2020-104743/4b758ccb41af532c4fadeb2182ce2b7d41e0eaee6abe140c209f6140842322d5/document.json",
+      "document_sha256": "226484d1e9e27057812dda26c89783d49a12d694b96fdee1b4fd54906378a7bd"
+    },
+    {
+      "source_id": "pearl-src-bae14f716cb901cf",
+      "source_sha256": "bae14f716cb901cf43866fc6d80c3cfc861eb8a4c8c3ef9a85b478236c11f465",
+      "resource_id": "lit-10-1016-j-ssci-2020-104760",
+      "active_version_id": "bae14f716cb901cf43866fc6d80c3cfc861eb8a4c8c3ef9a85b478236c11f465",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2020-104760\\bae14f716cb901cf43866fc6d80c3cfc861eb8a4c8c3ef9a85b478236c11f465",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2020-104760/bae14f716cb901cf43866fc6d80c3cfc861eb8a4c8c3ef9a85b478236c11f465/document.json",
+      "document_sha256": "8dce254f2859ddd2bd507a5bdef87818b3c0b3f9a43abbf95cf8c46fea05312f"
+    },
+    {
+      "source_id": "pearl-src-2c6f1c912f4d8ceb",
+      "source_sha256": "2c6f1c912f4d8ceb9e036eb57037c8f444876cd8a273e94fae65bde8a8fda446",
+      "resource_id": "lit-10-1016-j-physa-2021-126229",
+      "active_version_id": "2c6f1c912f4d8ceb9e036eb57037c8f444876cd8a273e94fae65bde8a8fda446",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-physa-2021-126229\\2c6f1c912f4d8ceb9e036eb57037c8f444876cd8a273e94fae65bde8a8fda446",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-physa-2021-126229/2c6f1c912f4d8ceb9e036eb57037c8f444876cd8a273e94fae65bde8a8fda446/document.json",
+      "document_sha256": "36346d10a6a1a8ce91004ca61e5e77c3ac6605c926e8e573285ae85674d2ef48"
+    },
+    {
+      "source_id": "pearl-src-41c7d913c29687f3",
+      "source_sha256": "41c7d913c29687f3adf4c5661fb098490c8fea559da951df72eb9d5e3646d45e",
+      "resource_id": "lit-10-1016-j-physa-2023-128929",
+      "active_version_id": "41c7d913c29687f3adf4c5661fb098490c8fea559da951df72eb9d5e3646d45e",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-physa-2023-128929\\41c7d913c29687f3adf4c5661fb098490c8fea559da951df72eb9d5e3646d45e",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-physa-2023-128929/41c7d913c29687f3adf4c5661fb098490c8fea559da951df72eb9d5e3646d45e/document.json",
+      "document_sha256": "91f78cc2c0e459eb37e5ce23271fb4ed7af1f2c79ad35b4addf01a433122c9d4"
+    },
+    {
+      "source_id": "pearl-src-8c2167fb33f779d6",
+      "source_sha256": "8c2167fb33f779d6bc0d7d0fcdf8b5a0c5bfa6194ee857619101a6e979325dfc",
+      "resource_id": "lit-10-1016-j-ssci-2015-10-015",
+      "active_version_id": "8c2167fb33f779d6bc0d7d0fcdf8b5a0c5bfa6194ee857619101a6e979325dfc",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2015-10-015\\8c2167fb33f779d6bc0d7d0fcdf8b5a0c5bfa6194ee857619101a6e979325dfc",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2015-10-015/8c2167fb33f779d6bc0d7d0fcdf8b5a0c5bfa6194ee857619101a6e979325dfc/document.json",
+      "document_sha256": "b4841b89f705d9f26bb3a33310b6a10b29812de35930a421849e045f103e5d5b"
+    },
+    {
+      "source_id": "pearl-src-48dcda77c8cdac9b",
+      "source_sha256": "48dcda77c8cdac9b6e9b27ec24ebcfbf91a870d35cd3fab6e570f7fcf896bc81",
+      "resource_id": "lit-10-1098-rsif-2016-0414",
+      "active_version_id": "48dcda77c8cdac9b6e9b27ec24ebcfbf91a870d35cd3fab6e570f7fcf896bc81",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1098-rsif-2016-0414\\48dcda77c8cdac9b6e9b27ec24ebcfbf91a870d35cd3fab6e570f7fcf896bc81",
+      "document_path": "memPed/knowledge/derived/lit-10-1098-rsif-2016-0414/48dcda77c8cdac9b6e9b27ec24ebcfbf91a870d35cd3fab6e570f7fcf896bc81/document.json",
+      "document_sha256": "e7cb8169f148442d159ec5936f1bbaecc258a41101a9d5a29c81de746bcfc165"
+    },
+    {
+      "source_id": "pearl-src-49fbc8413e27f3f1",
+      "source_sha256": "49fbc8413e27f3f18b1d42203bc7b0f5c6f93bd8b33108dccadd3bdbe9b840ad",
+      "resource_id": "lit-10-1016-j-apm-2014-03-027",
+      "active_version_id": "49fbc8413e27f3f18b1d42203bc7b0f5c6f93bd8b33108dccadd3bdbe9b840ad",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-apm-2014-03-027\\49fbc8413e27f3f18b1d42203bc7b0f5c6f93bd8b33108dccadd3bdbe9b840ad",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2014-03-027/49fbc8413e27f3f18b1d42203bc7b0f5c6f93bd8b33108dccadd3bdbe9b840ad/document.json",
+      "document_sha256": "abec7c80e7ef2bcd83b7891ce81446b9ddbb35bf1a82e2dc377163885d3d31cb"
+    },
+    {
+      "source_id": "pearl-src-7b986410ee7877cb",
+      "source_sha256": "7b986410ee7877cbb750137eb22785b5b83f916a75e5810cced7b937d5457cb2",
+      "resource_id": "lit-10-1016-j-ssci-2020-105121",
+      "active_version_id": "7b986410ee7877cbb750137eb22785b5b83f916a75e5810cced7b937d5457cb2",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2020-105121\\7b986410ee7877cbb750137eb22785b5b83f916a75e5810cced7b937d5457cb2",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2020-105121/7b986410ee7877cbb750137eb22785b5b83f916a75e5810cced7b937d5457cb2/document.json",
+      "document_sha256": "65c5d8f31a1a111b76cc4f82888fa2d9b00e93a6e133b7b636ce391f57326518"
+    },
+    {
+      "source_id": "pearl-src-fbd459300aadae12",
+      "source_sha256": "fbd459300aadae12f70e0e06250c98422a6777efc5df5202bb151bbd83f99620",
+      "resource_id": "lit-10-1016-j-trb-2018-10-017",
+      "active_version_id": "fbd459300aadae12f70e0e06250c98422a6777efc5df5202bb151bbd83f99620",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2018-10-017\\fbd459300aadae12f70e0e06250c98422a6777efc5df5202bb151bbd83f99620",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2018-10-017/fbd459300aadae12f70e0e06250c98422a6777efc5df5202bb151bbd83f99620/document.json",
+      "document_sha256": "99911024fe6d52ff5fd149b4d6fa601f027c83d9901613eb339dc7d8afab237a"
+    },
+    {
+      "source_id": "pearl-src-5fed1a8f6083c86b",
+      "source_sha256": "5fed1a8f6083c86b989424257d98da4774bf431191b7ca576e92f8f508431dc9",
+      "resource_id": "lit-10-1016-j-trb-2019-01-011",
+      "active_version_id": "5fed1a8f6083c86b989424257d98da4774bf431191b7ca576e92f8f508431dc9",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "knowledge\\derived\\lit-10-1016-j-trb-2019-01-011\\5fed1a8f6083c86b989424257d98da4774bf431191b7ca576e92f8f508431dc9",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2019-01-011/5fed1a8f6083c86b989424257d98da4774bf431191b7ca576e92f8f508431dc9/document.json",
+      "document_sha256": "ba290159ad08e335dd554ddcb3f37bfee66d74d58e61d78ad6f0fb88aef55c37"
+    },
+    {
+      "source_id": "pearl-src-06ceea72728432ef",
+      "source_sha256": "06ceea72728432ef0f240b5619e01b283d15f07696bde03a03b68355cf895b1d",
+      "resource_id": "lit-10-1016-j-trb-2018-12-002",
+      "active_version_id": "06ceea72728432ef0f240b5619e01b283d15f07696bde03a03b68355cf895b1d",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2018-12-002\\06ceea72728432ef0f240b5619e01b283d15f07696bde03a03b68355cf895b1d",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2018-12-002/06ceea72728432ef0f240b5619e01b283d15f07696bde03a03b68355cf895b1d/document.json",
+      "document_sha256": "3a2f050dde6a954696e59984b78c0544b1d2413151293c78e3c95e87f70aedb0"
+    },
+    {
+      "source_id": "pearl-src-2d794479f1d822ef",
+      "source_sha256": "2d794479f1d822efa0882446cc9abc25875dae1f2212017948c490cd7c17499c",
+      "resource_id": "lit-10-1016-j-ssci-2022-106020",
+      "active_version_id": "2d794479f1d822efa0882446cc9abc25875dae1f2212017948c490cd7c17499c",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2022-106020\\2d794479f1d822efa0882446cc9abc25875dae1f2212017948c490cd7c17499c",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2022-106020/2d794479f1d822efa0882446cc9abc25875dae1f2212017948c490cd7c17499c/document.json",
+      "document_sha256": "c1852f59af55b55b36a306ab5626807e96879d0c3279cdda550e8293dc68eb3d"
+    },
+    {
+      "source_id": "pearl-src-7ee7b1fbb9eea381",
+      "source_sha256": "7ee7b1fbb9eea381320f82ca85a078104d26ebf3750ef269fff004e59d40634c",
+      "resource_id": "lit-10-1016-j-trc-2024-104651",
+      "active_version_id": "7ee7b1fbb9eea381320f82ca85a078104d26ebf3750ef269fff004e59d40634c",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2024-104651\\7ee7b1fbb9eea381320f82ca85a078104d26ebf3750ef269fff004e59d40634c",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2024-104651/7ee7b1fbb9eea381320f82ca85a078104d26ebf3750ef269fff004e59d40634c/document.json",
+      "document_sha256": "c6100e8424c98983bafdd1a3f315cfa347fb45e39d70860f6588e5c6e11941f9"
+    },
+    {
+      "source_id": "pearl-src-059d2b16335c2e60",
+      "source_sha256": "059d2b16335c2e60d0cb46b1afc11e87230f68a4713bdb1d99e36b24f0928ffc",
+      "resource_id": "lit-10-1016-j-ijdrr-2023-103916",
+      "active_version_id": "059d2b16335c2e60d0cb46b1afc11e87230f68a4713bdb1d99e36b24f0928ffc",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ijdrr-2023-103916\\059d2b16335c2e60d0cb46b1afc11e87230f68a4713bdb1d99e36b24f0928ffc",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ijdrr-2023-103916/059d2b16335c2e60d0cb46b1afc11e87230f68a4713bdb1d99e36b24f0928ffc/document.json",
+      "document_sha256": "c3c0886227d105cbea44cbf6f946749fe5b54eaf6f819fcd38a2f7f81727edb4"
+    },
+    {
+      "source_id": "pearl-src-572cefbfcda51e51",
+      "source_sha256": "572cefbfcda51e51dd203155c48bbe77635a647d925ca5e24ab859b15e55d740",
+      "resource_id": "lit-10-1016-j-apm-2025-115927",
+      "active_version_id": "572cefbfcda51e51dd203155c48bbe77635a647d925ca5e24ab859b15e55d740",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-apm-2025-115927\\572cefbfcda51e51dd203155c48bbe77635a647d925ca5e24ab859b15e55d740",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2025-115927/572cefbfcda51e51dd203155c48bbe77635a647d925ca5e24ab859b15e55d740/document.json",
+      "document_sha256": "c9ed918d4fb5dad983f50b96b9752956b00cb2830a4a06088e67f13f899baaae"
+    },
+    {
+      "source_id": "pearl-src-fbd4d14d3056f217",
+      "source_sha256": "fbd4d14d3056f2178aaf9547ecd55ea5f1e336d13f94eaafed66f19f0cfd83b2",
+      "resource_id": "lit-10-1016-j-ssci-2021-105586",
+      "active_version_id": "fbd4d14d3056f2178aaf9547ecd55ea5f1e336d13f94eaafed66f19f0cfd83b2",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2021-105586\\fbd4d14d3056f2178aaf9547ecd55ea5f1e336d13f94eaafed66f19f0cfd83b2",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2021-105586/fbd4d14d3056f2178aaf9547ecd55ea5f1e336d13f94eaafed66f19f0cfd83b2/document.json",
+      "document_sha256": "974158bbc89c3d30dd3376a73c68491599ceec6126eddeea5b729a4f023cffcd"
+    },
+    {
+      "source_id": "pearl-src-d478e1b057bcd403",
+      "source_sha256": "d478e1b057bcd4034c06451a13e0575fbf5baad231739f20f8ad42dfa722e61a",
+      "resource_id": "lit-10-1016-j-ijdrr-2023-103750",
+      "active_version_id": "d478e1b057bcd4034c06451a13e0575fbf5baad231739f20f8ad42dfa722e61a",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ijdrr-2023-103750\\d478e1b057bcd4034c06451a13e0575fbf5baad231739f20f8ad42dfa722e61a",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ijdrr-2023-103750/d478e1b057bcd4034c06451a13e0575fbf5baad231739f20f8ad42dfa722e61a/document.json",
+      "document_sha256": "8f22aebcacb139592c6c9a1468d9688abb0e87701b16d507046f65619ebb8b99"
+    },
+    {
+      "source_id": "pearl-src-6e4b554094219015",
+      "source_sha256": "6e4b55409421901566ed3a8a6582793a9164c30bc92fecbe526cdc663984416f",
+      "resource_id": "lit-10-1016-j-ssci-2024-106679",
+      "active_version_id": "6e4b55409421901566ed3a8a6582793a9164c30bc92fecbe526cdc663984416f",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2024-106679\\6e4b55409421901566ed3a8a6582793a9164c30bc92fecbe526cdc663984416f",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2024-106679/6e4b55409421901566ed3a8a6582793a9164c30bc92fecbe526cdc663984416f/document.json",
+      "document_sha256": "c62aa817b07e246bb2a77cd5194baf7c3d64a5f1edf169852d09680bf2b2a62d"
+    },
+    {
+      "source_id": "pearl-src-770b36f31c854869",
+      "source_sha256": "770b36f31c854869208216f451d6ddd41f80006a81b0f2bde3d5b191f3ba302c",
+      "resource_id": "lit-10-1016-j-ssci-2023-106285",
+      "active_version_id": "770b36f31c854869208216f451d6ddd41f80006a81b0f2bde3d5b191f3ba302c",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2023-106285\\770b36f31c854869208216f451d6ddd41f80006a81b0f2bde3d5b191f3ba302c",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2023-106285/770b36f31c854869208216f451d6ddd41f80006a81b0f2bde3d5b191f3ba302c/document.json",
+      "document_sha256": "73d891c77a2f3f7c2e2af1b7abb1dcc66acca196decc95b5ee51cdde72bcf602"
+    },
+    {
+      "source_id": "pearl-src-0d52fcfe5f0ab75a",
+      "source_sha256": "0d52fcfe5f0ab75a3941fc39e0998457d07ce8df68b526dbc7aef98671de0178",
+      "resource_id": "lit-10-18564-jasss-3837",
+      "active_version_id": "0d52fcfe5f0ab75a3941fc39e0998457d07ce8df68b526dbc7aef98671de0178",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-18564-jasss-3837\\0d52fcfe5f0ab75a3941fc39e0998457d07ce8df68b526dbc7aef98671de0178",
+      "document_path": "memPed/knowledge/derived/lit-10-18564-jasss-3837/0d52fcfe5f0ab75a3941fc39e0998457d07ce8df68b526dbc7aef98671de0178/document.json",
+      "document_sha256": "963305a901f7f8dc6d8159e4e418460de13101b0a37c4974319d9882310e9ae6"
+    },
+    {
+      "source_id": "pearl-src-ff64ceab9d1692d0",
+      "source_sha256": "ff64ceab9d1692d0f3f1494999624917a9c3dd0af7c1c561f0a7335f54edd101",
+      "resource_id": "lit-10-1016-j-apm-2019-04-062",
+      "active_version_id": "ff64ceab9d1692d0f3f1494999624917a9c3dd0af7c1c561f0a7335f54edd101",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-apm-2019-04-062\\ff64ceab9d1692d0f3f1494999624917a9c3dd0af7c1c561f0a7335f54edd101",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2019-04-062/ff64ceab9d1692d0f3f1494999624917a9c3dd0af7c1c561f0a7335f54edd101/document.json",
+      "document_sha256": "569281cbed0d543bbbe186eded882d83743df650b4c12a05c58795107bc3a0b1"
+    },
+    {
+      "source_id": "pearl-src-305a148e97c45b4d",
+      "source_sha256": "305a148e97c45b4dceef10db0f269361b7b445e78ab6db3f95f82a8e39d0a98a",
+      "resource_id": "lit-10-1016-j-tbs-2025-101000",
+      "active_version_id": "305a148e97c45b4dceef10db0f269361b7b445e78ab6db3f95f82a8e39d0a98a",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-tbs-2025-101000\\305a148e97c45b4dceef10db0f269361b7b445e78ab6db3f95f82a8e39d0a98a",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-tbs-2025-101000/305a148e97c45b4dceef10db0f269361b7b445e78ab6db3f95f82a8e39d0a98a/document.json",
+      "document_sha256": "4e19f0a82fe264bcc49115d99ec4ccf85ef32d71956e9ab7e443711b0abcb7e8"
+    },
+    {
+      "source_id": "pearl-src-23359e3c52013ff2",
+      "source_sha256": "23359e3c52013ff2d379735a77334d867154557ee95d593dbf90f1e5f6b8f377",
+      "resource_id": "lit-10-1016-j-apm-2023-08-010",
+      "active_version_id": "23359e3c52013ff2d379735a77334d867154557ee95d593dbf90f1e5f6b8f377",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "knowledge\\derived\\lit-10-1016-j-apm-2023-08-010\\23359e3c52013ff2d379735a77334d867154557ee95d593dbf90f1e5f6b8f377",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2023-08-010/23359e3c52013ff2d379735a77334d867154557ee95d593dbf90f1e5f6b8f377/document.json",
+      "document_sha256": "de4b72c4d53029efdd46155f5bc66a740bb1794883cbe0170ab7a5b3bf8ab218"
+    },
+    {
+      "source_id": "pearl-src-6953122155fbbf77",
+      "source_sha256": "6953122155fbbf77670d7fc408c781872ff59a274fc38ed045ad5496bde2c213",
+      "resource_id": "lit-10-1016-j-ijdrr-2023-103822",
+      "active_version_id": "6953122155fbbf77670d7fc408c781872ff59a274fc38ed045ad5496bde2c213",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ijdrr-2023-103822\\6953122155fbbf77670d7fc408c781872ff59a274fc38ed045ad5496bde2c213",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ijdrr-2023-103822/6953122155fbbf77670d7fc408c781872ff59a274fc38ed045ad5496bde2c213/document.json",
+      "document_sha256": "54d9f26aef6e3e38494a1ff3e00e832ccb916324b5ff75dc247f9b8df5c5d422"
+    },
+    {
+      "source_id": "pearl-src-69dfcb572ce5ee70",
+      "source_sha256": "69dfcb572ce5ee707acceed21259d69d6605d513a8cdb24c85e4b6dad501cedf",
+      "resource_id": "lit-10-1016-j-tbs-2025-100988",
+      "active_version_id": "69dfcb572ce5ee707acceed21259d69d6605d513a8cdb24c85e4b6dad501cedf",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-tbs-2025-100988\\69dfcb572ce5ee707acceed21259d69d6605d513a8cdb24c85e4b6dad501cedf",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-tbs-2025-100988/69dfcb572ce5ee707acceed21259d69d6605d513a8cdb24c85e4b6dad501cedf/document.json",
+      "document_sha256": "0f3fb7f72576ac0e22308658e9f30f25ef2edb2e6351a83a7d442de00ae23d18"
+    },
+    {
+      "source_id": "pearl-src-73fdbf71b0cef19a",
+      "source_sha256": "73fdbf71b0cef19a2923d5692490610291416d221c35b2b439d36a351b2a5468",
+      "resource_id": "lit-10-1016-j-trb-2025-103309",
+      "active_version_id": "73fdbf71b0cef19a2923d5692490610291416d221c35b2b439d36a351b2a5468",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2025-103309\\73fdbf71b0cef19a2923d5692490610291416d221c35b2b439d36a351b2a5468",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2025-103309/73fdbf71b0cef19a2923d5692490610291416d221c35b2b439d36a351b2a5468/document.json",
+      "document_sha256": "ef0576515eb83c20469a27d50eee3fff7160ac6058a7d7aebca9c8fe1c38aa2c"
+    },
+    {
+      "source_id": "pearl-src-c6e6c8ab843d5dd5",
+      "source_sha256": "c6e6c8ab843d5dd50a76c053c8cb68b065282af69b1a99d422e10364eaf9ce5e",
+      "resource_id": "lit-10-1016-j-trb-2021-05-006",
+      "active_version_id": "c6e6c8ab843d5dd50a76c053c8cb68b065282af69b1a99d422e10364eaf9ce5e",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2021-05-006\\c6e6c8ab843d5dd50a76c053c8cb68b065282af69b1a99d422e10364eaf9ce5e",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2021-05-006/c6e6c8ab843d5dd50a76c053c8cb68b065282af69b1a99d422e10364eaf9ce5e/document.json",
+      "document_sha256": "fa0496c40869f08ff046ffe1230fd306acbf884a77ddfd47605fef7327b963c5"
+    },
+    {
+      "source_id": "pearl-src-660b3fd7d42107c6",
+      "source_sha256": "660b3fd7d42107c6e24f47b9dc59a781e9b646befbd534d6f8f80ae0d8fd2075",
+      "resource_id": "lit-10-1016-j-trc-2024-104617",
+      "active_version_id": "660b3fd7d42107c6e24f47b9dc59a781e9b646befbd534d6f8f80ae0d8fd2075",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2024-104617\\660b3fd7d42107c6e24f47b9dc59a781e9b646befbd534d6f8f80ae0d8fd2075",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2024-104617/660b3fd7d42107c6e24f47b9dc59a781e9b646befbd534d6f8f80ae0d8fd2075/document.json",
+      "document_sha256": "58c6715ae63247d5e0f6a5de90c38a3c47d8269432d6b8c880f7b1868eafc9a9"
+    },
+    {
+      "source_id": "pearl-src-7b0aa0b9d28b79b0",
+      "source_sha256": "7b0aa0b9d28b79b06dd8c0099c5354652cb329a17602daf28f79fadfa72961ad",
+      "resource_id": "lit-10-1016-j-trc-2022-103699",
+      "active_version_id": "7b0aa0b9d28b79b06dd8c0099c5354652cb329a17602daf28f79fadfa72961ad",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2022-103699\\7b0aa0b9d28b79b06dd8c0099c5354652cb329a17602daf28f79fadfa72961ad",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2022-103699/7b0aa0b9d28b79b06dd8c0099c5354652cb329a17602daf28f79fadfa72961ad/document.json",
+      "document_sha256": "54dc86398050f36c8fe928a2371cfa298e313a9df481e4a00d10931e4d14d3ad"
+    },
+    {
+      "source_id": "pearl-src-0f91574e850babb8",
+      "source_sha256": "0f91574e850babb8753ff835f9a4a273768fe8dccfd6f54b37f7add94b45d169",
+      "resource_id": "lit-10-1016-j-trc-2022-103913",
+      "active_version_id": "0f91574e850babb8753ff835f9a4a273768fe8dccfd6f54b37f7add94b45d169",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2022-103913\\0f91574e850babb8753ff835f9a4a273768fe8dccfd6f54b37f7add94b45d169",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2022-103913/0f91574e850babb8753ff835f9a4a273768fe8dccfd6f54b37f7add94b45d169/document.json",
+      "document_sha256": "5411d4477b86d3d8ee334bbd76ec78033995955ae8f17876e0057ccb83bf4645"
+    },
+    {
+      "source_id": "pearl-src-253fbfe913dbf603",
+      "source_sha256": "253fbfe913dbf603e68f754a2fd362dba4ff4900188999bb291108de24607374",
+      "resource_id": "lit-10-1016-j-trc-2023-104268",
+      "active_version_id": "253fbfe913dbf603e68f754a2fd362dba4ff4900188999bb291108de24607374",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2023-104268\\253fbfe913dbf603e68f754a2fd362dba4ff4900188999bb291108de24607374",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2023-104268/253fbfe913dbf603e68f754a2fd362dba4ff4900188999bb291108de24607374/document.json",
+      "document_sha256": "ba07ff8210b27621d9509ad391515fbf2f4b9a325059f9942276a5c40a04074b"
+    },
+    {
+      "source_id": "pearl-src-87bd4f373ec7a172",
+      "source_sha256": "87bd4f373ec7a172d44da27a62f75dfa49ab371b6cb47e4f43d006e9806880ea",
+      "resource_id": "lit-10-1016-j-ssci-2020-104750",
+      "active_version_id": "87bd4f373ec7a172d44da27a62f75dfa49ab371b6cb47e4f43d006e9806880ea",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2020-104750\\87bd4f373ec7a172d44da27a62f75dfa49ab371b6cb47e4f43d006e9806880ea",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2020-104750/87bd4f373ec7a172d44da27a62f75dfa49ab371b6cb47e4f43d006e9806880ea/document.json",
+      "document_sha256": "cb0f34389a8be740967e1995e24a2dfb965e177faadd573caa743914924d5e93"
+    },
+    {
+      "source_id": "pearl-src-0ecad6b65f55a26b",
+      "source_sha256": "0ecad6b65f55a26bb82c5229364c82bdf326e67c1884b66811ed6236213e6d5d",
+      "resource_id": "lit-10-1016-j-trc-2025-105243",
+      "active_version_id": "0ecad6b65f55a26bb82c5229364c82bdf326e67c1884b66811ed6236213e6d5d",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2025-105243\\0ecad6b65f55a26bb82c5229364c82bdf326e67c1884b66811ed6236213e6d5d",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2025-105243/0ecad6b65f55a26bb82c5229364c82bdf326e67c1884b66811ed6236213e6d5d/document.json",
+      "document_sha256": "508df1e589d9a8c1c8b26655fad337ba018afd6232b0a97b687b3a847dd6f3aa"
+    },
+    {
+      "source_id": "pearl-src-c855476d71620c33",
+      "source_sha256": "c855476d71620c3342b67eec112555757eaf47e3be3a57b0dbf9a3ece4a57be3",
+      "resource_id": "lit-10-1016-j-apm-2024-03-024",
+      "active_version_id": "c855476d71620c3342b67eec112555757eaf47e3be3a57b0dbf9a3ece4a57be3",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-apm-2024-03-024\\c855476d71620c3342b67eec112555757eaf47e3be3a57b0dbf9a3ece4a57be3",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2024-03-024/c855476d71620c3342b67eec112555757eaf47e3be3a57b0dbf9a3ece4a57be3/document.json",
+      "document_sha256": "92ae3c19b72bbe87ab62e97981d5e747c764e0486a8d4df822c449a7259ce33a"
+    },
+    {
+      "source_id": "pearl-src-69cbf5aaec4292e0",
+      "source_sha256": "69cbf5aaec4292e04890df7895629fecb865930f57274291060e02580287d3c6",
+      "resource_id": "lit-10-1016-j-trb-2020-12-004",
+      "active_version_id": "69cbf5aaec4292e04890df7895629fecb865930f57274291060e02580287d3c6",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2020-12-004\\69cbf5aaec4292e04890df7895629fecb865930f57274291060e02580287d3c6",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2020-12-004/69cbf5aaec4292e04890df7895629fecb865930f57274291060e02580287d3c6/document.json",
+      "document_sha256": "2fa8ad8af93129e7e71fffd6cbd8073897977512cb29b891adb636d26a5ed491"
+    },
+    {
+      "source_id": "pearl-src-f78adbda9097ba75",
+      "source_sha256": "f78adbda9097ba7568838dd413bd268ab8fac6793678ef6f7e981fc043e9c529",
+      "resource_id": "lit-10-1016-j-tbs-2020-10-007",
+      "active_version_id": "f78adbda9097ba7568838dd413bd268ab8fac6793678ef6f7e981fc043e9c529",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-tbs-2020-10-007\\f78adbda9097ba7568838dd413bd268ab8fac6793678ef6f7e981fc043e9c529",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-tbs-2020-10-007/f78adbda9097ba7568838dd413bd268ab8fac6793678ef6f7e981fc043e9c529/document.json",
+      "document_sha256": "271bb9bdaaf2d556a27222ef11e0bcc2db6753b415958b2a93a8a0cd85c53d9e"
+    },
+    {
+      "source_id": "pearl-src-e5b2de4b165e3f8b",
+      "source_sha256": "e5b2de4b165e3f8b3f1e1196d8033d2306a28bb9510924ab1e6f07fa9c835fa0",
+      "resource_id": "lit-10-1016-j-trc-2024-104658",
+      "active_version_id": "e5b2de4b165e3f8b3f1e1196d8033d2306a28bb9510924ab1e6f07fa9c835fa0",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2024-104658\\e5b2de4b165e3f8b3f1e1196d8033d2306a28bb9510924ab1e6f07fa9c835fa0",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2024-104658/e5b2de4b165e3f8b3f1e1196d8033d2306a28bb9510924ab1e6f07fa9c835fa0/document.json",
+      "document_sha256": "c2806ab9041fdd5c0cc9879f83216740283e1f6b36c2a2b9e8fb67f3203cefd4"
+    },
+    {
+      "source_id": "pearl-src-f83334db50f56009",
+      "source_sha256": "f83334db50f5600968ce154a8b166c5392977617c419a9206af0bf6fda1a69b1",
+      "resource_id": "lit-10-1016-j-trc-2023-104335",
+      "active_version_id": "f83334db50f5600968ce154a8b166c5392977617c419a9206af0bf6fda1a69b1",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2023-104335\\f83334db50f5600968ce154a8b166c5392977617c419a9206af0bf6fda1a69b1",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2023-104335/f83334db50f5600968ce154a8b166c5392977617c419a9206af0bf6fda1a69b1/document.json",
+      "document_sha256": "9299ddb738be00ba2d1898bdcbf13b2bb3012e58572ed185f774e80197429638"
+    },
+    {
+      "source_id": "pearl-src-e08ea2bf6e32b974",
+      "source_sha256": "e08ea2bf6e32b9740f1934ea20e134108e4e2a27f93219b2c1d303ce6ee2c7fb",
+      "resource_id": "lit-10-1016-j-ijdrr-2022-103228",
+      "active_version_id": "e08ea2bf6e32b9740f1934ea20e134108e4e2a27f93219b2c1d303ce6ee2c7fb",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ijdrr-2022-103228\\e08ea2bf6e32b9740f1934ea20e134108e4e2a27f93219b2c1d303ce6ee2c7fb",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ijdrr-2022-103228/e08ea2bf6e32b9740f1934ea20e134108e4e2a27f93219b2c1d303ce6ee2c7fb/document.json",
+      "document_sha256": "41162c0c2384eb4467ffe853a46ccc1b038147fe51dad19dac028d03961372b1"
+    },
+    {
+      "source_id": "pearl-src-9e1c873b60f8d08c",
+      "source_sha256": "9e1c873b60f8d08c4685316264588a67ad4dd47b508e87450fee61a30acac9d0",
+      "resource_id": "lit-10-1016-j-trb-2019-01-019",
+      "active_version_id": "9e1c873b60f8d08c4685316264588a67ad4dd47b508e87450fee61a30acac9d0",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2019-01-019\\9e1c873b60f8d08c4685316264588a67ad4dd47b508e87450fee61a30acac9d0",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2019-01-019/9e1c873b60f8d08c4685316264588a67ad4dd47b508e87450fee61a30acac9d0/document.json",
+      "document_sha256": "c5482a556479d47712eab90975adce3d867866fcfd838f77b84e4393859c1890"
+    },
+    {
+      "source_id": "pearl-src-1687e715b6ddb44b",
+      "source_sha256": "1687e715b6ddb44bfd84010d8d99493081911d72bf99ffeee6a2d7ddedab27b3",
+      "resource_id": "lit-10-1016-j-tbs-2023-100713",
+      "active_version_id": "1687e715b6ddb44bfd84010d8d99493081911d72bf99ffeee6a2d7ddedab27b3",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "knowledge\\derived\\lit-10-1016-j-tbs-2023-100713\\1687e715b6ddb44bfd84010d8d99493081911d72bf99ffeee6a2d7ddedab27b3",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-tbs-2023-100713/1687e715b6ddb44bfd84010d8d99493081911d72bf99ffeee6a2d7ddedab27b3/document.json",
+      "document_sha256": "dfb3b8b9dc164e228c979e4251eb6b2ef70f22a5aa2f8e7e444dd6b42f36c841"
+    },
+    {
+      "source_id": "pearl-src-f51503974db34bd9",
+      "source_sha256": "f51503974db34bd95b0a095769a71cf53e0130a4da176a756947689903e048e3",
+      "resource_id": "lit-10-1016-j-ssci-2022-105877",
+      "active_version_id": "f51503974db34bd95b0a095769a71cf53e0130a4da176a756947689903e048e3",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2022-105877\\f51503974db34bd95b0a095769a71cf53e0130a4da176a756947689903e048e3",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2022-105877/f51503974db34bd95b0a095769a71cf53e0130a4da176a756947689903e048e3/document.json",
+      "document_sha256": "96320e48382964f65fd6034d618e608b6a3e5049a1c550fd918aba418cdd183d"
+    },
+    {
+      "source_id": "pearl-src-7da007f9ae20dcb9",
+      "source_sha256": "7da007f9ae20dcb9fadcfd184460db4f84eaabdfa52ee27b4047abfd6d398ce0",
+      "resource_id": "lit-10-1016-j-trc-2025-105117",
+      "active_version_id": "7da007f9ae20dcb9fadcfd184460db4f84eaabdfa52ee27b4047abfd6d398ce0",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2025-105117\\7da007f9ae20dcb9fadcfd184460db4f84eaabdfa52ee27b4047abfd6d398ce0",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2025-105117/7da007f9ae20dcb9fadcfd184460db4f84eaabdfa52ee27b4047abfd6d398ce0/document.json",
+      "document_sha256": "41706a255d34cefe55c370bf4d0d35649daeeb9729f83fb19bd1e10ea8ece5be"
+    },
+    {
+      "source_id": "pearl-src-53eaa084325fad7e",
+      "source_sha256": "53eaa084325fad7ec3c854c65df3b9b1fe3cb8fbbd8c21502a5dd1fd7bafd605",
+      "resource_id": "lit-10-1016-j-tbs-2023-100659",
+      "active_version_id": "53eaa084325fad7ec3c854c65df3b9b1fe3cb8fbbd8c21502a5dd1fd7bafd605",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-tbs-2023-100659\\53eaa084325fad7ec3c854c65df3b9b1fe3cb8fbbd8c21502a5dd1fd7bafd605",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-tbs-2023-100659/53eaa084325fad7ec3c854c65df3b9b1fe3cb8fbbd8c21502a5dd1fd7bafd605/document.json",
+      "document_sha256": "c80fcac215d51cdfd5765249832973f4078b3b69e97297415a37d584436ce9cd"
+    },
+    {
+      "source_id": "pearl-src-d8ec3618b31ff478",
+      "source_sha256": "d8ec3618b31ff478a28ac928c8407709a1575ba750cd17d76f77832581c8156d",
+      "resource_id": "lit-10-1016-j-ssci-2022-105919",
+      "active_version_id": "d8ec3618b31ff478a28ac928c8407709a1575ba750cd17d76f77832581c8156d",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2022-105919\\d8ec3618b31ff478a28ac928c8407709a1575ba750cd17d76f77832581c8156d",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2022-105919/d8ec3618b31ff478a28ac928c8407709a1575ba750cd17d76f77832581c8156d/document.json",
+      "document_sha256": "a3d87473e3c47e51f3bee563ad8ae04a588a3cd1b68cf6f80e0057f368cb9358"
+    },
+    {
+      "source_id": "pearl-src-2d9857c44a13d6a2",
+      "source_sha256": "2d9857c44a13d6a24bf2ddced239a96608df99f9d3121a7faf536f4b3c05b91f",
+      "resource_id": "lit-10-1016-j-trc-2024-104650",
+      "active_version_id": "2d9857c44a13d6a24bf2ddced239a96608df99f9d3121a7faf536f4b3c05b91f",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2024-104650\\2d9857c44a13d6a24bf2ddced239a96608df99f9d3121a7faf536f4b3c05b91f",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2024-104650/2d9857c44a13d6a24bf2ddced239a96608df99f9d3121a7faf536f4b3c05b91f/document.json",
+      "document_sha256": "425dfee6043eccc3b35237825e38a7746235a091380a84aecf9d88d525ee5e7b"
+    },
+    {
+      "source_id": "pearl-src-e51fb7757831d3bc",
+      "source_sha256": "e51fb7757831d3bc3b8d496d31dde2a909e26f2280052c6d9c984fdd37366478",
+      "resource_id": "lit-10-1016-j-ssci-2021-105590",
+      "active_version_id": "e51fb7757831d3bc3b8d496d31dde2a909e26f2280052c6d9c984fdd37366478",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2021-105590\\e51fb7757831d3bc3b8d496d31dde2a909e26f2280052c6d9c984fdd37366478",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2021-105590/e51fb7757831d3bc3b8d496d31dde2a909e26f2280052c6d9c984fdd37366478/document.json",
+      "document_sha256": "cd341e80d3751e656f76767c714197c3e7f1be6b4cf566c8fcf6100f0fad6f9b"
+    },
+    {
+      "source_id": "pearl-src-40f1751dc557a762",
+      "source_sha256": "40f1751dc557a762a1f6e8f88ccccf9f30225f6c8437ef2c00f64a5f4bfeb5d0",
+      "resource_id": "lit-10-18564-jasss-5037",
+      "active_version_id": "40f1751dc557a762a1f6e8f88ccccf9f30225f6c8437ef2c00f64a5f4bfeb5d0",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-18564-jasss-5037\\40f1751dc557a762a1f6e8f88ccccf9f30225f6c8437ef2c00f64a5f4bfeb5d0",
+      "document_path": "memPed/knowledge/derived/lit-10-18564-jasss-5037/40f1751dc557a762a1f6e8f88ccccf9f30225f6c8437ef2c00f64a5f4bfeb5d0/document.json",
+      "document_sha256": "f42577f85ba8405ae42364d44d0847e71f82594ab33f659cee97c3c8702b66af"
+    },
+    {
+      "source_id": "pearl-src-96b26d7574a0faec",
+      "source_sha256": "96b26d7574a0faec78d8dfe61ce28154dca53260f1475c92526adf1b728c2572",
+      "resource_id": "lit-10-1016-j-apm-2020-11-036",
+      "active_version_id": "96b26d7574a0faec78d8dfe61ce28154dca53260f1475c92526adf1b728c2572",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-apm-2020-11-036\\96b26d7574a0faec78d8dfe61ce28154dca53260f1475c92526adf1b728c2572",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2020-11-036/96b26d7574a0faec78d8dfe61ce28154dca53260f1475c92526adf1b728c2572/document.json",
+      "document_sha256": "6b1b6edad72e88853804aa9f571aa4f8a6b75cf8ec6c1340161f40a88162af04"
+    },
+    {
+      "source_id": "pearl-src-8591d6f498fb3405",
+      "source_sha256": "8591d6f498fb3405a9cdbaa2d689e87aef6596459b3924fc6044c4b27243b042",
+      "resource_id": "lit-10-1016-j-trc-2024-104805",
+      "active_version_id": "8591d6f498fb3405a9cdbaa2d689e87aef6596459b3924fc6044c4b27243b042",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2024-104805\\8591d6f498fb3405a9cdbaa2d689e87aef6596459b3924fc6044c4b27243b042",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2024-104805/8591d6f498fb3405a9cdbaa2d689e87aef6596459b3924fc6044c4b27243b042/document.json",
+      "document_sha256": "1d5d2ee3cd5e40b165eed6388d490f6e593102bf64ee1b3e0324071006a5dcb9"
+    },
+    {
+      "source_id": "pearl-src-b13e50e36a0d53e2",
+      "source_sha256": "b13e50e36a0d53e2fd2f7a8f91e36527d379dee62574177d5cceab42fcb62a46",
+      "resource_id": "lit-10-1016-j-ssci-2021-105574",
+      "active_version_id": "b13e50e36a0d53e2fd2f7a8f91e36527d379dee62574177d5cceab42fcb62a46",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2021-105574\\b13e50e36a0d53e2fd2f7a8f91e36527d379dee62574177d5cceab42fcb62a46",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2021-105574/b13e50e36a0d53e2fd2f7a8f91e36527d379dee62574177d5cceab42fcb62a46/document.json",
+      "document_sha256": "64083bb4aaf8cd9c66bc92059d2605d0f36a1a06b3dc9564ac93080b984483bb"
+    },
+    {
+      "source_id": "pearl-src-4bfcc1fdfb73424f",
+      "source_sha256": "4bfcc1fdfb73424fc82c4362d6dd428eecd5d74be8c844232bad981efd29436b",
+      "resource_id": "lit-10-1016-j-trc-2023-104336",
+      "active_version_id": "4bfcc1fdfb73424fc82c4362d6dd428eecd5d74be8c844232bad981efd29436b",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2023-104336\\4bfcc1fdfb73424fc82c4362d6dd428eecd5d74be8c844232bad981efd29436b",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2023-104336/4bfcc1fdfb73424fc82c4362d6dd428eecd5d74be8c844232bad981efd29436b/document.json",
+      "document_sha256": "bce0abdfea1cbde4495d9430eb2716ee489d6cfe13f128c9f563d5a1df51d683"
+    },
+    {
+      "source_id": "pearl-src-cd4a7a7e9d59260f",
+      "source_sha256": "cd4a7a7e9d59260faa0e0711ef6971dad9fd49d9670dadadc7023253b2281ef5",
+      "resource_id": "lit-10-1016-j-ssci-2020-105029",
+      "active_version_id": "cd4a7a7e9d59260faa0e0711ef6971dad9fd49d9670dadadc7023253b2281ef5",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2020-105029\\cd4a7a7e9d59260faa0e0711ef6971dad9fd49d9670dadadc7023253b2281ef5",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2020-105029/cd4a7a7e9d59260faa0e0711ef6971dad9fd49d9670dadadc7023253b2281ef5/document.json",
+      "document_sha256": "9b78670dce95e808246d4a3d800373883a0270e285274aecf4944ce367fc2230"
+    },
+    {
+      "source_id": "pearl-src-a5d5181945d0dd8a",
+      "source_sha256": "a5d5181945d0dd8aea8fdef44cb74b43e4cd88a6be250f2dfc586d7053b9d2b9",
+      "resource_id": "lit-10-1016-j-ijdrr-2024-104601",
+      "active_version_id": "a5d5181945d0dd8aea8fdef44cb74b43e4cd88a6be250f2dfc586d7053b9d2b9",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ijdrr-2024-104601\\a5d5181945d0dd8aea8fdef44cb74b43e4cd88a6be250f2dfc586d7053b9d2b9",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ijdrr-2024-104601/a5d5181945d0dd8aea8fdef44cb74b43e4cd88a6be250f2dfc586d7053b9d2b9/document.json",
+      "document_sha256": "80d476d31412a6bebcb48d7097d4c0d2df3076ecc01612b3a091126f0523cf52"
+    },
+    {
+      "source_id": "pearl-src-ea334de2fa3fbbcd",
+      "source_sha256": "ea334de2fa3fbbcd69f8715e58c10c8fe16937e665f1a25c25e82c7a2ad067a9",
+      "resource_id": "lit-10-1016-j-apm-2022-07-024",
+      "active_version_id": "ea334de2fa3fbbcd69f8715e58c10c8fe16937e665f1a25c25e82c7a2ad067a9",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-apm-2022-07-024\\ea334de2fa3fbbcd69f8715e58c10c8fe16937e665f1a25c25e82c7a2ad067a9",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2022-07-024/ea334de2fa3fbbcd69f8715e58c10c8fe16937e665f1a25c25e82c7a2ad067a9/document.json",
+      "document_sha256": "d61ba685716ef28dac51f24714a255f397670c575265d20adad353595f8833d4"
+    },
+    {
+      "source_id": "pearl-src-b4d276c8795ad307",
+      "source_sha256": "b4d276c8795ad307584c07e92140788960fde4aa3c19d447816b184ad1d43bde",
+      "resource_id": "lit-10-1016-j-ssci-2023-106243",
+      "active_version_id": "b4d276c8795ad307584c07e92140788960fde4aa3c19d447816b184ad1d43bde",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-ssci-2023-106243\\b4d276c8795ad307584c07e92140788960fde4aa3c19d447816b184ad1d43bde",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-ssci-2023-106243/b4d276c8795ad307584c07e92140788960fde4aa3c19d447816b184ad1d43bde/document.json",
+      "document_sha256": "c1123633e8b526f4dc5691c210fb912aed4797f850bdda15f3e2da59f47b2234"
+    },
+    {
+      "source_id": "pearl-src-2a5248d83478c25a",
+      "source_sha256": "2a5248d83478c25a3ae6c5ff153b7208c96d3462e3bc2afa583456e7e949b6aa",
+      "resource_id": "lit-10-1016-j-trc-2024-104649",
+      "active_version_id": "2a5248d83478c25a3ae6c5ff153b7208c96d3462e3bc2afa583456e7e949b6aa",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trc-2024-104649\\2a5248d83478c25a3ae6c5ff153b7208c96d3462e3bc2afa583456e7e949b6aa",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trc-2024-104649/2a5248d83478c25a3ae6c5ff153b7208c96d3462e3bc2afa583456e7e949b6aa/document.json",
+      "document_sha256": "6cfd429a55cbfd46045919522441bdacc9d5cc5c20e24c763cbb524f6ea76fa9"
+    },
+    {
+      "source_id": "pearl-src-2bfe121ce9b3ce0c",
+      "source_sha256": "2bfe121ce9b3ce0c739d3202de7cd5c28ddeda2e6046cb8cf0e346f4bb54fae9",
+      "resource_id": "lit-10-1016-j-apm-2020-08-073",
+      "active_version_id": "2bfe121ce9b3ce0c739d3202de7cd5c28ddeda2e6046cb8cf0e346f4bb54fae9",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-apm-2020-08-073\\2bfe121ce9b3ce0c739d3202de7cd5c28ddeda2e6046cb8cf0e346f4bb54fae9",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2020-08-073/2bfe121ce9b3ce0c739d3202de7cd5c28ddeda2e6046cb8cf0e346f4bb54fae9/document.json",
+      "document_sha256": "0dc1e3c40922ccd3e8938ba49452924f000b5938eb4a9b11cc7478c9ec7f7770"
+    },
+    {
+      "source_id": "pearl-src-c484f1e750553afe",
+      "source_sha256": "c484f1e750553afee0c7135cc759946e1e08fd9042a329381e86345ba28fbe21",
+      "resource_id": "lit-10-1016-j-apm-2020-08-075",
+      "active_version_id": "c484f1e750553afee0c7135cc759946e1e08fd9042a329381e86345ba28fbe21",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-apm-2020-08-075\\c484f1e750553afee0c7135cc759946e1e08fd9042a329381e86345ba28fbe21",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-apm-2020-08-075/c484f1e750553afee0c7135cc759946e1e08fd9042a329381e86345ba28fbe21/document.json",
+      "document_sha256": "89cfbb07085c48010e79c870258263b29dfc9d8906b206e1ea04ae7cf652a06a"
+    },
+    {
+      "source_id": "pearl-src-d28d1df93964d3ec",
+      "source_sha256": "d28d1df93964d3ec005c6c855a63f133f2256d3b42c59f98d23583ccb0d0803c",
+      "resource_id": "lit-10-1016-j-trb-2019-10-008",
+      "active_version_id": "d28d1df93964d3ec005c6c855a63f133f2256d3b42c59f98d23583ccb0d0803c",
+      "parser_version": "adobe-pdf-extract-v1",
+      "catalog_derived_path": "derived\\lit-10-1016-j-trb-2019-10-008\\d28d1df93964d3ec005c6c855a63f133f2256d3b42c59f98d23583ccb0d0803c",
+      "document_path": "memPed/knowledge/derived/lit-10-1016-j-trb-2019-10-008/d28d1df93964d3ec005c6c855a63f133f2256d3b42c59f98d23583ccb0d0803c/document.json",
+      "document_sha256": "afb4d0a33da2f6e766b98f58fa4feb9751db8e1d8884aaf9d2c1b30dba7ef493"
+    }
+  ]
+}

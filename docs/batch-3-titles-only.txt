@@ -1,0 +1,130 @@
+# Batch 3 文献标题清单（20篇）
+
+生成日期: 2026-09-17
+状态: 待人工核验和下载
+
+---
+
+## T1 - Flow Fundamentals (4篇)
+
+1. Influence of individual factors on fundamental diagrams of pedestrians
+
+2. Influence of Gender Composition in Pedestrian Single-File Experiments
+
+3. High-statistics pedestrian dynamics on stairways and their probabilistic fundamental diagrams
+
+4. Data-driven physics-based modeling of pedestrian dynamics
+
+---
+
+## T2 - Experiment & Measurement (4篇)
+
+5. Dense Crowd Dynamics and Pedestrian Trajectories: A Multiscale Field Dataset from the Festival of Lights in Lyon
+
+6. Experimental study on the synchronization mechanism and trigger characteristic density of vertical evacuation in crowds
+
+7. Pedestrian Crowd Management Experiments
+
+8. A Review of Pedestrian Trajectory Prediction Methods Based on Deep Learning Technology
+
+---
+
+## T3 - Facility & Scenario Flow (4篇)
+
+9. Investigating the Dynamics of Pedestrian Flow through Different Transition Bottlenecks
+
+10. Steady State of Pedestrian Flow in Bottleneck Experiments
+
+11. Full-spectrum sensitivity analyses show bottleneck parameters are most critical
+
+12. Microscopic modeling of attention-based movement behaviors
+
+---
+
+## T4 - Evacuation & Modeling (5篇)
+
+13. Continuous agent-based modeling of adult-child pairs based on a pseudo-energy
+
+14. Modelling emergent pedestrian evacuation behaviors from intelligent, game-playing agents
+
+15. Emergency exit layout planning using optimization and agent-based simulation
+
+16. Multi-agent modeling of crowd dynamics under bombing attack cases
+
+17. Optimizing crowd evacuation: evaluation of strategies for safety and efficiency
+
+---
+
+## T5 - Safety & Risk (3篇)
+
+18. Preventive Measures and Crowd Management Strategies to Mitigate the Risk of Stampedes in Public Gatherings: A Systematic Review
+
+19. Discovering interaction mechanisms in crowds via deep generative surrogate experiments
+
+20. Inclusive crowd evacuation modeling under heterogeneous mobility constraints
+
+---
+
+## 纯文本列表（便于复制搜索）
+
+```
+Influence of individual factors on fundamental diagrams of pedestrians
+Influence of Gender Composition in Pedestrian Single-File Experiments
+High-statistics pedestrian dynamics on stairways and their probabilistic fundamental diagrams
+Data-driven physics-based modeling of pedestrian dynamics
+Dense Crowd Dynamics and Pedestrian Trajectories: A Multiscale Field Dataset from the Festival of Lights in Lyon
+Experimental study on the synchronization mechanism and trigger characteristic density of vertical evacuation in crowds
+Pedestrian Crowd Management Experiments
+A Review of Pedestrian Trajectory Prediction Methods Based on Deep Learning Technology
+Investigating the Dynamics of Pedestrian Flow through Different Transition Bottlenecks
+Steady State of Peer Flow in Bottleneck Experiments
+Full-spectrum sensitivity analyses show bottleneck parameters are most critical
+Microscopic modeling of attention-based movement behaviors
+Continuous agent-based modeling of adult-child pairs based on a pseudo-energy
+Modelling emergent pedestrian evacuation behaviors from intelligent, game-playing agents
+Emergency exit layout planning using optimization and agent-based simulation
+Multi-agent modeling of crowd dynamics under bombing attack cases
+Optimizing crowd evacuation: evaluation of strategies for safety and efficiency
+Preventive Measures and Crowd Management Strategies to Mitigate the Risk of Stampedes in Public Gatherings: A Systematic Review
+Discovering interaction mechanisms in crowds via deep generative surrogate experiments
+Inclusive crowd evacuation modeling under heterogeneous mobility constraints
+```
+
+---
+
+## 高优先级标题（推荐优先搜索）- Nature/Safety Science
+
+```
+Dense Crowd Dynamics and Pedestrian Trajectories: A Multiscale Field Dataset from the Festival of Lights in Lyon
+Experimental study on the synchronization mechanism and trigger characteristic density of vertical evacuation in crowds
+Continuous agent-based modeling of adult-child pairs based on a pseudo-energy
+Discovering interaction mechanisms in crowds via deep generative surrogate experiments
+Inclusive crowd evacuation modeling under heterogeneous mobility constraints
+Preventive Measures and Crowd Management Strategies to Mitigate the Risk of Stampedes in Public Gatherings: A Systematic Review
+```
+
+---
+
+## 搜索建议
+
+### 数据库优先级：
+1. Web of Science（优先）- 可获取分区、JCI、引用量
+2. Scopus（补充）
+3. Google Scholar（快速定位）
+4. 期刊官网直接搜索
+
+### 核验要点：
+✓ 作者姓名和单位
+✓ 发表年份
+✓ 期刊名称和卷期
+✓ DOI
+✓ 中科院分区
+✓ JCI指标
+✓ 引用次数
+✓ PDF下载链接
+
+### 注意事项：
+⚠️ 部分文献可能仍为预印本，需确认正式发表状态
+⚠️ 2024-2025新文献引用量可能较低
+⚠️ MDPI期刊需特别核验分区（部分为三区或四区）
+⚠️ 标题可能与最终发表版本略有差异

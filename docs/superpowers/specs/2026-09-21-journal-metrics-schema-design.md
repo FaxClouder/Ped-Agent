@@ -25,7 +25,7 @@ fields:
 - identity: `venue`, `issn`, `eissn`, `edition`, `publisher`;
 - JCR context: `jcr_year`, `jcr_category`, `jcr_status`;
 - JCI: `jci_value`, `jci_rank`, `jci_quartile`, `jci_percentile`;
-- JIF: `jif_value`, `jif_rank`, `jif_quartile`, `jif_percentile`;
+- JIF: `jif_rank`, `jif_quartile`, `jif_percentile`（不采集数值型 JIF）；
 - supporting journal metric: `total_citations`;
 - CAS: `cas_major_category`, `cas_major_zone`, `cas_minor_category`,
   `cas_minor_zone`, `cas_year`, `cas_status`;
@@ -40,6 +40,10 @@ Write the seven journals already verified in the conversation: Physica A, Scient
 Transportation Letters, Scientific Data, Frontiers in Physics, Collective Dynamics, and Physical
 Review E. Transportation Letters and Physical Review E each produce two category rows; the other
 journals produce one row each, for nine rows total.
+
+2026-09-21 amendment: `Frontiers in Physics` was later excluded by explicit user decision and its
+active row was removed. The same amendment retired `jif_value`; JIF rank, quartile, and percentile
+remain part of the long-form evidence.
 
 ## Validation
 

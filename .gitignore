@@ -16,9 +16,15 @@ skills-lock.json
 .worktrees/
 .trash/
 .idea/
+.orca/worktree/
+.tmp-organize/
+.learnings/
+.pearl_audit*_tmp.py
+node_modules/
 
 # Local outputs and memPed runtime assets
 outputs/
+.codex-tmp/
 tmp/
 Video-Analysis/runtime/
 Video-Analysis/models/**/weights/*
@@ -33,6 +39,11 @@ memPed/knowledge/knowledge.sqlite3*
 memPed/knowledge/fts.sqlite3*
 memPed/knowledge/vectors/
 memPed/knowledge/models/
+memPed/knowledge/gold/
+memPed/knowledge/batch-*-incoming/
+memPed/knowledge/batch-*-held/
+memPed/knowledge/sources.sqlite*
+memPed/knowledge/pearl-retrieval-pilot-*/
 Knowledge-Base/local/
 memPed/conversations/conversations.sqlite3*
 memPed/conversations/files/
@@ -41,6 +52,20 @@ memPed/methods/methods.sqlite3*
 paper/build/
 paper/latex/**/*.bbl
 paper/latex/**/*.spl
+
+# Local question/answer annotations and judge packets remain outside Git.
+paper/pearl-framework/datasets/retrieval-pilot/*gold.json
+paper/pearl-framework/datasets/retrieval-pilot/pilot-intents*.json
+paper/pearl-framework/datasets/retrieval-pilot/equivalent-evidence-decisions*.json
+paper/pearl-6b-judge-workpackage/**/*.json
+paper/pearl-6b-judge-workpackage/**/*.jsonl
+experiments/benchmark-parser-sensitivity-20260927/evidence_anchors_dev.json
+experiments/benchmark-parser-sensitivity-20260927/parse_review_agent_dev.json
+
+# Failed / deprecated assets (decision record in Git, large artifacts ignored)
+failed/**/results/
+failed/**/*.sqlite3*
+failed/outputs-void-scores/
 
 # Local configuration and secrets
 .env

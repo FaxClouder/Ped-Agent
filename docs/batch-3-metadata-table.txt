@@ -1,0 +1,142 @@
+================================================================================
+Batch 3 Literature Metadata Summary Table
+Generated: 2026-09-17
+Audit note: b3-07 and b3-10 were excluded from active ingestion on 2026-09-21. b3-07 failed verified JCR/CAS coverage; b3-10 was removed by explicit user decision after Frontiers in Physics review. Historical extraction details below are retained for traceability.
+================================================================================
+
+ID     | Filename                                      | DOI | Year | Pages | Size(MB) | Title Status  | Issues
+-------+-----------------------------------------------+-----+------+-------+----------+---------------+------------------
+b3-01  | 0810.1945v1.pdf                               | N   | 2008 |  12   |   0.6    | Truncated     | No DOI (arXiv)
+b3-02  | 1-s2.0-S0378437116302436-main.pdf             | Y   | 2016 |  14   |   1.9    | OK            | -
+b3-03  | 1-s2.0-S0378437122001248-main.pdf             | Y   | 2022 |  12   |   2.4    | WRONG         | Title is journal ref
+b3-04  | Author_2024_Scientific..._VerticalEvac.pdf    | Y   | 2024 |  19   |  12.7    | Truncated     | -
+b3-05  | Author_2025_Scientific..._CrowdInteract.pdf   | Y   | 2025 |  11   |   3.7    | Truncated     | -
+b3-06  | Author_2025_Scientific..._InclusiveEvac.pdf   | Y   | 2025 |  16   |   2.0    | Truncated     | -
+b3-07  | Boomers_2023_CollectiveDynamics_CroMa.pdf     | Y   | 2023 |  57   | 183.8    | Truncated     | File too large!
+b3-08  | Crowd model calibration at strategic...pdf    | Y   | 2023 |  29   |  34.7    | OK            | -
+b3-09  | Dufour_2025_ScientificData_DenseCrowd.pdf     | Y   | 2025 |  10   |   2.0    | OK            | -
+b3-10  | fphy-11-1200927.pdf                           | Y   | 2023 |  12   |   2.3    | EXCLUDED      | Historical; PDF removed 2026-09-21
+b3-11  | Li_2024_TRC_AttentionBasedMovement.pdf        | Y   | 2024 |  17   |   1.7    | OK            | -
+b3-13  | Pouw_2024_PhysRevE_DataDrivenPhysics.pdf      | Y   | 2024 |  13   |   5.8    | OK            | -
+b3-14  | Pouw_2024_TRC_StairwaysProbabilistic.pdf      | Y   | 2024 |  22   |   6.3    | OK            | -
+b3-16  | s40860-024-00241-z.pdf                        | Y   | 2025 |  19   |   3.8    | OK            | -
+b3-17  | s42001-025-00369-9.pdf                        | Y   | 2025 |  35   |   2.4    | OK            | Year mismatch
+b3-18  | Xie_2024_SafetyScience_AdultChildPairs.pdf    | Y   | 2024 |  17   |  12.1    | OK            | -
+-------+-----------------------------------------------+-----+------+-------+----------+---------------+------------------
+
+Duplicate Files (Not in Database):
+-------+-----------------------------------------------+-----+------+-------+----------+---------------+------------------
+DUPL   | phrs-47-1609310.pdf                           | Y   | 2025 |  12   |   3.4    | DUPLICATE     | Already in t5-03
+DUPL   | s10287-023-00482-y.pdf                        | Y   | 2023 |  25   |   1.6    | DUPLICATE     | Already in t4-05
+-------+-----------------------------------------------+-----+------+-------+----------+---------------+------------------
+
+================================================================================
+SUMMARY STATISTICS
+================================================================================
+
+Database Records:           16 papers
+Physical PDFs:              18 files (including 2 duplicates)
+DOI Extraction Success:     17/18 (94.4%)
+Year Extraction Success:    18/18 (100%)
+Title Issues:               6 papers need correction
+
+Metadata Completeness:      ~35%
+  ✓ resource_id:            16/16 (100%)
+  ✓ title (basic):          16/16 (100%)
+  ✓ title (complete):       10/16 (62.5%)
+  ✗ authors:                0/16 (0%)
+  ✗ year:                   0/16 (0%) - extracted but not in DB
+  ✗ doi:                    0/16 (0%) - extracted but not in DB
+  ✗ journal:                0/16 (0%)
+  ✗ CAS zone:               0/16 (0%)
+  ✗ JCI:                    0/16 (0%)
+  ✗ citations:              0/16 (0%)
+  ✗ quality_score:          0/16 (0%)
+
+================================================================================
+ISSUES BREAKDOWN
+================================================================================
+
+Critical (Must Fix):
+  1. All 16 papers missing: authors, year, doi, journal metadata
+  2. b3-03: Wrong title (shows journal reference instead)
+  3. b3-01: No DOI (arXiv preprint, need to find published version)
+
+High Priority:
+  4. 6 papers with truncated titles (b3-01, b3-04, b3-05, b3-06, b3-07, b3-10)
+  5. 3 papers with year extraction errors (b3-03: 2001→2022, b3-10: 2009→2023, b3-17: 2001→2025)
+  6. b3-07: File too large (183.8 MB vs typical <20 MB)
+
+Medium Priority:
+  7. No quality verification against collection_standard.md
+  8. No CAS zone / JCI / citation data
+  9. 2 duplicate PDFs to clean up
+
+================================================================================
+JOURNAL QUALITY PRELIMINARY ASSESSMENT
+================================================================================
+
+Confirmed Tier A (Top-tier, Zone 1):
+  - Scientific Reports (Nature)     × 3 papers (b3-04, b3-05, b3-06)
+  - Scientific Data (Nature)        × 1 paper  (b3-09)
+  - Safety Science                  × 1 paper  (b3-18)
+  - Physical Review E               × 1 paper  (b3-13)
+  Total: 6 papers (37.5%)
+
+Likely Tier A/B (Need verification):
+  - Transportation Research Part C  × 2 papers (b3-11, b3-14)
+  - Physica A                       × 2 papers (b3-02, b3-03)
+  Total: 4 papers (25%)
+
+Need Verification:
+  - Collective Dynamics             × 1 paper  (b3-07)
+  - Transportation Letters          × 1 paper  (b3-08)
+  - Frontiers in Physics            × 1 paper  (b3-10, EXCLUDED; historical only)
+  - J. Reliable Intelligent Env.    × 1 paper  (b3-16)
+  - Computational Social Science    × 1 paper  (b3-17)
+  Total: 5 papers (31.25%)
+
+Special Status:
+  - arXiv preprint (unpublished)    × 1 paper  (b3-01)
+  Total: 1 paper (6.25%)
+
+================================================================================
+NEXT ACTIONS REQUIRED
+================================================================================
+
+Priority 1 (Immediate):
+  [ ] Extract author information from all 16 PDFs or query via DOI
+  [ ] Update database with extracted DOI and year for all 16 papers
+  [ ] Fix 6 truncated/wrong titles in database
+  [ ] Manually verify 3 year extraction errors
+
+Priority 2 (This Week):
+  [ ] Query Web of Science for all 16 papers:
+      - CAS zone (Zone 1/2?)
+      - JCI score (≥1.0?)
+      - Citation count
+      - Retraction status
+  [ ] Calculate quality scores (5 dimensions, target ≥80)
+  [ ] Find published version of b3-01 (arXiv:0810.1945v1)
+
+Priority 3 (Next Week):
+  [ ] Delete 2 duplicate PDFs from batch-3-incoming/
+  [ ] Clean up batch-3-incoming/ directory (move to archive)
+  [ ] Rename 3 placeholder Author_*.pdf files with real author names
+  [ ] Investigate b3-07 large file size (175 MB)
+  [ ] Re-run Gold Questions evaluation
+
+================================================================================
+DETAILED EXTRACTION RESULTS
+================================================================================
+
+Full extraction data saved to:
+  → docs/batch-3-metadata-extraction.json
+
+This report saved to:
+  → docs/batch-3-metadata-table.txt
+
+Comprehensive analysis saved to:
+  → docs/batch-3-metadata-summary.md
+
+================================================================================

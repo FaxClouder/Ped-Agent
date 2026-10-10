@@ -1,0 +1,479 @@
+schema_version: pearl-chunking-session1-resolved-v1
+stage: Session 1 R0 and E0 asset/protocol audit
+protocol_status: protocol_ready
+e0_status: audit_ready_smoke_pending
+formal_run_allowed: false
+experiment_root: experiments/pearl-chunking-dev80-20261005
+audit_run_id: pearl-chunking-dev80-20261005-02
+workspace:
+  commit: 6d6eed42eec621ca2f63a0e825c05677a0219bbf
+  branch: main
+  dirty_snapshot:
+    path: outputs/pearl-chunking-dev80-20261005-02/workspace-baseline.json
+    sha256: 93056206a6454a8ad0da402c5e7a7a7b6b4c278c97a8b6506b229b5a2ef311fd
+  code_hash_count: 194
+  configuration_sha256:
+    Knowledge-Base/config/embeddings/bge-m3/model.yaml: 8694f71371b4f9d1719348ad4e849ef45c4222c9e4e3f8284316d797823bc1d4
+    Knowledge-Base/config/embeddings/bge-m3/README.md: 877a41a0a8b13a9f2f455ceae1e9fa9b182f59806aebea220cbf7191f4508fc6
+    Knowledge-Base/config/retrieval/chunking-v2.yaml: b385a7cb765caa085778ea02cde5396c3c11c03d56c64bef884ca9a15368b044
+    Knowledge-Base/config/retrieval/lexical-english-v1.yaml: fb58aa2e6476dd2b4216ca89596ac2ecfb477fcdfa165eec1802b5ce164d0d8d
+    Knowledge-Base/config/retrieval/lexical-v1.yaml: 3ce2e6c9ecbfc16890ecc2232f31c4e7a130789e7c1ae564c3e7db5da35c2992
+    Knowledge-Base/config/retrieval/pedestrian_terms.txt: a4cfd8c2dd45d6474bdfc73e2244aca2c4fa453136adb7345a7e9566f8016817
+    Knowledge-Base/config/retrieval/stopwords_zh_en.txt: a28c7e359b9eb1579528ca2fe3e8160562025bc510e84a884d631fc437744fd8
+user_draft:
+  path: D:\GoogleDownload\PedRAGent_Chunking_Experiments_Agent_Plan_v1.0.md
+  exists: true
+  sha256: 8e9bc10f981f0c485f96a45809c2aeda0dd7526fed7e5c7483a4cb6164244470
+  expected_sha256: 8e9bc10f981f0c485f96a45809c2aeda0dd7526fed7e5c7483a4cb6164244470
+inputs:
+  corpus_manifest:
+  - path: paper/pearl-framework/datasets/retrieval-corpus/corpus-manifest-v02.jsonl
+    sha256: 50daa8469adf6cda5c68f7ad84197eedd93f639a54278ccc47174d916b22630a
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: corpus_manifest
+  - path: paper/pearl-framework/datasets/retrieval-corpus/adobe-membership-verification-v02.json
+    sha256: 9c782dbb2dcb782dc69b3521babc0a041c4da1b8c4f10412755acadd754c8c55
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: corpus_manifest
+  query_only_dev80:
+  - path: outputs/pearl-retrieval-dev80-20261003-01/queries.jsonl
+    sha256: 31aba188f3b0a32b5b17aa95708a1504497c6af2b11cfab1596fd23959304433
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: query_only_dev80
+  development_gold:
+  - path: outputs/pearl-retrieval-dev80-gold-r02-20261003-01/gold-r02.json
+    sha256: 7f64ac4559fbf604c0d4d6aca81e23685f1dcbf009853ee3c8637dc368ad29f5
+    expected_sha256: 7f64ac4559fbf604c0d4d6aca81e23685f1dcbf009853ee3c8637dc368ad29f5
+    exists: true
+    matches_expected: true
+    role: development_gold
+  legacy_support_map:
+  - path: outputs/pearl-retrieval-dev80-gold-r02-20261003-01/analysis-r02-01/support-map.json
+    sha256: 6de0e4eafc0b8563eb9f255102eb46b3d9093640e84213f10b57c89e3ee92df6
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: legacy_support_map
+  independent_answer_reference:
+  - path: outputs/pearl-answer-dev80-20261004-01/reference-freeze-r01.json
+    sha256: 521279422ddc479602d39cc748ba37799772db100b71667092ed8f4444bc3c1e
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: independent_answer_reference
+  answer_frozen_configuration:
+  - path: outputs/pearl-answer-dev80-20261004-01/input-manifest.json
+    sha256: 0e04ae5ee3b538b4cbd851caf6b389b35a19b4e28b1d3496a52a73d7de058700
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: answer_frozen_configuration
+  - path: outputs/pearl-answer-dev80-20261004-01/prompt-r01.json
+    sha256: b5931f96bc6296979290b90a4507ff48144652e7f8f1e40e9fec7055d50ed175
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: answer_frozen_configuration
+  - path: outputs/pearl-answer-dev80-20261004-01/generator-config-r01.json
+    sha256: e8c11800080ca46d84916945f9f7e0a6803345e318dc3c3bb4dd6c7260f0cee5
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: answer_frozen_configuration
+  - path: outputs/pearl-answer-dev80-20261004-01/reference-selection-r01.json
+    sha256: c293dec2e556b8d94eb3ddb271844d4264cf9c758ee75b397b85195fb5f28739
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: answer_frozen_configuration
+  - path: outputs/pearl-answer-dev80-20261004-01/research-run-manifest-r01.json
+    sha256: 04377e964524d82549f456fb0bee7c17e18de42f8461cbc0e4023c6bb0ae2b5f
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: answer_frozen_configuration
+corpus_registry:
+  path: experiments/pearl-chunking-dev80-20261005/source_registry.json
+  sha256: 6202a0e4fecea4b774b24d98b04242ad4e234c7ffa090238803312f2fe68d05a
+asset_audit:
+  path: outputs/pearl-chunking-dev80-20261005-02/asset-audit.json
+  sha256: 0b49aa1521f0f1f1f9cce9dadf3f3f91abc1b2de80e75ad6f82e212d5d7c4575
+h0:
+  policy:
+    policy_version: parent-child-v1
+    parent_target_tokens: 1200
+    parent_max_tokens: 1800
+    child_target_tokens: 320
+    child_max_tokens: 450
+    child_overlap_tokens: 48
+  tokenizer: regex-token-v1
+  exact_ids_and_text_reconstructed: true
+  child_count: 6433
+  parent_count: 2830
+  heading_injection: render_elements prepends heading_path then element text; heading
+    may repeat
+  tables: ordinary grouped elements; no special table barrier in HierarchicalChunker
+  source_offsets: character_start/end relative to historical parent, not canonical
+    element
+  evidence:
+    seed_depth: 10
+    dedup: unit_id only
+    serialized_budget_count: true
+    private_parent: true
+b0:
+  boundary: parent-child-v1 regex window within old element/heading grouping logic
+    adapted to public source/table view
+  length_unit: regex-token-v1
+  parent_target: 1200
+  parent_max: 1800
+  child_window: 320
+  child_max: 450
+  overlap: 48
+  note: 450 is policy max; actual regex window min(320,450)=320; not 320 BGE tokens
+  tables: common snapshot; old table treatment replaced explicitly
+  prefix: M0
+  recovery: public P0/P1/P2
+  equivalence_to_c1: false
+  adapter_code_sha256: null
+retrieval:
+  method_configuration:
+    R1:
+      analyzer_fingerprint: english-lexical-v1:5004937334f6c88b453f7e3d02b0725b599e912ea8116c7af495510a1676bb75
+      bm25:
+        b: 0.75
+        idf: max(ln((N-df+0.5)/(df+0.5)),1e-6)
+        k1: 1.2
+        log1p: false
+        score: negative SQLite rank
+      fields: body only; title and heading empty
+      idf: SQLite FTS5 log((N-n+0.5)/(n+0.5)); nonpositive values floor 1e-6; k1=1.2,
+        b=0.75
+      old_scores_comparable: false
+      ordering: SQLite rank ASC, chunk_id ASC
+      query: sorted unique EnglishLexicalAnalyzer tokens OR; body only; negated SQLite
+        bm25
+      sqlite_version: 3.45.3
+    R2:
+      actual_asset_sha256:
+        1_Pooling/config.json: e54c164a07274f2eb45bb724f54a79d1efcc90c41573887cd9a29aeee0597352
+        colbert_linear.pt: 19bfbae397c2b7524158c919d0e9b19393c5639d098f0a66932c91ed8f5f9abb
+        config.json: 26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa
+        config_sentence_transformers.json: 1eef72430e7194a1e59680e635aed81ffa083f05668dbc5bb1c56c04c0999c38
+        model_manifest.json: 22263517166faf3af1c03155ee82f843933dbb4b1cd79e372e91aa86f5dd8972
+        modules.json: 84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf
+        pytorch_model.bin: b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38
+        sentence_bert_config.json: eb9b44b13c0f52a3b3685c3b1cbdea1ba8b04bea123b98f61610048940776eb1
+        sentencepiece.bpe.model: cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865
+        sparse_linear.pt: 45c93804d2142b8f6d7ec6914ae23a1eee9c6a1d27d83d908a20d2afb3595ad9
+        special_tokens_map.json: 8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835
+        tokenizer.json: 21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08
+        tokenizer_config.json: a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4
+      ann:
+        collection_configuration:
+          ef_construction: 100
+          ef_search: 100
+          max_neighbors: 16
+          resize_factor: 1.2
+          space: cosine
+          sync_threshold: 1000
+        engine: Chroma HNSW
+        metric: cosine
+        num_threads: 1
+        seed: not exposed by installed Chroma configuration; no ANN bitwise guarantee
+      batch_size: 8
+      content_digest_spec: sort by chunk_id; UTF-8 compact sorted JSON {chunk_id,text,metadata}
+        + newline + little-endian float32 vector bytes
+      content_sha256: 814f2bd5686dc06ce455ce2221094864b3f720f024266a8e0a10272b07152f19
+      dense_dimensions: 1024
+      deterministic_algorithms: true
+      device: NVIDIA GeForce RTX 3080
+      exact_scoring: float32 dot product of stored unit vectors; ties by chunk_id
+        ascending
+      input_view: 'model_inputs.jsonl: unpadded input IDs and attention masks; batches
+        dynamically padded'
+      max_length: 1024
+      model_manifest:
+        model_id: BAAI/bge-m3
+        revision: 5617a9f61b028005a4858fdac845db406aefb181
+        runtime:
+          device: cuda:0
+          dimensions: 1024
+          flagembedding: 1.4.2
+          torch: 2.14.0+cu130
+          use_fp16: true
+        source_url: https://huggingface.co/BAAI/bge-m3
+        verified_at: '2026-09-08'
+        weights:
+          pytorch_model.bin:
+            bytes: 2271145830
+            sha256: b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38
+      normalize_embeddings: true
+      query_instruction: null
+      raw_lengths_include_special_tokens: true
+      storage_dtype: float32
+      torch_cuda: '13.0'
+      truncation_count: 0
+      truncation_side: right
+      use_fp16: true
+    R3:
+      depth: 100
+      equal_weights: true
+      rrf_k: 60
+    R4:
+      batch_size: 4
+      device: cuda:0
+      input_candidates: frozen_R3_Top100_only
+      local_model_dir: memPed/knowledge/models/bge-reranker-v2-m3
+      max_length: 1024
+      model_id: BAAI/bge-reranker-v2-m3
+      normalize: false
+      passage_instruction: null
+      query_instruction: null
+      query_max_length: 768
+      revision: 953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e
+      score_order: raw_logit_descending_then_chunk_id_ascending
+      seed: 20260929
+      use_fp16: true
+      verified_files_sha256:
+        config.json: 13dcd6c31d9fec9d1d8e158702072f62d7fa7d312a64b9fe057bec9a08cfe41a
+        model.safetensors: d9e3e081faff1eefb84019509b2f5558fd74c1a05a2c7db22f74174fcedb5286
+        sentencepiece.bpe.model: cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865
+        special_tokens_map.json: 8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835
+        tokenizer.json: 69564b696052886ed0ac63fa393e928384e0f8caada38c1f4864a9bfbf379c15
+        tokenizer_config.json: 7e4c1cc848840aeccdd763458c18dd525eb0f795c992e00ebe9c28554e7db2d4
+  depth_per_route: 100
+  rrf_k: 60
+  equal_weights: true
+  dense_scoring: exact float32 dot product of stored normalized vectors; tie chunk_id
+  index_storage: independent FTS/vector files; Chroma storage available, not ANN primary
+    scoring
+  model_asset_checks:
+  - path: memPed/knowledge/models/bge-m3/1_Pooling/config.json
+    sha256: e54c164a07274f2eb45bb724f54a79d1efcc90c41573887cd9a29aeee0597352
+    expected_sha256: e54c164a07274f2eb45bb724f54a79d1efcc90c41573887cd9a29aeee0597352
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/colbert_linear.pt
+    sha256: 19bfbae397c2b7524158c919d0e9b19393c5639d098f0a66932c91ed8f5f9abb
+    expected_sha256: 19bfbae397c2b7524158c919d0e9b19393c5639d098f0a66932c91ed8f5f9abb
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/config.json
+    sha256: 26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa
+    expected_sha256: 26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/config_sentence_transformers.json
+    sha256: 1eef72430e7194a1e59680e635aed81ffa083f05668dbc5bb1c56c04c0999c38
+    expected_sha256: 1eef72430e7194a1e59680e635aed81ffa083f05668dbc5bb1c56c04c0999c38
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/model_manifest.json
+    sha256: 22263517166faf3af1c03155ee82f843933dbb4b1cd79e372e91aa86f5dd8972
+    expected_sha256: 22263517166faf3af1c03155ee82f843933dbb4b1cd79e372e91aa86f5dd8972
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/modules.json
+    sha256: 84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf
+    expected_sha256: 84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/pytorch_model.bin
+    sha256: b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38
+    expected_sha256: b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/sentence_bert_config.json
+    sha256: eb9b44b13c0f52a3b3685c3b1cbdea1ba8b04bea123b98f61610048940776eb1
+    expected_sha256: eb9b44b13c0f52a3b3685c3b1cbdea1ba8b04bea123b98f61610048940776eb1
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/sentencepiece.bpe.model
+    sha256: cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865
+    expected_sha256: cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/sparse_linear.pt
+    sha256: 45c93804d2142b8f6d7ec6914ae23a1eee9c6a1d27d83d908a20d2afb3595ad9
+    expected_sha256: 45c93804d2142b8f6d7ec6914ae23a1eee9c6a1d27d83d908a20d2afb3595ad9
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/special_tokens_map.json
+    sha256: 8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835
+    expected_sha256: 8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/tokenizer.json
+    sha256: 21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08
+    expected_sha256: 21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: memPed/knowledge/models/bge-m3/tokenizer_config.json
+    sha256: a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4
+    expected_sha256: a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4
+    exists: true
+    matches_expected: true
+    role: dense_model
+  - path: experiments/pearl-index-106-adobe-20260929/reranker-config.json
+    sha256: 391527cb67ab17b556b8cec2db182ca1b0b5a61bb73143b6c245bee13aa7997b
+    expected_sha256: null
+    exists: true
+    matches_expected: null
+    role: reranker_config
+  - path: memPed/knowledge/models/bge-reranker-v2-m3/model.safetensors
+    sha256: d9e3e081faff1eefb84019509b2f5558fd74c1a05a2c7db22f74174fcedb5286
+    expected_sha256: d9e3e081faff1eefb84019509b2f5558fd74c1a05a2c7db22f74174fcedb5286
+    exists: true
+    matches_expected: true
+    role: reranker_model
+  - path: memPed/knowledge/models/bge-reranker-v2-m3/config.json
+    sha256: 13dcd6c31d9fec9d1d8e158702072f62d7fa7d312a64b9fe057bec9a08cfe41a
+    expected_sha256: 13dcd6c31d9fec9d1d8e158702072f62d7fa7d312a64b9fe057bec9a08cfe41a
+    exists: true
+    matches_expected: true
+    role: reranker_model
+  - path: memPed/knowledge/models/bge-reranker-v2-m3/tokenizer.json
+    sha256: 69564b696052886ed0ac63fa393e928384e0f8caada38c1f4864a9bfbf379c15
+    expected_sha256: 69564b696052886ed0ac63fa393e928384e0f8caada38c1f4864a9bfbf379c15
+    exists: true
+    matches_expected: true
+    role: reranker_model
+  - path: memPed/knowledge/models/bge-reranker-v2-m3/tokenizer_config.json
+    sha256: 7e4c1cc848840aeccdd763458c18dd525eb0f795c992e00ebe9c28554e7db2d4
+    expected_sha256: 7e4c1cc848840aeccdd763458c18dd525eb0f795c992e00ebe9c28554e7db2d4
+    exists: true
+    matches_expected: true
+    role: reranker_model
+  - path: memPed/knowledge/models/bge-reranker-v2-m3/special_tokens_map.json
+    sha256: 8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835
+    expected_sha256: 8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835
+    exists: true
+    matches_expected: true
+    role: reranker_model
+  - path: memPed/knowledge/models/bge-reranker-v2-m3/sentencepiece.bpe.model
+    sha256: cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865
+    expected_sha256: cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865
+    exists: true
+    matches_expected: true
+    role: reranker_model
+  current_execution_verified: false
+  seed: 20260929
+scientific:
+  core_lengths:
+  - 256
+  - 384
+  - 512
+  core_tokenizer: BGE-M3 tokenizer.json SHA in model asset checks
+  c4:
+    distance: 1-cosine
+    percentile: 90
+    quantile_method: linear
+    min_core_fraction: 0.5
+    threshold: null
+    sentence_splitter_sha256: null
+    calibration_labels_allowed: false
+  overlaps:
+  - 0
+  - 0.1
+  - 0.2
+  prefix_max_tokens: 64
+  prefix_allocation_rule: null
+  parent_max_tokens: 1536
+  budgets:
+  - 4096
+  - 8192
+  panels:
+  - layer1_raw
+  - fixed_budget_main
+  - seed10_diagnostic
+  candidate_order:
+  - 4K CGC certain completeness descending
+  - CEGR@10 descending
+  - retrieval latency ascending
+  - config_id ascending
+  max_candidates: 2
+  bootstrap_repeats: 10000
+  statistics_seed: 20261005
+  unit: intent
+unresolved:
+  source_view_sha256: null
+  table_snapshot_sha256: null
+  table_split_config: null
+  public_parent_graph_sha256: null
+  common_source_support_map_sha256: null
+  smoke_intent_ids: null
+  new_cli_commands: null
+  new_model_forward_evidence: null
+  current_generator_model: null
+  current_provider_capabilities: null
+  current_judge_model: null
+  current_judge_call_cap: null
+generation:
+  historical_config:
+    path: experiments/pearl-answer-dev80-20261004/generator-config-r01.json
+    sha256: e8c11800080ca46d84916945f9f7e0a6803345e318dc3c3bb4dd6c7260f0cee5
+  historical_prompt:
+    path: outputs/pearl-answer-dev80-20261004-01/prompt-r01.json
+    sha256: b5931f96bc6296979290b90a4507ff48144652e7f8f1e40e9fec7055d50ed175
+  use_historical_model_without_preflight: false
+  replicates: 3
+  planned_max_answers: 720
+  max_attempts_per_request: 3
+  sdk_retries: 0
+  concurrency: 1
+  planned_attempt_ceiling: 2160
+  authorization_evidence: null
+  authorized_call_ceiling: null
+  authorized_cost_ceiling: null
+  authorized_judge_ceiling: null
+  actual_generation_calls: 0
+  actual_judge_calls: 0
+  actual_remote_model_calls: 0
+  policy: No authorization found for this chunking round; only dependent remote calls
+    paused.
+blockers:
+- id: G1
+  scope: affected formal comparisons
+  reason: 119 unique atom location candidates; 55 non-exact anchors across 39 intents
+    need source/semantic audit; 261/573 legacy excerpts not unique element matches.
+    No new common support map adjudicated.
+- id: G2
+  scope: index and assembly
+  reason: Public source view/table/parent graph and reversible offsets unbuilt; B0
+    adapter unbuilt.
+- id: G3
+  scope: C4 and M1
+  reason: Sentence splitter identity/C4 measured threshold and prefix allocation unresolved;
+    freeze before results.
+- id: G4
+  scope: E0 completion and E1
+  reason: Real 5-8 intent smoke and saved-output independent verification pending
+    Session 2.
+- id: G5
+  scope: remote generation/judging only
+  reason: Round-specific authorization/current capabilities/actual judge model and
+    cap unavailable.
+prohibited:
+- full index build
+- E1
+- answer generation
+- eval200 content for development
+- historical output modification

@@ -1,0 +1,135 @@
+schema_version: pearl-chunking-session2-resolved-v1
+stage: Session 2
+status: E0_complete
+formal_run_scope: engineering E0 only; E1 not executed
+session1_manifest_sha256: d90df1326c95c0098bedc7a96a1d758ad76fb23a39e90d76c9a31ab11f703341
+input_artifacts_sha256:
+  source-views-prepared.json: 33389bec3bd7b25ccb2d248280631f2495d4d2130604996e8af5fa4358d474f9
+  table-snapshot.json: 19f0c5b2ab8144f30026f2d964733b75b13eebcf33ae300802f2cf230af5b5f0
+  public-parent-graph.json: bb3ba33d2211a101d5118d41c57838913ebba37dc3c0fad954b032f51161765d
+  queries.jsonl: 28271fc1fa4b10c5b48e962e098973b909fbdd26988590226a674edd2f8835f1
+  smoke-selection.json: b7d3278743d6899a48b22e0a3fc66c5c6df022752c515972e09a042be7c42db9
+  common-support-map-r03.json: 9643bf9bbe90e74051db716ae24d001f98b0e0b0f7a4cc9d840eaafa9d4ca66b
+semantic_calibration:
+  threshold: 0.6305798393562411
+  quantile: 0.9
+  method: linear
+  sentences: 63735
+  pairs: 63137
+  manifest_sha256: 75d8063eab216c021862d61349d5fc7945df39550dd72e8cf37e53934f3ea469
+  model_inputs_max_length: 2048
+tokenizer: hf-tokenizer:21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08
+models: &id001
+  experiments/pearl-index-106-adobe-20260929/reranker-config.json: 391527cb67ab17b556b8cec2db182ca1b0b5a61bb73143b6c245bee13aa7997b
+  experiments\pearl-index-106-adobe-20260929\reranker-config.json: 391527cb67ab17b556b8cec2db182ca1b0b5a61bb73143b6c245bee13aa7997b
+  memPed/knowledge/models/bge-m3/1_Pooling/config.json: e54c164a07274f2eb45bb724f54a79d1efcc90c41573887cd9a29aeee0597352
+  memPed/knowledge/models/bge-m3/colbert_linear.pt: 19bfbae397c2b7524158c919d0e9b19393c5639d098f0a66932c91ed8f5f9abb
+  memPed/knowledge/models/bge-m3/config.json: 26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa
+  memPed/knowledge/models/bge-m3/config_sentence_transformers.json: 1eef72430e7194a1e59680e635aed81ffa083f05668dbc5bb1c56c04c0999c38
+  memPed/knowledge/models/bge-m3/model_manifest.json: 22263517166faf3af1c03155ee82f843933dbb4b1cd79e372e91aa86f5dd8972
+  memPed/knowledge/models/bge-m3/modules.json: 84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf
+  memPed/knowledge/models/bge-m3/pytorch_model.bin: b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38
+  memPed/knowledge/models/bge-m3/sentence_bert_config.json: eb9b44b13c0f52a3b3685c3b1cbdea1ba8b04bea123b98f61610048940776eb1
+  memPed/knowledge/models/bge-m3/sentencepiece.bpe.model: cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865
+  memPed/knowledge/models/bge-m3/sparse_linear.pt: 45c93804d2142b8f6d7ec6914ae23a1eee9c6a1d27d83d908a20d2afb3595ad9
+  memPed/knowledge/models/bge-m3/special_tokens_map.json: 8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835
+  memPed/knowledge/models/bge-m3/tokenizer.json: 21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08
+  memPed/knowledge/models/bge-m3/tokenizer_config.json: a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4
+  memPed/knowledge/models/bge-reranker-v2-m3/config.json: 13dcd6c31d9fec9d1d8e158702072f62d7fa7d312a64b9fe057bec9a08cfe41a
+  memPed/knowledge/models/bge-reranker-v2-m3/model.safetensors: d9e3e081faff1eefb84019509b2f5558fd74c1a05a2c7db22f74174fcedb5286
+  memPed/knowledge/models/bge-reranker-v2-m3/sentencepiece.bpe.model: cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865
+  memPed/knowledge/models/bge-reranker-v2-m3/special_tokens_map.json: 8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835
+  memPed/knowledge/models/bge-reranker-v2-m3/tokenizer.json: 69564b696052886ed0ac63fa393e928384e0f8caada38c1f4864a9bfbf379c15
+  memPed/knowledge/models/bge-reranker-v2-m3/tokenizer_config.json: 7e4c1cc848840aeccdd763458c18dd525eb0f795c992e00ebe9c28554e7db2d4
+index_configuration:
+  code: &id002
+    Contracts/src/ped_contracts/__init__.py: de76fd1307c787385aa51054bc65d04c0c0f377112d56267d314817c31048b0a
+    Contracts/src/ped_contracts/evidence.py: 45a2838086882d6563a997e483233c0cf9becbcc7c74b6f7cebce009cc0594ab
+    Contracts/src/ped_contracts/trajectory.py: 10e022ab94348babe564f6dfb29c1d4162089fe058a515ef7facc095c86e1594
+    Knowledge-Base/src/ped_knowledge/__init__.py: dc46d962e306d8c076e7d9c1863977e1ef2b356a251c259ab16a985f95f9dc63
+    Knowledge-Base/src/ped_knowledge/chunking/__init__.py: 1c448aa1469dec3b2e5d2132d028424edcc57576c99bfb0a0352f5081a4e8c7d
+    Knowledge-Base/src/ped_knowledge/contracts/__init__.py: 43a15ad6516fe7b54c684cf87e5c5e04644fedb512f7ef457483c502bc8803be
+    Knowledge-Base/src/ped_knowledge/evaluation/__init__.py: c1a929e8ef109f9f8d8688db541419ee9cea5d639f094d805aae8bb262927429
+    Knowledge-Base/src/ped_knowledge/evaluation/gold_v2.py: bd3c3302a6f5e941222309b50fb739ce18616fe17d37e2667a34e2eeffa0fdaf
+    Knowledge-Base/src/ped_knowledge/governance/__init__.py: fdf016f3bad9e87275e3981dac6515d07b0db5106c3ea5811fdad44f272ad2c7
+    Knowledge-Base/src/ped_knowledge/governance/audit.py: 25f64d910f5b83b960c0903749b4ed3e617487dcca9f9749e68d74080b11d945
+    Knowledge-Base/src/ped_knowledge/governance/contracts.py: e304a7aafbb2c59b4f8aa66fbafe67355d3b3995a0d8efdd04f3bc5990ac4447
+    Knowledge-Base/src/ped_knowledge/governance/manifest.py: 75df62ef7feecf2bc02e522352b8c799c7cfd029d94c5eb3fc85685fab3b07ea
+    Knowledge-Base/src/ped_knowledge/governance/readiness.py: 33d40608b9f93ebb4c3d95d4a0ba33fdddd24e0b82727ef9cadee274be8a2eea
+    Knowledge-Base/src/ped_knowledge/indexing/__init__.py: aa61238bc560a787cb1583ebdc551eade67e3e39ec61f625db40337cc1426f2b
+    Knowledge-Base/src/ped_knowledge/ingestion/__init__.py: 5678893cb7929e6213ad092212256a6584c90655787850b0fb5d173771747b86
+    Knowledge-Base/src/ped_knowledge/parsing/__init__.py: 19be0d190af1b79a454aac5caee2d8160ed4b22b1104c843ceb67e98bc6911ca
+    Knowledge-Base/src/ped_knowledge/parsing/adobe.py: 279fd1f647597b129371cb0fc8da592bb8cbb759d3975bbfa5658e8dc26f0e47
+    Knowledge-Base/src/ped_knowledge/parsing/compare.py: c494281e5f7f214922644d87be723864bae7f5759c0f9e3bd017deb4ba3d0660
+    Knowledge-Base/src/ped_knowledge/reranking/__init__.py: f4c096f5c8bf85b4f52c8dc5d1b03dec8e3c5401cc39b48fa85aab8ba675ab7a
+    Knowledge-Base/src/ped_knowledge/retrieval/__init__.py: 81d364bd4d1f95f1c335a9863f04e7a068cc4f2b6b436925fb1b3df72e010023
+    Knowledge-Base/src/ped_knowledge/storage/__init__.py: 997b7b03e7d98e3e08760774a77f1551d21e3c8474c390782c888d6a7bc5f43a
+    Knowledge-Base/src/ped_knowledge/tokenization/__init__.py: 1447dd942215e107d033fa0357deb126b3713bff1d948af8ae238af95dbcaf53
+    experiments/pearl-chunking-dev80-20261005/assemble.py: f725aa927d969821c05d60c0c0e06215d8158cc0f83c6b45c75b8807f5a7fe13
+    experiments/pearl-chunking-dev80-20261005/chunkers.py: 4b76ef4a4915df5f6eb41ad639fc0609e2e0d9a9c1022c2e2fbe100c85292e00
+    experiments/pearl-chunking-dev80-20261005/parent_graph.py: c728571a3ea1f82f52c78cfab1b217ea5ebd73fb798c65839d528ef2801e0d90
+    experiments/pearl-chunking-dev80-20261005/runtime.py: a7643f9f9b6dd660ca4b639015b2553e6d2f2a42618cd2d15f13595a6a3e5ed2
+    experiments/pearl-chunking-dev80-20261005/semantic_threshold.py: 2fb132028c9aa4fab2b61e154e049fa00763453ea99750ae6d6f671a2614d845
+    experiments/pearl-chunking-dev80-20261005/smoke.py: 33c2120e93a61d24fa95230d7483ce70b9503d6bb9c6a5f739c3e2773e658a65
+    experiments/pearl-chunking-dev80-20261005/source_view.py: e006847431150ccfc32469743c342227d994448f846a9cf97770276cdbb9a6eb
+    experiments/pearl-chunking-dev80-20261005/table_snapshot.py: f6c52178c9fa3da617ce9ebeb6b69faebf7246c928126b9f600171a91f557bdd
+    experiments/pearl-index-106-adobe-20260929/build.py: f3216eab476cac0db3fe2a2a2a479092e876d92bf9a0a2bc374436f16c81fc66
+    experiments/pearl-index-106-adobe-20260929/compare_pilot.py: f981240bb5ed84470dcb0a37340a2bb208616fec2d1d2e03fe892a3943c2fccd
+    experiments/pearl-index-106-adobe-20260929/rerank_pilot.py: 829202518f215f62610a7891ec41ea9d35e91f986997241986a85d8e865c1bd9
+    experiments/pearl-retrieval-dev80-20261003/run.py: 176217b9186afee5378fdc469ca7c10be3b121e5bbd01718713c3a7e780241e4
+  models: *id001
+  parent: bb3ba33d2211a101d5118d41c57838913ebba37dc3c0fad954b032f51161765d
+  policy: C1-L384-O0-M0
+  retrieval:
+    RRF_k: 60
+    dense: exact_float32_dot
+    depth: 100
+    seed: 20260929
+  source: 33389bec3bd7b25ccb2d248280631f2495d4d2130604996e8af5fa4358d474f9
+  table: 19f0c5b2ab8144f30026f2d964733b75b13eebcf33ae300802f2cf230af5b5f0
+  tokenizer: hf-tokenizer:21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08
+phase_code_provenance:
+  index_and_retrieval_code_sha256: *id002
+  assembly_code_sha256: 7bf7b2ef8c11db95db23d49151ec168ca5ea6014a8f5074688806dd62c520b1e
+  evaluation_code_sha256:
+    evaluate.py: f32c731fe4cc8a197358d6f8bfb75dca52ec1a62ec31d015c88fbe8f60fa58b6
+    score.py: f3deab362dbb04d743b414f4a4eeff25e04d30f6412955f6fd03662a500a5488
+    support.py: bca7c4723bd3c3e5c888ee1472a55d49a4f503c4bb36e356d4fe76a697872e3e
+    verify.py: f3d4f6490ec636b254f662004b6556f641270bb5b05c2168a1d94fd143f402ff
+  equivalence_receipts:
+  - parent-filter-equivalence-review-r01.json
+  - assembly-optimization-equivalence-review-r01.json
+  assembly_change_scope: P2 document prefilter and lazy equivalent source hash; index/rankings
+    preserved, no model re-execution required
+  current_retrieve_code_gate: Rebuilding under current code requires a new output
+    identity; old index manifest is not rewritten.
+panels:
+- fixed_budget_main
+- seed10_diagnostic
+strategies:
+- P0
+- P1
+- P2
+budgets:
+- 4096
+- 8192
+table:
+  row_budget: 256
+  repeated_header: none
+parents:
+  max_tokens: 1536
+  independent_of_child_boundaries: true
+support:
+  reviewed: 8
+  pending_unknown: 72
+  map_revision: r03
+  missing_certificate_coverage: unknown
+  runtime_gold_access: false
+calls:
+  generation: 0
+  remote_judge: 0
+  authorization_evidence: null
+  authorized_call_ceiling: null
+selection: C1-L384-O0-M0 smoke configuration fixed before scores; no strategy selected
+next: Separate Session 3 only after user authorization and hash checks; unresolved
+  semantic support must remain unknown or be reviewed before affected claims.

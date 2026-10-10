@@ -1,0 +1,113 @@
+# 第一批扩展文献标题清单 (20篇)
+
+## T1 - Flow Fundamentals (5篇)
+
+1. Enhanced empirical data for the fundamental diagram and the flow through bottlenecks
+
+2. Experimental study of pedestrian flow through a bottleneck
+
+3. Cellular automaton simulations of pedestrian dynamics and evacuation processes
+
+4. The fundamental diagram of pedestrian movement revisited
+
+5. Self-organization of pedestrian movement
+
+---
+
+## T2 - Experiment & Measurement (4篇)
+
+6. Pedestrian trajectory extraction and collision prediction in crowded scenes
+
+7. The Trajectories of Pedestrians Walking in Line
+
+8. Real-time crowd density mapping using a novel sensory fusion solution
+
+9. LiDAR-based crowd density estimation for outdoor public space management
+
+---
+
+## T3 - Facility & Scenario Flow (4篇)
+
+10. Capacity estimation for pedestrian flows through bottlenecks: A review
+
+11. Experimental study on pedestrian flow on stairs with different dimensions under normal and emergency conditions
+
+12. Pedestrian flow characteristics in a congested situation in a metro station
+
+13. Experimental study on the capacity of emergency exits
+
+---
+
+## T4 - Evacuation & Modeling (5篇)
+
+14. A review of pedestrian simulation software: From legacy to cutting edge
+
+15. Herding behavior in exit choice during evacuation
+
+16. A review of building evacuation models: Pre-evacuation delay
+
+17. Agent-based modeling for crowd simulation: A review
+
+18. The use of computer simulation to determine the smoke hazard in a complex of buildings
+
+---
+
+## T5 - Safety & Risk (2篇)
+
+19. Crowd pressure monitoring and crowd collapse
+
+20. Quantitative risk assessment for large-scale events
+
+---
+
+## 纯文本列表（便于复制）
+
+```
+Enhanced empirical data for the fundamental diagram and the flow through bottlenecks
+Experimental study of pedestrian flow through a bottleneck
+Cellular automaton simulations of pedestrian dynamics and evacuation processes
+The fundamental diagram of pedestrian movement revisited
+Self-organization of pedestrian movement
+Pedestrian trajectory extraction and collision prediction in crowded scenes
+The Trajectories of Pedestrians Walking in Line
+Real-time crowd density mapping using a novel sensory fusion solution
+LiDAR-based crowd density estimation for outdoor public space management
+Capacity estimation for pedestrian flows through bottlenecks: A review
+Experimental study on pedestrian flow on stairs with different dimensions under normal and emergency conditions
+Pedestrian flow characteristics in a congested situation in a metro station
+Experimental study on the capacity of emergency exits
+A review of pedestrian simulation software: From legacy to cutting edge
+Herding behavior in exit choice during evacuation
+A review of building evacuation models: Pre-evacuation delay
+Agent-based modeling for crowd simulation: A review
+The use of computer simulation to determine the smoke hazard in a complex of buildings
+Crowd pressure monitoring and crowd collapse
+Quantitative risk assessment for large-scale events
+```
+
+---
+
+## 配作者和年份（便于检索）
+
+```
+1. Enhanced empirical data for the fundamental diagram and the flow through bottlenecks (Seyfried 2008)
+2. Experimental study of pedestrian flow through a bottleneck (Zhang 2011)
+3. Cellular automaton simulations of pedestrian dynamics and evacuation processes (Schadschneider 2009)
+4. The fundamental diagram of pedestrian movement revisited (Seyfried 2006)
+5. Self-organization of pedestrian movement (Helbing 2001)
+6. Pedestrian trajectory extraction and collision prediction in crowded scenes (Yi 2016)
+7. The Trajectories of Pedestrians Walking in Line (Zhang 2019)
+8. Real-time crowd density mapping using a novel sensory fusion solution (Solmaz 2016)
+9. LiDAR-based crowd density estimation for outdoor public space management (Chen 2020)
+10. Capacity estimation for pedestrian flows through bottlenecks: A review (Daamen 2012)
+11. Experimental study on pedestrian flow on stairs with different dimensions (Kretz 2008)
+12. Pedestrian flow characteristics in a congested situation in a metro station (Lam 1999)
+13. Experimental study on the capacity of emergency exits (Müller 2015)
+14. A review of pedestrian simulation software: From legacy to cutting edge (Ronchi 2013)
+15. Herding behavior in exit choice during evacuation (Lovreglio 2016)
+16. A review of building evacuation models: Pre-evacuation delay (Kuligowski 2010)
+17. Agent-based modeling for crowd simulation: A review (Zhou 2010)
+18. The use of computer simulation to determine the smoke hazard in a complex (Gwynne 1999)
+19. Crowd pressure monitoring and crowd collapse (Helbing 2012)
+20. Quantitative risk assessment for large-scale events (Still 2000)
+```

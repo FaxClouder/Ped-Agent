@@ -1,6 +1,8 @@
 # Ped-Agent：RAG 与 Agentic RAG 评价框架
 
-*PEARL（Pedestrian Evidence-based Assessment of Retrieval-augmented Language Systems）评价设计 · status: target*
+*PEARL 原始评价设计记录 · status: historical · 2026-09-27*
+
+> 本文件保留旧项目名称与早期评估方案，仅供追溯。后续评估以 [PEARL-framework.md](PEARL-framework.md) 为框架入口；旧评估资产全部退出新实验。
 
 > 版本：2026-09-27。研究范围为行人交通流与疏散科学文献的检索、证据整合及有依据的问答。本文件根据项目 Notion 的[文献整理](https://app.notion.com/p/3e891a0ae63c81929fc2daba56858add)、[统一指标体系](https://app.notion.com/p/3e891a0ae63c8135bc1cf6cc62435339)、[实验安排](https://app.notion.com/p/3e891a0ae63c81198b69d864e396b298)和[研究定位](https://app.notion.com/p/3e791a0ae63c816ea3cfee9a8a93b65b)整理。它是本项目的评估设计，具体阈值和标注细则需在开发集上冻结。
 

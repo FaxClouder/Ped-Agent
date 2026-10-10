@@ -1,0 +1,773 @@
+{
+  "review_source": "deterministic_constructed_fixture_not_semantic_Agent",
+  "context_hashes": {
+    "C0-4096": "0fc0db1b89cddeb3f683c94abfe49a09467c400cce0a2011efaf50b0da826e65",
+    "C0-8192": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+    "C1-4096": "0fc0db1b89cddeb3f683c94abfe49a09467c400cce0a2011efaf50b0da826e65",
+    "C1-8192": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7"
+  },
+  "scores": {
+    "rows": [
+      {
+        "context_id": "synthetic-truncation::C0-4096",
+        "intent_id": "synthetic-truncation",
+        "configuration": "C0-4096",
+        "question_type": "synthetic",
+        "packet_id": "packet-034e4e6613694eeab95bebd7",
+        "text_sha256": "0fc0db1b89cddeb3f683c94abfe49a09467c400cce0a2011efaf50b0da826e65",
+        "support": {
+          "width": "yes",
+          "speed": "no"
+        },
+        "unit_labels": [
+          "mixed"
+        ],
+        "sufficient": "no",
+        "coverage_lower": 0.5,
+        "coverage_upper": 0.5
+      },
+      {
+        "context_id": "synthetic-truncation::C0-8192",
+        "intent_id": "synthetic-truncation",
+        "configuration": "C0-8192",
+        "question_type": "synthetic",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "unit_labels": [
+          "mixed"
+        ],
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C1-4096",
+        "intent_id": "synthetic-truncation",
+        "configuration": "C1-4096",
+        "question_type": "synthetic",
+        "packet_id": "packet-034e4e6613694eeab95bebd7",
+        "text_sha256": "0fc0db1b89cddeb3f683c94abfe49a09467c400cce0a2011efaf50b0da826e65",
+        "support": {
+          "width": "yes",
+          "speed": "no"
+        },
+        "unit_labels": [
+          "mixed"
+        ],
+        "sufficient": "no",
+        "coverage_lower": 0.5,
+        "coverage_upper": 0.5
+      },
+      {
+        "context_id": "synthetic-truncation::C1-8192",
+        "intent_id": "synthetic-truncation",
+        "configuration": "C1-8192",
+        "question_type": "synthetic",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "unit_labels": [
+          "mixed"
+        ],
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      }
+    ],
+    "overall": {
+      "C0-4096": {
+        "n": 1,
+        "yes": 0,
+        "no": 1,
+        "unknown": 0,
+        "complete_group_lower": 0.0,
+        "complete_group_upper": 0.0,
+        "coverage_lower": 0.5,
+        "coverage_upper": 0.5,
+        "relevance_applicable_n": 1,
+        "unit_n": 1,
+        "unknown_unit_n": 0,
+        "relevance_lower": 1.0,
+        "relevance_upper": 1.0,
+        "noise_lower": 1.0,
+        "noise_upper": 1.0
+      },
+      "C0-8192": {
+        "n": 1,
+        "yes": 1,
+        "no": 0,
+        "unknown": 0,
+        "complete_group_lower": 1.0,
+        "complete_group_upper": 1.0,
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0,
+        "relevance_applicable_n": 1,
+        "unit_n": 1,
+        "unknown_unit_n": 0,
+        "relevance_lower": 1.0,
+        "relevance_upper": 1.0,
+        "noise_lower": 1.0,
+        "noise_upper": 1.0
+      },
+      "C1-4096": {
+        "n": 1,
+        "yes": 0,
+        "no": 1,
+        "unknown": 0,
+        "complete_group_lower": 0.0,
+        "complete_group_upper": 0.0,
+        "coverage_lower": 0.5,
+        "coverage_upper": 0.5,
+        "relevance_applicable_n": 1,
+        "unit_n": 1,
+        "unknown_unit_n": 0,
+        "relevance_lower": 1.0,
+        "relevance_upper": 1.0,
+        "noise_lower": 1.0,
+        "noise_upper": 1.0
+      },
+      "C1-8192": {
+        "n": 1,
+        "yes": 1,
+        "no": 0,
+        "unknown": 0,
+        "complete_group_lower": 1.0,
+        "complete_group_upper": 1.0,
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0,
+        "relevance_applicable_n": 1,
+        "unit_n": 1,
+        "unknown_unit_n": 0,
+        "relevance_lower": 1.0,
+        "relevance_upper": 1.0,
+        "noise_lower": 1.0,
+        "noise_upper": 1.0
+      }
+    },
+    "by_type": {
+      "synthetic": {
+        "C0-4096": {
+          "n": 1,
+          "yes": 0,
+          "no": 1,
+          "unknown": 0,
+          "complete_group_lower": 0.0,
+          "complete_group_upper": 0.0,
+          "coverage_lower": 0.5,
+          "coverage_upper": 0.5,
+          "relevance_applicable_n": 1,
+          "unit_n": 1,
+          "unknown_unit_n": 0,
+          "relevance_lower": 1.0,
+          "relevance_upper": 1.0,
+          "noise_lower": 1.0,
+          "noise_upper": 1.0
+        },
+        "C0-8192": {
+          "n": 1,
+          "yes": 1,
+          "no": 0,
+          "unknown": 0,
+          "complete_group_lower": 1.0,
+          "complete_group_upper": 1.0,
+          "coverage_lower": 1.0,
+          "coverage_upper": 1.0,
+          "relevance_applicable_n": 1,
+          "unit_n": 1,
+          "unknown_unit_n": 0,
+          "relevance_lower": 1.0,
+          "relevance_upper": 1.0,
+          "noise_lower": 1.0,
+          "noise_upper": 1.0
+        },
+        "C1-4096": {
+          "n": 1,
+          "yes": 0,
+          "no": 1,
+          "unknown": 0,
+          "complete_group_lower": 0.0,
+          "complete_group_upper": 0.0,
+          "coverage_lower": 0.5,
+          "coverage_upper": 0.5,
+          "relevance_applicable_n": 1,
+          "unit_n": 1,
+          "unknown_unit_n": 0,
+          "relevance_lower": 1.0,
+          "relevance_upper": 1.0,
+          "noise_lower": 1.0,
+          "noise_upper": 1.0
+        },
+        "C1-8192": {
+          "n": 1,
+          "yes": 1,
+          "no": 0,
+          "unknown": 0,
+          "complete_group_lower": 1.0,
+          "complete_group_upper": 1.0,
+          "coverage_lower": 1.0,
+          "coverage_upper": 1.0,
+          "relevance_applicable_n": 1,
+          "unit_n": 1,
+          "unknown_unit_n": 0,
+          "relevance_lower": 1.0,
+          "relevance_upper": 1.0,
+          "noise_lower": 1.0,
+          "noise_upper": 1.0
+        }
+      }
+    },
+    "paired": [
+      {
+        "a": "C1-4096",
+        "b": "C0-4096",
+        "n": 1,
+        "unknown_pairs": 0,
+        "resolved_pairs": 1,
+        "gain": 0,
+        "loss": 0,
+        "delta_lower": 0.0,
+        "delta_upper": 0.0,
+        "exact_mcnemar_p_resolved": 1.0,
+        "holm_p_resolved": 1.0
+      },
+      {
+        "a": "C1-8192",
+        "b": "C0-8192",
+        "n": 1,
+        "unknown_pairs": 0,
+        "resolved_pairs": 1,
+        "gain": 0,
+        "loss": 0,
+        "delta_lower": 0.0,
+        "delta_upper": 0.0,
+        "exact_mcnemar_p_resolved": 1.0,
+        "holm_p_resolved": 1.0
+      },
+      {
+        "a": "C0-8192",
+        "b": "C0-4096",
+        "n": 1,
+        "unknown_pairs": 0,
+        "resolved_pairs": 1,
+        "gain": 1,
+        "loss": 0,
+        "delta_lower": 1.0,
+        "delta_upper": 1.0,
+        "exact_mcnemar_p_resolved": 1.0,
+        "holm_p_resolved": 1.0
+      },
+      {
+        "a": "C1-8192",
+        "b": "C1-4096",
+        "n": 1,
+        "unknown_pairs": 0,
+        "resolved_pairs": 1,
+        "gain": 1,
+        "loss": 0,
+        "delta_lower": 1.0,
+        "delta_upper": 1.0,
+        "exact_mcnemar_p_resolved": 1.0,
+        "holm_p_resolved": 1.0
+      }
+    ],
+    "step_rows": [
+      {
+        "context_id": "synthetic-truncation::C0-4096",
+        "stage": "raw",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C0-4096",
+        "stage": "expanded",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C0-4096",
+        "stage": "deduplicated",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C0-4096",
+        "stage": "final",
+        "packet_id": "packet-034e4e6613694eeab95bebd7",
+        "text_sha256": "0fc0db1b89cddeb3f683c94abfe49a09467c400cce0a2011efaf50b0da826e65",
+        "support": {
+          "width": "yes",
+          "speed": "no"
+        },
+        "sufficient": "no",
+        "coverage_lower": 0.5,
+        "coverage_upper": 0.5
+      },
+      {
+        "context_id": "synthetic-truncation::C0-8192",
+        "stage": "raw",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C0-8192",
+        "stage": "expanded",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C0-8192",
+        "stage": "deduplicated",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C0-8192",
+        "stage": "final",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C1-4096",
+        "stage": "raw",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C1-4096",
+        "stage": "expanded",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C1-4096",
+        "stage": "deduplicated",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C1-4096",
+        "stage": "final",
+        "packet_id": "packet-034e4e6613694eeab95bebd7",
+        "text_sha256": "0fc0db1b89cddeb3f683c94abfe49a09467c400cce0a2011efaf50b0da826e65",
+        "support": {
+          "width": "yes",
+          "speed": "no"
+        },
+        "sufficient": "no",
+        "coverage_lower": 0.5,
+        "coverage_upper": 0.5
+      },
+      {
+        "context_id": "synthetic-truncation::C1-8192",
+        "stage": "raw",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C1-8192",
+        "stage": "expanded",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C1-8192",
+        "stage": "deduplicated",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      },
+      {
+        "context_id": "synthetic-truncation::C1-8192",
+        "stage": "final",
+        "packet_id": "packet-5acec07dda21dcc43ac64b57",
+        "text_sha256": "b787205744934641ab82e0e292e4c8497ee4bc654c10ed4b630942c797e4bfa7",
+        "support": {
+          "width": "yes",
+          "speed": "yes"
+        },
+        "sufficient": "yes",
+        "coverage_lower": 1.0,
+        "coverage_upper": 1.0
+      }
+    ],
+    "attribution": [
+      {
+        "context_id": "synthetic-truncation::C0-4096",
+        "before_stage": "raw",
+        "after_stage": "expanded",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C0-4096",
+        "before_stage": "expanded",
+        "after_stage": "deduplicated",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C0-4096",
+        "before_stage": "deduplicated",
+        "after_stage": "final",
+        "before_status": "yes",
+        "after_status": "no",
+        "requirement_gains": [],
+        "requirement_losses": [
+          "speed"
+        ],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C0-8192",
+        "before_stage": "raw",
+        "after_stage": "expanded",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C0-8192",
+        "before_stage": "expanded",
+        "after_stage": "deduplicated",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C0-8192",
+        "before_stage": "deduplicated",
+        "after_stage": "final",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C1-4096",
+        "before_stage": "raw",
+        "after_stage": "expanded",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C1-4096",
+        "before_stage": "expanded",
+        "after_stage": "deduplicated",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C1-4096",
+        "before_stage": "deduplicated",
+        "after_stage": "final",
+        "before_status": "yes",
+        "after_status": "no",
+        "requirement_gains": [],
+        "requirement_losses": [
+          "speed"
+        ],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C1-8192",
+        "before_stage": "raw",
+        "after_stage": "expanded",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C1-8192",
+        "before_stage": "expanded",
+        "after_stage": "deduplicated",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      },
+      {
+        "context_id": "synthetic-truncation::C1-8192",
+        "before_stage": "deduplicated",
+        "after_stage": "final",
+        "before_status": "yes",
+        "after_status": "yes",
+        "requirement_gains": [],
+        "requirement_losses": [],
+        "unknown_requirements": []
+      }
+    ],
+    "bootstrap_ci": {
+      "statistics_version": "layer2-stratified-paired-bootstrap-r01",
+      "confidence_level": 0.95,
+      "replicates": 10000,
+      "seed": 20261004,
+      "n": 1,
+      "stratum_sizes": {
+        "synthetic": 1
+      },
+      "resampling_unit": "underlying_intent_cluster",
+      "quantile_method": "linear_interpolation_(B-1)*q",
+      "purpose": "pre-summary descriptive uncertainty envelopes; not additional hypothesis tests",
+      "python_version": "3.12.7",
+      "score_code_sha256": "59a274b1d79a8cd139d20451294f653079b9f54c22d6237bc7a5734a1bc28e9d",
+      "statistics_supplement_sha256": "1f2e993f6da2d3a496e548909dca9385937ea82c918663da4825a975b8782df7",
+      "overall": {
+        "C0-4096": {
+          "lower_bound_point": 0.0,
+          "upper_bound_point": 0.0,
+          "lower_bound_ci": [
+            0.0,
+            0.0
+          ],
+          "upper_bound_ci": [
+            0.0,
+            0.0
+          ],
+          "envelope": [
+            0.0,
+            0.0
+          ]
+        },
+        "C0-8192": {
+          "lower_bound_point": 1.0,
+          "upper_bound_point": 1.0,
+          "lower_bound_ci": [
+            1.0,
+            1.0
+          ],
+          "upper_bound_ci": [
+            1.0,
+            1.0
+          ],
+          "envelope": [
+            1.0,
+            1.0
+          ]
+        },
+        "C1-4096": {
+          "lower_bound_point": 0.0,
+          "upper_bound_point": 0.0,
+          "lower_bound_ci": [
+            0.0,
+            0.0
+          ],
+          "upper_bound_ci": [
+            0.0,
+            0.0
+          ],
+          "envelope": [
+            0.0,
+            0.0
+          ]
+        },
+        "C1-8192": {
+          "lower_bound_point": 1.0,
+          "upper_bound_point": 1.0,
+          "lower_bound_ci": [
+            1.0,
+            1.0
+          ],
+          "upper_bound_ci": [
+            1.0,
+            1.0
+          ],
+          "envelope": [
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "paired": [
+        {
+          "a": "C1-4096",
+          "b": "C0-4096",
+          "lower_bound_point": 0.0,
+          "upper_bound_point": 0.0,
+          "lower_bound_ci": [
+            0.0,
+            0.0
+          ],
+          "upper_bound_ci": [
+            0.0,
+            0.0
+          ],
+          "envelope": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "a": "C1-8192",
+          "b": "C0-8192",
+          "lower_bound_point": 0.0,
+          "upper_bound_point": 0.0,
+          "lower_bound_ci": [
+            0.0,
+            0.0
+          ],
+          "upper_bound_ci": [
+            0.0,
+            0.0
+          ],
+          "envelope": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "a": "C0-8192",
+          "b": "C0-4096",
+          "lower_bound_point": 1.0,
+          "upper_bound_point": 1.0,
+          "lower_bound_ci": [
+            1.0,
+            1.0
+          ],
+          "upper_bound_ci": [
+            1.0,
+            1.0
+          ],
+          "envelope": [
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "a": "C1-8192",
+          "b": "C1-4096",
+          "lower_bound_point": 1.0,
+          "upper_bound_point": 1.0,
+          "lower_bound_ci": [
+            1.0,
+            1.0
+          ],
+          "upper_bound_ci": [
+            1.0,
+            1.0
+          ],
+          "envelope": [
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  }
+}
