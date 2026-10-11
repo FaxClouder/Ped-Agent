@@ -1,0 +1,63 @@
+{
+  "contract_id": "pearl-candidate-git-intake-v1",
+  "purpose": "Lossless Git packaging of existing cloud-reviewed development candidates; not an authoring or Gold acceptance schema.",
+  "encoding": "UTF-8, no BOM; JSONL canonical records separated by LF",
+  "record_hash_algorithm": "SHA-256 of json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(comma,colon), allow_nan=False).encode(UTF-8), no trailing LF",
+  "files": {
+    "candidates.jsonl": [
+      "candidate_id",
+      "question_revision",
+      "question",
+      "proposed_task_type"
+    ],
+    "answers.jsonl": [
+      "candidate_id",
+      "question_revision",
+      "answer_revision",
+      "reference_answer",
+      "atoms",
+      "requirements",
+      "answer_support_bundles",
+      "corpus_answerability"
+    ],
+    "qa.jsonl": [
+      "candidate_id",
+      "question_revision",
+      "answer_revision",
+      "qa_revision",
+      "decision",
+      "is_blind",
+      "human_verified",
+      "gold_frozen",
+      "candidate_record_sha256",
+      "answer_record_sha256"
+    ],
+    "changes.jsonl": [
+      "candidate_id",
+      "change_log",
+      "original_candidate_record_sha256",
+      "original_answer_record_sha256"
+    ],
+    "bindings.jsonl": [
+      "candidate_id",
+      "question_revision",
+      "candidate_record_sha256",
+      "answer_record_sha256",
+      "qa_record_sha256"
+    ]
+  },
+  "allowed_decisions": [
+    "ACCEPT",
+    "REVISE",
+    "UNRESOLVED",
+    "REJECT"
+  ],
+  "upstream_contract": {
+    "id": "pearl-post-audit-revision-contract-v1",
+    "sha256": "848f39b45ee7f32c6248539853267e45fb5b593578a326546062ddf2721c4725",
+    "availability": "not_supplied",
+    "verification": "not_verified"
+  },
+  "preservation": "All candidate, answer and QA objects unchanged. Upstream file-level bindings preserved as historical strings, not rewritten to claim local file equivalence.",
+  "acceptance_scope": "development candidates; not frozen Gold; no new semantic review"
+}

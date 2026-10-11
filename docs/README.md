@@ -4,6 +4,8 @@
 
 ## 当前入口
 
+- [新版开发候选 Git 发布入口](../datasets/pearl-question-redesign/README.md)：`codex/question-set` 分支管理的 40 题、答案、QA、合同及哈希；公开开发候选，非冻结 Gold；提供拉取与校验说明（current；2026-10-10）。
+
 - [Gold 问题设计与质量控制 v1.2](rag/gold-question-standard-v1.2.md)：106 篇语料、50＋200 新题目标、任务分类、证据/行为要求、审核和冻结边界；[相关文档处置清单](rag/gold-document-disposition-2026-10-10.md)列出合并、更新与删除候选（current；规范已修订，题集未冻结；2026-10-10）。
 
 - [新版 40 题云端修订本地接收](../outputs/pearl-question-redesign-pilot-20261008-01/cloud-revision-import-20261010-01/README.md)：用户提供的最新 Excel/JSON 原件、无损分表导出与版本核对；39 ACCEPT、D-004 未决，非盲、非人工、未冻结 Gold；旧本地 v2 保留（current；接收记录；2026-10-10）。

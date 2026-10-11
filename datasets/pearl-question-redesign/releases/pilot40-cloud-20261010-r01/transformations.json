@@ -1,0 +1,23 @@
+{
+  "source_file_name": "revision_integrated.json",
+  "source_sha256": "97903e916e12b0f48b9175ff4b6e4ee2a4482e2c52a01957b100214fe105b795",
+  "source_created_at_utc": "2026-10-10T19:05:53.510303+00:00",
+  "question_text_changes": 0,
+  "candidate_answer_qa_field_changes": 0,
+  "serialization_changes": "Canonical JSONL serialization; file hashes differ from cloud originals; object identity unchanged.",
+  "local_contract": "../../contracts/intake-v1.json",
+  "change_log_processing": "Cloud revision notes retained; original candidate/answer objects represented by canonical hashes; originals remain in local source archive.",
+  "omitted_from_git": [
+    "Original integrated JSON containing duplicate pre-revision records",
+    "Excel reading workbook",
+    "PDFs, parser full text, indexes, weights, old sealed test sets"
+  ],
+  "upstream_record_hashes_verified": {
+    "candidates": 40,
+    "answers": 40
+  },
+  "unresolved_bindings": [
+    "Upstream standalone candidate/answer files and upstream contract not supplied; file-level hashes are not reconstructed."
+  ],
+  "semantic_review_performed_during_import": false
+}

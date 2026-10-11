@@ -34,6 +34,8 @@
 
 ## 题集与候选来源链
 
+本分支的新版候选以 [Git 发布入口](../../datasets/pearl-question-redesign/README.md)和 CURRENT.json 定位。原本地云端接收包继续作为来源，Git release 提供可直接拉取的版本化记录；不取代旧已登记 Gold。
+
 2026-10-10 后续正文维护：新增 [Gold v1.2 统一规范](gold-question-standard-v1.2.md)与[文档处置清单](gold-document-disposition-2026-10-10.md)。以下旧集中整理和补题文件是阶段快照；最新接收为[云端修订包](../../outputs/pearl-question-redesign-pilot-20261008-01/cloud-revision-import-20261010-01/README.md)，39 ACCEPT、D-004 未决，非盲、未冻结。原资产清单与组织报告保留交付时点，未静默更新其哈希绑定内容。
 
 | 首选入口/来源 | 用途 | 状态与限定 |

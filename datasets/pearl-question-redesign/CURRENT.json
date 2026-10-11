@@ -1,0 +1,6 @@
+{
+  "release": "pilot40-cloud-20261010-r01",
+  "manifest": "releases/pilot40-cloud-20261010-r01/manifest.json",
+  "role": "development_candidate",
+  "gold_frozen": false
+}

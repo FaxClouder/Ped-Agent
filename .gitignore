@@ -53,7 +53,8 @@ paper/build/
 paper/latex/**/*.bbl
 paper/latex/**/*.spl
 
-# Local question/answer annotations and judge packets remain outside Git.
+# Legacy/local annotations and judge packets remain outside Git.
+# Authorized new development candidates live in datasets/pearl-question-redesign/.
 paper/pearl-framework/datasets/retrieval-pilot/*gold.json
 paper/pearl-framework/datasets/retrieval-pilot/pilot-intents*.json
 paper/pearl-framework/datasets/retrieval-pilot/equivalent-evidence-decisions*.json

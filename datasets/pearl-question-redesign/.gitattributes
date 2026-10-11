@@ -1,0 +1,2 @@
+# Keep release bytes stable across Windows and cloud Linux checkouts.
+* text eol=lf

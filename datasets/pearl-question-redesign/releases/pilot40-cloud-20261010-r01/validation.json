@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "errors": [],
+  "release_id": "pilot40-cloud-20261010-r01",
+  "manifest_sha256": "2d80e4805deaa9a05e63740b87ae77681d13c1605748e4901ea4966719d57725",
+  "validator_sha256": "7201019f2a3db3545d741b808af3caed879f8384285af21a0bad9405f8387a7d",
+  "question_count": 40,
+  "decisions": {
+    "ACCEPT": 39,
+    "UNRESOLVED": 1
+  },
+  "atoms": 284,
+  "requirements": 116,
+  "scope": "file hashes, contracts, record identity/version/hash bindings and reference integrity only",
+  "not_verified": [
+    "PDF semantic support",
+    "independent blind review",
+    "upstream standalone files and contract hash reproduction",
+    "Gold freeze eligibility",
+    "system performance"
+  ]
+}

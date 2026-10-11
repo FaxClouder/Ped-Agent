@@ -1,0 +1,182 @@
+{
+  "created_at_utc": "2026-10-10T19:05:53.510303+00:00",
+  "questions": 40,
+  "initial_decisions": {
+    "ACCEPT": 17,
+    "REVISE": 22,
+    "UNRESOLVED": 1
+  },
+  "post_revision_decisions": {
+    "ACCEPT": 39,
+    "UNRESOLVED": 1
+  },
+  "question_text_changes": 0,
+  "questions_with_logged_content_or_field_changes": 34,
+  "original_atoms": 210,
+  "revised_atoms": 284,
+  "original_requirements": 99,
+  "revised_requirements": 116,
+  "revised_nontext_atoms": 61,
+  "acceptance_scope": "ACCEPT means eligible for continued candidate development following non-blind review, not frozen Gold.",
+  "review_is_blind": false,
+  "human_verified": false,
+  "gold_frozen": false,
+  "history_limits": [
+    {
+      "issue_id": "G01",
+      "severity": "轻",
+      "affected": "A007a1、B004a1/a2、B007a4",
+      "detail": "4个verification_status=verified_pdf_visual，不在规范4值枚举。",
+      "evidence_basis": "solver_spec字段契约；直接JSON计数。",
+      "recommendation": "新版本使用实际核验对应的verified_pdf_render，不追写旧记录。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G02",
+      "severity": "中",
+      "affected": "38条QA",
+      "detail": "仅2条QA含diagnostic_scores，38条缺少计划要求的5维评分和理由。不能拿历史ACCEPT代替本轮完整验收。",
+      "evidence_basis": "plan §7.2及auditor_spec；当前QA直接计数。",
+      "recommendation": "后续QA修订补真实评分及理由；本报告硬缺陷裁决不以总分抵消。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G03",
+      "severity": "中",
+      "affected": "A001、C007、D004及其余37题",
+      "detail": "最新3条provenance字段与原规范异构；37条QA仍绑定未交付历史draft。现有v2对应关系缺可重建的绑定。",
+      "evidence_basis": "qa_audit_pilot_v2与包内文件清单；3条直指answers v2，其余37条为历史solver文件路径。",
+      "recommendation": "生成新版本级QA绑定和输入SHA；若要重现旧轮，补历史draft。当前原PDF复核不依赖这些缺件。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G04",
+      "severity": "重",
+      "affected": "C007 r3、D004 r2",
+      "detail": "gap_requirements用于调查未完成要求，而协议只允许已验证absence。",
+      "evidence_basis": "protocol_addendum R2；当前gap_requirements与unresolved_issues。",
+      "recommendation": "拆开未决调查与verified_gap。C007新正向路径须补正式atoms后重审；D004总体仍未决。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G05",
+      "severity": "重",
+      "affected": "旧交付清单的两份文档",
+      "detail": "原全量校验exit_code=1，project-architecture与docs README的bound/current SHA不同。已下载包自身hash通过不消除旧manifest差异。",
+      "evidence_basis": "full-local-recheck.json记录2项mismatch；本次保留原值。",
+      "recommendation": "保留旧失败记录，查明版本变化并产生新manifest，不改旧hash为通过。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G06",
+      "severity": "中",
+      "affected": "全40题审查来源",
+      "detail": "本次在看到现有答案后做实质复核；不是先独立解题后对照，也不是人工核验。A001修订不能继承旧独审。",
+      "evidence_basis": "本轮实际工作方式；现有handoff与A001整合provenance。",
+      "recommendation": "如后续需要盲审，另按协议独立执行；当前报告如实标已知答案复核，不能伪造身份。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G07",
+      "severity": "重",
+      "affected": "来源独立性与后续开发/测试划分",
+      "detail": "当前210 atoms使用51个来源；同一研究多题重用、综述转述、重分析与新论文不自动构成独立研究。study_family_ids存在别名且24题为空。",
+      "evidence_basis": "当前答案源ID/族ID统计；原文Jin2016试验复用、Liao再分析、Haghani综述。",
+      "recommendation": "建立原始批次级谱系和题目—实际支持源图；不按论文数报独立重复，不删除合法替代路径维持互斥。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G08",
+      "severity": "中",
+      "affected": "非文本证据及历史解析附件",
+      "detail": "原包有106 records、212阅读文本与502组JSON/HTML表；缺5330个Adobe图/表二进制引用。原PDF可读，所以不是本轮无法实审的理由。",
+      "evidence_basis": "素材核验记录：106PDF共1900页；37原非文本atoms。",
+      "recommendation": "按原PDF核图表公式；仅将需要逐字复现Adobe产物的二进制资产列后续解析复现缺口。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G09",
+      "severity": "中",
+      "affected": "来源与片段命中",
+      "detail": "多处答案事实真实，但当前atom只载设置/术语或跨页缺半式；source/page命中不能直接视为完整支持。",
+      "evidence_basis": "A003边界损失、B005/B010、C002、D001/D006/D007逐题具体页。",
+      "recommendation": "补关键原文atom，逐条检验局部AND/OR和全部required完整路径；不要只重跑字符串匹配。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G10",
+      "severity": "中",
+      "affected": "题目范围与替代路径",
+      "detail": "A004未问headway比较却列required；B009/C003存在未登记单篇支持路径；题型标签不能限制真实证据。",
+      "evidence_basis": "A004题干；B009综述p11；C003综述p29/31/33。",
+      "recommendation": "按题干核required，保留合法替代并重算cross_paper_required/min_sources。",
+      "status": "记录问题，未修改源文件"
+    },
+    {
+      "issue_id": "G11",
+      "severity": "中",
+      "affected": "未执行的验收环节",
+      "detail": "当前只是40题新复核及新报告，未修订源答案/QA、未冻结Gold、未检查旧封存集或运行被测系统。",
+      "evidence_basis": "本轮授权与实际执行范围。",
+      "recommendation": "先修订本报告标记项再逐项复核；不把本轮ACCEPT统计当最终冻结数量。",
+      "status": "记录问题，未修改源文件"
+    }
+  ],
+  "global_resolutions": [
+    {
+      "issue_id": "G01",
+      "status": "resolved_in_new_copy",
+      "result": "已用实际页图复核对应的合法verified_pdf_render枚举；旧记录保留。"
+    },
+    {
+      "issue_id": "G02",
+      "status": "resolved_for_current_qa_only",
+      "result": "新40条QA有实际五维评分及理由；未伪补38条历史缺分。"
+    },
+    {
+      "issue_id": "G03",
+      "status": "current_binding_resolved_history_missing",
+      "result": "新QA按候选/答案文件及canonical记录hash统一绑定；37份历史draft缺口仍保留。"
+    },
+    {
+      "issue_id": "G04",
+      "status": "resolved_in_new_copy",
+      "result": "C007正式正向证据重审；D004未完调查不再当verified gap，两题gap_requirements均空。"
+    },
+    {
+      "issue_id": "G05",
+      "status": "historical_failure_preserved",
+      "result": "两份旧文档bound/current哈希失败未追改；新manifest独立生成。"
+    },
+    {
+      "issue_id": "G06",
+      "status": "review_mode_disclosed",
+      "result": "修订作者与改后核对角色分开；非盲化、非人审，不能继承旧独审。"
+    },
+    {
+      "issue_id": "G07",
+      "status": "partially_resolved_not_frozen",
+      "result": "新来源共用图及D004批次/别名裁决已补；独立研究分母、全题族谱系和正式划分仍未完成。"
+    },
+    {
+      "issue_id": "G08",
+      "status": "pdf_review_unblocked_parser_history_missing",
+      "result": "原PDF支撑本轮取证；Adobe二进制附件缺失仍是历史解析复现缺口。"
+    },
+    {
+      "issue_id": "G09",
+      "status": "resolved_in_reviewed_revision",
+      "result": "关键结果/公式/跨页等原子已补，局部AND/OR与完整束均核对；D004总体束仍空且待核。"
+    },
+    {
+      "issue_id": "G10",
+      "status": "resolved_in_reviewed_revision",
+      "result": "取消隐藏必答，保留新旧合法替代路径并重算跨文献标签。"
+    },
+    {
+      "issue_id": "G11",
+      "status": "authorized_revision_completed_no_freeze",
+      "result": "已执行授权的修订与改后核对；未进行Gold冻结、旧封存集对照或被测系统实验。"
+    }
+  ]
+}

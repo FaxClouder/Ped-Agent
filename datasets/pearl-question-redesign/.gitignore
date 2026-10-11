@@ -1,0 +1,9 @@
+# This directory contains versioned text data only.
+*.pdf
+*.zip
+*.xlsx
+*.sqlite*
+*.npy
+*.bin
+*.safetensors
+__pycache__/

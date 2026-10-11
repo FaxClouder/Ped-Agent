@@ -1,0 +1,1502 @@
+{
+  "source_count": 106,
+  "question_sources": [
+    {
+      "candidate_id": "pqr-p01-A-001",
+      "all_atom_sources": [
+        "pearl-src-7da007f9ae20dcb9"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-7da007f9ae20dcb9"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-A-002",
+      "all_atom_sources": [
+        "pearl-src-d28d1df93964d3ec"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-d28d1df93964d3ec"
+        ],
+        [
+          "pearl-src-d28d1df93964d3ec"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-A-003",
+      "all_atom_sources": [
+        "pearl-src-e5b2de4b165e3f8b"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-e5b2de4b165e3f8b"
+        ]
+      ],
+      "study_family_ids": [
+        "pan-ro-pinn-2024"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-A-004",
+      "all_atom_sources": [
+        "pearl-src-41c7d913c29687f3"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-41c7d913c29687f3"
+        ]
+      ],
+      "study_family_ids": [
+        "li-funnel-bottleneck-2023"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-A-005",
+      "all_atom_sources": [
+        "pearl-src-4bfcc1fdfb73424f"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-4bfcc1fdfb73424f"
+        ]
+      ],
+      "study_family_ids": [
+        "xiao-circle-antipode-route-choice-2023"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-A-006",
+      "all_atom_sources": [
+        "pearl-src-c484f1e750553afe"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-c484f1e750553afe"
+        ]
+      ],
+      "study_family_ids": [
+        "zhang-jia-hybrid-guidance-2021"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-A-007",
+      "all_atom_sources": [
+        "pearl-src-305a148e97c45b4d"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-305a148e97c45b4d"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-A-008",
+      "all_atom_sources": [
+        "pearl-src-9104119ce4755ec6"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-9104119ce4755ec6"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-A-009",
+      "all_atom_sources": [
+        "pearl-src-5bd280c855f70cd4"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-5bd280c855f70cd4"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-A-010",
+      "all_atom_sources": [
+        "pearl-src-486515cd9939adcf"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-486515cd9939adcf"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-B-001",
+      "all_atom_sources": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-b805951c663c1536"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-15c1100e05ee58e4"
+        ]
+      ],
+      "study_family_ids": [
+        "nicolas-bariloche-doorway-2017",
+        "liao-bottleneck-reanalysis-2016"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-B-002",
+      "all_atom_sources": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-4c32a7203b84fd3e",
+        "pearl-src-630cddfaf9b1cb6d",
+        "pearl-src-b215383357daae16"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-630cddfaf9b1cb6d"
+        ],
+        [
+          "pearl-src-630cddfaf9b1cb6d",
+          "pearl-src-b215383357daae16"
+        ],
+        [
+          "pearl-src-630cddfaf9b1cb6d"
+        ],
+        [
+          "pearl-src-630cddfaf9b1cb6d"
+        ]
+      ],
+      "study_family_ids": [
+        "pouw-stairway-high-statistics-2024",
+        "tian-corridor-2012",
+        "lyon-festival-trajectories-2025",
+        "nicolas-bariloche-doorway-2017"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-B-003",
+      "all_atom_sources": [
+        "pearl-src-7b986410ee7877cb",
+        "pearl-src-f8d9c2f4d7bebd89"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-f8d9c2f4d7bebd89"
+        ],
+        [
+          "pearl-src-7b986410ee7877cb"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-B-004",
+      "all_atom_sources": [
+        "pearl-src-630cddfaf9b1cb6d",
+        "pearl-src-ffc3734fcd145140"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-630cddfaf9b1cb6d"
+        ],
+        [
+          "pearl-src-ffc3734fcd145140"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-B-005",
+      "all_atom_sources": [
+        "pearl-src-6bbceb8663aa0757",
+        "pearl-src-df9bec9b2e281134",
+        "pearl-src-ff64ceab9d1692d0"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-6bbceb8663aa0757"
+        ],
+        [
+          "pearl-src-6bbceb8663aa0757"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-B-006",
+      "all_atom_sources": [
+        "pearl-src-48101ba7d6ac7448",
+        "pearl-src-80cb8e9188ee9b89",
+        "pearl-src-9a4f2d471b96e89f"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-9a4f2d471b96e89f"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-B-007",
+      "all_atom_sources": [
+        "pearl-src-031a5779bd83192e",
+        "pearl-src-41c7d913c29687f3",
+        "pearl-src-4b758ccb41af532c"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-031a5779bd83192e"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-B-008",
+      "all_atom_sources": [
+        "pearl-src-2bfe121ce9b3ce0c",
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-6bbceb8663aa0757",
+        "pearl-src-b40f5056a160d4e9"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-2bfe121ce9b3ce0c"
+        ]
+      ],
+      "study_family_ids": [
+        "bfr-dml-360-bidirectional-trajectory-dataset",
+        "jin-southeast-university-ring-2016-2019-includes-2016-wide-track"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-B-009",
+      "all_atom_sources": [
+        "pearl-src-4b758ccb41af532c",
+        "pearl-src-69cbf5aaec4292e0",
+        "pearl-src-9e1c873b60f8d08c"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-4b758ccb41af532c",
+          "pearl-src-9e1c873b60f8d08c"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c"
+        ]
+      ],
+      "study_family_ids": [
+        "shahhoseini-sarvi-merging-experiments-primary-and-review",
+        "lian-2017-merging-reported-in-haghani-2020-review"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-B-010",
+      "all_atom_sources": [
+        "pearl-src-48101ba7d6ac7448",
+        "pearl-src-7b0aa0b9d28b79b0",
+        "pearl-src-8c2167fb33f779d6"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-48101ba7d6ac7448"
+        ],
+        [
+          "pearl-src-8c2167fb33f779d6"
+        ],
+        [
+          "pearl-src-7b0aa0b9d28b79b0"
+        ]
+      ],
+      "study_family_ids": [
+        "haghani-experimental-exit-choice-data-reused-in-cellevac",
+        "lovreglio-2014-online-survey-reused-plus-30-respondents"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-C-001",
+      "all_atom_sources": [
+        "pearl-src-41c7d913c29687f3",
+        "pearl-src-4b758ccb41af532c",
+        "pearl-src-aa99c4690a1ccb24",
+        "pearl-src-b805951c663c1536"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-41c7d913c29687f3",
+          "pearl-src-b805951c663c1536"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c",
+          "pearl-src-b805951c663c1536"
+        ]
+      ],
+      "study_family_ids": [
+        "liao-bottleneck-reanalysis-2016",
+        "li-funnel-bottleneck-2023",
+        "geoerg-disability-bottleneck-2022"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-C-002",
+      "all_atom_sources": [
+        "pearl-src-4b758ccb41af532c",
+        "pearl-src-4e58ae08e48f6688",
+        "pearl-src-aa99c4690a1ccb24",
+        "pearl-src-e741c6bfedd59a19"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-e741c6bfedd59a19"
+        ],
+        [
+          "pearl-src-aa99c4690a1ccb24"
+        ],
+        [
+          "pearl-src-4e58ae08e48f6688"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c"
+        ]
+      ],
+      "study_family_ids": [
+        "fu-simulated-disability-counterflow-2022",
+        "geoerg-disability-bottleneck-2022",
+        "inclusive-social-force-2025",
+        "kuligowski-2013-assisted-living-drill-secondary-report"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-C-003",
+      "all_atom_sources": [
+        "pearl-src-4b758ccb41af532c",
+        "pearl-src-4d5e06c459e428ae",
+        "pearl-src-630cddfaf9b1cb6d"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-4b758ccb41af532c",
+          "pearl-src-4d5e06c459e428ae"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c",
+          "pearl-src-4d5e06c459e428ae"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c",
+          "pearl-src-630cddfaf9b1cb6d"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c",
+          "pearl-src-630cddfaf9b1cb6d"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c"
+        ]
+      ],
+      "study_family_ids": [
+        "zhang-2018c-underwater-tunnel-drill-secondary-report",
+        "chen-2018a-20-level-drill-secondary-report",
+        "pouw-eindhoven-stair-trajectories-2024"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-C-004",
+      "all_atom_sources": [
+        "pearl-src-4b758ccb41af532c",
+        "pearl-src-7b986410ee7877cb"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-7b986410ee7877cb"
+        ],
+        [
+          "pearl-src-4b758ccb41af532c"
+        ]
+      ],
+      "study_family_ids": [
+        "galea-2017b-rail-station-adss-voice-drill-secondary-report"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-C-005",
+      "all_atom_sources": [
+        "pearl-src-031a5779bd83192e",
+        "pearl-src-d478e1b057bcd403"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-d478e1b057bcd403"
+        ]
+      ],
+      "study_family_ids": [
+        "experimental-validity-haghani2023",
+        "individual-FD-paetzke2022"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-C-006",
+      "all_atom_sources": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9",
+        "pearl-src-f5f2ef2b3dab00a0"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-2c6f1c912f4d8ceb"
+        ],
+        [
+          "pearl-src-f5f2ef2b3dab00a0"
+        ]
+      ],
+      "study_family_ids": [
+        "wong-2010-hong-kong-counterflow-reanalysed-by-hanseler-2017"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-C-007",
+      "all_atom_sources": [
+        "pearl-src-796e20731652c53b",
+        "pearl-src-96b26d7574a0faec",
+        "pearl-src-a1d94e43220548c2",
+        "pearl-src-e51fb7757831d3bc"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-96b26d7574a0faec"
+        ]
+      ],
+      "study_family_ids": [
+        "wu-2021-zhichun-road-local-view-route-choice"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-C-008",
+      "all_atom_sources": [
+        "pearl-src-f5f2ef2b3dab00a0"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-f5f2ef2b3dab00a0"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-C-009",
+      "all_atom_sources": [
+        "pearl-src-2d794479f1d822ef",
+        "pearl-src-bae14f716cb901cf",
+        "pearl-src-df9bec9b2e281134"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-df9bec9b2e281134"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-C-010",
+      "all_atom_sources": [
+        "pearl-src-2d9857c44a13d6a2",
+        "pearl-src-4b758ccb41af532c",
+        "pearl-src-69dfcb572ce5ee70"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-2d9857c44a13d6a2"
+        ],
+        [
+          "pearl-src-69dfcb572ce5ee70"
+        ]
+      ],
+      "study_family_ids": [
+        "li-2025-virtual-validation-against-crociani-2016",
+        "li-2019a-field-vr-route-choice-secondary-report"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-001",
+      "all_atom_sources": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-41c7d913c29687f3",
+        "pearl-src-aa99c4690a1ccb24",
+        "pearl-src-b805951c663c1536"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-b805951c663c1536"
+        ]
+      ],
+      "study_family_ids": [
+        "liao-dusseldorf-EG-AO-UO-reanalysis",
+        "li-funnel-bottleneck-2023",
+        "geoerg-disability-bottleneck-2022"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-002",
+      "all_atom_sources": [
+        "pearl-src-48101ba7d6ac7448",
+        "pearl-src-b13e50e36a0d53e2",
+        "pearl-src-d478e1b057bcd403"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-b13e50e36a0d53e2"
+        ],
+        [
+          "pearl-src-48101ba7d6ac7448",
+          "pearl-src-d478e1b057bcd403"
+        ]
+      ],
+      "study_family_ids": [
+        "haghani-sarvi-choice-bottleneck-calibration-series",
+        "xiao-circle-antipode-model-evaluation-2022"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-003",
+      "all_atom_sources": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-7b986410ee7877cb",
+        "pearl-src-d478e1b057bcd403"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-d478e1b057bcd403"
+        ]
+      ],
+      "study_family_ids": [
+        "experimental-validity-haghani2023",
+        "nicolas-doorway2017",
+        "real-incident-video2021"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-004",
+      "all_atom_sources": [
+        "pearl-src-06ceea72728432ef",
+        "pearl-src-0f91574e850babb8",
+        "pearl-src-253fbfe913dbf603",
+        "pearl-src-2a5248d83478c25a",
+        "pearl-src-2bfe121ce9b3ce0c",
+        "pearl-src-2d794479f1d822ef",
+        "pearl-src-59f25c300daa2ba2",
+        "pearl-src-6e4b554094219015",
+        "pearl-src-7b0aa0b9d28b79b0",
+        "pearl-src-a1d94e43220548c2"
+      ],
+      "complete_bundle_sources": [],
+      "study_family_ids": [
+        "D004-Tsinghua-20230408-queue",
+        "D004-NanjingTech-20211031-guardrails",
+        "D004-UNSW-202208-groups",
+        "D004-Dusseldorf-20130619-20-crossing",
+        "D004-CellEVAC-shared-program",
+        "D004-LoveParade-20100724"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-005",
+      "all_atom_sources": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-6d44c24ebbf9c0d0",
+        "pearl-src-b40f5056a160d4e9",
+        "pearl-src-b805951c663c1536",
+        "pearl-src-fc7375ffc5f94a19"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-fc7375ffc5f94a19"
+        ],
+        [
+          "pearl-src-2c6f1c912f4d8ceb",
+          "pearl-src-fc7375ffc5f94a19"
+        ]
+      ],
+      "study_family_ids": [
+        "jin-southeast-university-2016-ring-experiment-shared-by-fc737-and-2c6f",
+        "chraibi-force-model-stability2015"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-006",
+      "all_atom_sources": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-b40f5056a160d4e9"
+        ],
+        [
+          "pearl-src-2c6f1c912f4d8ceb",
+          "pearl-src-b40f5056a160d4e9"
+        ]
+      ],
+      "study_family_ids": [
+        "jin-ring-road2016-2019",
+        "bidirectional-capacity-feliciani2018"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-007",
+      "all_atom_sources": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-bae14f716cb901cf",
+        "pearl-src-c855476d71620c33"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-bae14f716cb901cf"
+        ]
+      ],
+      "study_family_ids": [
+        "FIS-review-haghani2020",
+        "nicolas-doorway2017",
+        "maity-meshfree2024"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-008",
+      "all_atom_sources": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-41c7d913c29687f3",
+        "pearl-src-b40f5056a160d4e9"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-41c7d913c29687f3"
+        ]
+      ],
+      "study_family_ids": []
+    },
+    {
+      "candidate_id": "pqr-p01-D-009",
+      "all_atom_sources": [
+        "pearl-src-6bbceb8663aa0757",
+        "pearl-src-df9bec9b2e281134"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-6bbceb8663aa0757"
+        ]
+      ],
+      "study_family_ids": [
+        "feliciani-congestion2018",
+        "zanlungo-CN2023"
+      ]
+    },
+    {
+      "candidate_id": "pqr-p01-D-010",
+      "all_atom_sources": [
+        "pearl-src-031a5779bd83192e",
+        "pearl-src-551c6f4b4febcc8a"
+      ],
+      "complete_bundle_sources": [
+        [
+          "pearl-src-031a5779bd83192e",
+          "pearl-src-551c6f4b4febcc8a"
+        ]
+      ],
+      "study_family_ids": [
+        "individual-FD-paetzke2022",
+        "shi-stair-age2024"
+      ]
+    }
+  ],
+  "source_co_use_pairs": [
+    {
+      "candidate_ids": [
+        "pqr-p01-A-004",
+        "pqr-p01-B-007"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-A-004",
+        "pqr-p01-C-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-A-004",
+        "pqr-p01-D-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-A-004",
+        "pqr-p01-D-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-001",
+        "pqr-p01-B-002"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-001",
+        "pqr-p01-C-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-b805951c663c1536"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-001",
+        "pqr-p01-D-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-b805951c663c1536"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-001",
+        "pqr-p01-D-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-001",
+        "pqr-p01-D-005"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-b805951c663c1536"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-001",
+        "pqr-p01-D-007"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-002",
+        "pqr-p01-B-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-630cddfaf9b1cb6d"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-002",
+        "pqr-p01-C-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-630cddfaf9b1cb6d"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-002",
+        "pqr-p01-D-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-002",
+        "pqr-p01-D-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-002",
+        "pqr-p01-D-005"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-002",
+        "pqr-p01-D-007"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-003",
+        "pqr-p01-C-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-7b986410ee7877cb"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-003",
+        "pqr-p01-D-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-7b986410ee7877cb"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-004",
+        "pqr-p01-C-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-630cddfaf9b1cb6d"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-005",
+        "pqr-p01-B-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-6bbceb8663aa0757"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-005",
+        "pqr-p01-C-009"
+      ],
+      "shared_source_ids": [
+        "pearl-src-df9bec9b2e281134"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-005",
+        "pqr-p01-D-009"
+      ],
+      "shared_source_ids": [
+        "pearl-src-6bbceb8663aa0757",
+        "pearl-src-df9bec9b2e281134"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-006",
+        "pqr-p01-B-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-48101ba7d6ac7448"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-006",
+        "pqr-p01-D-002"
+      ],
+      "shared_source_ids": [
+        "pearl-src-48101ba7d6ac7448"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-B-009"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-C-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3",
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-C-002"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-C-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-C-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-C-005"
+      ],
+      "shared_source_ids": [
+        "pearl-src-031a5779bd83192e"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-C-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-D-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-D-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-007",
+        "pqr-p01-D-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-031a5779bd83192e"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-008",
+        "pqr-p01-C-006"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-008",
+        "pqr-p01-D-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2bfe121ce9b3ce0c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-008",
+        "pqr-p01-D-005"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-008",
+        "pqr-p01-D-006"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-008",
+        "pqr-p01-D-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-008",
+        "pqr-p01-D-009"
+      ],
+      "shared_source_ids": [
+        "pearl-src-6bbceb8663aa0757"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-009",
+        "pqr-p01-C-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-009",
+        "pqr-p01-C-002"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-009",
+        "pqr-p01-C-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-009",
+        "pqr-p01-C-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-009",
+        "pqr-p01-C-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-010",
+        "pqr-p01-D-002"
+      ],
+      "shared_source_ids": [
+        "pearl-src-48101ba7d6ac7448"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-B-010",
+        "pqr-p01-D-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-7b0aa0b9d28b79b0"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-001",
+        "pqr-p01-C-002"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c",
+        "pearl-src-aa99c4690a1ccb24"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-001",
+        "pqr-p01-C-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-001",
+        "pqr-p01-C-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-001",
+        "pqr-p01-C-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-001",
+        "pqr-p01-D-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3",
+        "pearl-src-aa99c4690a1ccb24",
+        "pearl-src-b805951c663c1536"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-001",
+        "pqr-p01-D-005"
+      ],
+      "shared_source_ids": [
+        "pearl-src-b805951c663c1536"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-001",
+        "pqr-p01-D-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-002",
+        "pqr-p01-C-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-002",
+        "pqr-p01-C-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-002",
+        "pqr-p01-C-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-002",
+        "pqr-p01-D-001"
+      ],
+      "shared_source_ids": [
+        "pearl-src-aa99c4690a1ccb24"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-003",
+        "pqr-p01-C-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-003",
+        "pqr-p01-C-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-004",
+        "pqr-p01-C-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-4b758ccb41af532c"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-004",
+        "pqr-p01-D-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-7b986410ee7877cb"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-005",
+        "pqr-p01-D-002"
+      ],
+      "shared_source_ids": [
+        "pearl-src-d478e1b057bcd403"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-005",
+        "pqr-p01-D-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-d478e1b057bcd403"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-005",
+        "pqr-p01-D-010"
+      ],
+      "shared_source_ids": [
+        "pearl-src-031a5779bd83192e"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-006",
+        "pqr-p01-C-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-f5f2ef2b3dab00a0"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-006",
+        "pqr-p01-D-005"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-006",
+        "pqr-p01-D-006"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-006",
+        "pqr-p01-D-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-007",
+        "pqr-p01-D-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-a1d94e43220548c2"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-009",
+        "pqr-p01-D-004"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2d794479f1d822ef"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-009",
+        "pqr-p01-D-007"
+      ],
+      "shared_source_ids": [
+        "pearl-src-bae14f716cb901cf"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-C-009",
+        "pqr-p01-D-009"
+      ],
+      "shared_source_ids": [
+        "pearl-src-df9bec9b2e281134"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-001",
+        "pqr-p01-D-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-001",
+        "pqr-p01-D-005"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4",
+        "pearl-src-b805951c663c1536"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-001",
+        "pqr-p01-D-007"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-001",
+        "pqr-p01-D-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-41c7d913c29687f3"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-002",
+        "pqr-p01-D-003"
+      ],
+      "shared_source_ids": [
+        "pearl-src-d478e1b057bcd403"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-003",
+        "pqr-p01-D-005"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-003",
+        "pqr-p01-D-007"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-005",
+        "pqr-p01-D-006"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-005",
+        "pqr-p01-D-007"
+      ],
+      "shared_source_ids": [
+        "pearl-src-15c1100e05ee58e4"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-005",
+        "pqr-p01-D-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "pqr-p01-D-006",
+        "pqr-p01-D-008"
+      ],
+      "shared_source_ids": [
+        "pearl-src-2c6f1c912f4d8ceb",
+        "pearl-src-b40f5056a160d4e9"
+      ]
+    }
+  ],
+  "limitations": [
+    "Source IDs are documents, not independent studies.",
+    "Study family labels inherit historical names unless specifically revised; empty or unverified aliases are not proof of independence.",
+    "No dev/test split, legacy sealed-set comparison, or Gold freeze performed."
+  ]
+}

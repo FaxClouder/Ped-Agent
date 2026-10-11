@@ -50,6 +50,8 @@ flowchart LR
 | 新实验读取 | 一律从规范位置读取，并在 README 记录登记号与 SHA-256 |
 | 版本控制 | 当前只在本地保存，不提交 Git（用户 2026-10-07 决定）；因此需定期做本地备份 |
 
+**2026-10-10 新版开发候选例外：**用户明确授权将新版 40 题候选、答案证据、QA、修改记录、manifest、验证结果和接收合同公开提交到 `codex/question-set` 分支的 [`datasets/pearl-question-redesign/`](../datasets/pearl-question-redesign/README.md)。该目录采用不可覆盖的 release 与版本哈希；不是已登记冻结 Gold。此例外不迁移或公开旧封存题集，不放开整个 outputs，也不包含 PDF、完整解析文本、数据库、模型、索引或凭据。人工作为公开发布授权者不代表题目已 human_verified。新正式测试的封存访问规则不变，公开分支不能替代访问隔离。
+
 ## 3. 问题集构建与修订
 
 ### 3.1 新建

@@ -1,0 +1,79 @@
+{
+  "manifest_version": "pearl-candidate-release-v1",
+  "release_id": "pilot40-cloud-20261010-r01",
+  "parent_release": null,
+  "upstream_parent": "question-set-consolidation-20261010-01/answers_evidence_draft_pilot_v2.jsonl (local historical source)",
+  "source_sha256": "97903e916e12b0f48b9175ff4b6e4ee2a4482e2c52a01957b100214fe105b795",
+  "corpus_version": "corpus-pearl-adobe106-v02",
+  "contract_path": "../../contracts/intake-v1.json",
+  "contract_sha256": "40a62e8efe5f3f1eed15f87aa58e4a385a7b3d2f2c9c8b270763195ef24e086f",
+  "question_count": 40,
+  "expected_decisions": {
+    "ACCEPT": 39,
+    "UNRESOLVED": 1
+  },
+  "review_is_blind": false,
+  "human_verified": false,
+  "gold_frozen": false,
+  "hash_exclusions": [
+    "manifest.json (self hash)",
+    "validation.json (generated result; binds manifest hash)"
+  ],
+  "files": [
+    {
+      "path": "answers.jsonl",
+      "bytes": 676314,
+      "sha256": "9d606ca307ab292e1301f8a4c29328dc3b84872064426a6eaabb1d38fa802dbe"
+    },
+    {
+      "path": "bindings.jsonl",
+      "bytes": 16440,
+      "sha256": "8a8d9f5c1f7139d3d9f7cf1e17a1ef814f47570cbb087198361c26df1e316bfc"
+    },
+    {
+      "path": "candidates.jsonl",
+      "bytes": 103212,
+      "sha256": "3d9d6d89b39492621123819cc8348e29fb292f81c5426a58fe5c0abca0067b67"
+    },
+    {
+      "path": "changes.jsonl",
+      "bytes": 1223750,
+      "sha256": "ca4ae716a9ade0cd7a3cc092a25dde1673ccf5c32952d0ee4f349f1ced0a63cb"
+    },
+    {
+      "path": "D004_classification.json",
+      "bytes": 762828,
+      "sha256": "02b5ba5458a3dec3cc1b8768c4feb0d3029834e37aa7612cf56241d87b777a12"
+    },
+    {
+      "path": "metadata.json",
+      "bytes": 8807,
+      "sha256": "f11239da195ce257694aaa8770bedbc6385c3acd984ff5bf7173c9f2cf112ab6"
+    },
+    {
+      "path": "qa.jsonl",
+      "bytes": 422490,
+      "sha256": "83a08aa20bbda7b01033dbbd5704d986d9a68b3f474c4860bb4a007158a739c6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1374,
+      "sha256": "2bd3d94e5a102a1af426fdbd70b7b746862f9987d4eacdd2ea27c04e12958a4f"
+    },
+    {
+      "path": "source_catalog.json",
+      "bytes": 28980,
+      "sha256": "6e536fc0209fc41bd8ad8905df3819f842d1ad8293c80544ceb197581af182b4"
+    },
+    {
+      "path": "source_graph.json",
+      "bytes": 33038,
+      "sha256": "e6ed3c5e6acfd7accabebcacb4818b01480df278e19a9850b315c7d199cd7495"
+    },
+    {
+      "path": "transformations.json",
+      "bytes": 1124,
+      "sha256": "53dbc07a25396b6f6809e270a6ebfebd5a35f7f6f14aaf924ae97e28e1bee8ad"
+    }
+  ]
+}

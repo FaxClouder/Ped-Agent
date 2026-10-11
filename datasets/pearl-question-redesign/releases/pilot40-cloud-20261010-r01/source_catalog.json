@@ -1,0 +1,744 @@
+[
+  {
+    "source_id": "pearl-src-031a5779bd83192e",
+    "title": "Influence of individual factors on fundamental diagrams of pedestrians",
+    "doi": "10.1016/j.physa.2022.127077",
+    "pdf_pages": "12",
+    "topics": "flow_fundamentals;experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-059d2b16335c2e60",
+    "title": "Groups in pedestrian evacuation: Survey data on attitudes",
+    "doi": "10.1016/j.ijdrr.2023.103916",
+    "pdf_pages": "18",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-05c9756b8656905f",
+    "title": "Continuous agent-based modeling of adult-child pairs based on a pseudo-energy: Relevance for public safety and egress efficiency",
+    "doi": "10.1016/j.ssci.2024.106576",
+    "pdf_pages": "17",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-06ceea72728432ef",
+    "title": "The emergence of macroscopic interactions between intersecting pedestrian streams",
+    "doi": "10.1016/j.trb.2018.12.002",
+    "pdf_pages": "14",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-089b2487ffb24826",
+    "title": "Monitoring physical distancing for crowd management: Real-time trajectory and group analysis",
+    "doi": "10.1371/journal.pone.0240963",
+    "pdf_pages": "18",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-09919083d9484bce",
+    "title": "A roadmap for the future of crowd safety research and practice: Introducing the Swiss Cheese Model of Crowd Safety and the imperative of a Vision Zero target",
+    "doi": "10.1016/j.ssci.2023.106292",
+    "pdf_pages": "22",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-0a7abbfdb1e0fe2e",
+    "title": "Evacuation behaviors in tsunami drills",
+    "doi": "10.1007/s11069-022-05208-y",
+    "pdf_pages": "27",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-0d52fcfe5f0ab75a",
+    "title": "The Impact of Potential Crowd Behaviours on Emergency Evacuation: An Evolutionary Game-Theoretic Approach",
+    "doi": "10.18564/jasss.3837",
+    "pdf_pages": "15",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-0e8d201180bcd044",
+    "title": "Estimating density limits for walking pedestrians keeping a safe interpersonal distancing",
+    "doi": "10.1038/s41598-020-79454-0",
+    "pdf_pages": "8",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-0ecad6b65f55a26b",
+    "title": "A learning based pedestrian flow prediction approach with diffusion behavior",
+    "doi": "10.1016/j.trc.2025.105243",
+    "pdf_pages": "25",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-0f91574e850babb8",
+    "title": "System Identification for the design of behavioral controllers in crowd evacuations",
+    "doi": "10.1016/j.trc.2022.103913",
+    "pdf_pages": "29",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-15c1100e05ee58e4",
+    "title": "Pedestrian flows through a narrow doorway: Effect of individual behaviours on the global flow and microscopic dynamics",
+    "doi": "10.1016/j.trb.2017.01.008",
+    "pdf_pages": "14",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-1687e715b6ddb44b",
+    "title": "Modelling and accelerating the passenger evacuation process in a bi-modal system with bus and e-hailing modes after mass gathering events",
+    "doi": "10.1016/j.tbs.2023.100713",
+    "pdf_pages": "18",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-23359e3c52013ff2",
+    "title": "Improved social force model considering the influence of COVID-19 pandemic: Pedestrian evacuation under regulation",
+    "doi": "10.1016/j.apm.2023.08.010",
+    "pdf_pages": "9",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-253fbfe913dbf603",
+    "title": "Multiple-Input-Single-Output prediction models of crowd dynamics for Model Predictive Control (MPC) of crowd evacuations",
+    "doi": "10.1016/j.trc.2023.104268",
+    "pdf_pages": "19",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-2a5248d83478c25a",
+    "title": "Order–disorder phase transitions in front of the exit during human crowd evacuations",
+    "doi": "10.1016/j.trc.2024.104649",
+    "pdf_pages": "15",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-2bfe121ce9b3ce0c",
+    "title": "Optimal feedback control of pedestrian counter flow in bidirectional corridors with multiple inflows",
+    "doi": "10.1016/j.apm.2020.08.073",
+    "pdf_pages": "14",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-2c6f1c912f4d8ceb",
+    "title": "Pedestrian dynamics with different corridor widths: Investigation on a series of uni-directional and bi-directional experiments",
+    "doi": "10.1016/j.physa.2021.126229",
+    "pdf_pages": "22",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-2d794479f1d822ef",
+    "title": "Effect of S-shaped guardrails on pedestrian crowd flows in bottleneck areas",
+    "doi": "10.1016/j.ssci.2022.106020",
+    "pdf_pages": "13",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-2d9857c44a13d6a2",
+    "title": "Comparison of pedestrian wayfinding behavior between a real and a virtual multi-story building – A validation study",
+    "doi": "10.1016/j.trc.2024.104650",
+    "pdf_pages": "16",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-305a148e97c45b4d",
+    "title": "Findings in pedestrian route choice experiments: Tradeoff and hypothetical bias",
+    "doi": "10.1016/j.tbs.2025.101000",
+    "pdf_pages": "14",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-3274cebad51fb72d",
+    "title": "Generating Pedestrian Trajectories Consistent with the Fundamental Diagram Based on Physiological and Psychological Factors",
+    "doi": "10.1371/journal.pone.0117856",
+    "pdf_pages": "17",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-40f1751dc557a762",
+    "title": "An Agent-Based Simulation Model of Pedestrian Evacuation based on Bayesian Nash Equilibrium",
+    "doi": "10.18564/jasss.5037",
+    "pdf_pages": "20",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-41c7d913c29687f3",
+    "title": "A comparative experimental study on the influence of bottleneck width on evacuation characteristics of pedestrian flow in funnel shape bottleneck and normal bottleneck",
+    "doi": "10.1016/j.physa.2023.128929",
+    "pdf_pages": "18",
+    "topics": "facility_scenario_flow;flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-48101ba7d6ac7448",
+    "title": "Crowd model calibration at strategic, tactical, and operational levels: Full-spectrum sensitivity analyses show bottleneck parameters are most critical, followed by exit-choice-changing parameters",
+    "doi": "10.1080/19427867.2023.2195729",
+    "pdf_pages": "29",
+    "topics": "evacuation_behavior_modeling;flow_fundamentals;safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-486515cd9939adcf",
+    "title": "The Walking Behaviour of Pedestrian Social Groups and Its Impact on Crowd Dynamics",
+    "doi": "10.1371/journal.pone.0010047",
+    "pdf_pages": "7",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-48dcda77c8cdac9b",
+    "title": "Crowd behaviour during high-stress evacuations in an immersive virtual environment",
+    "doi": "10.1098/rsif.2016.0414",
+    "pdf_pages": "8",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-49fbc8413e27f3f1",
+    "title": "Macroscopic modeling and simulations of room evacuation",
+    "doi": "10.1016/j.apm.2014.03.027",
+    "pdf_pages": "15",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-4b758ccb41af532c",
+    "title": "Empirical methods in pedestrian, crowd and evacuation dynamics: Part I. Experimental methods and emerging topics",
+    "doi": "10.1016/j.ssci.2020.104743",
+    "pdf_pages": "42",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-4bfcc1fdfb73424f",
+    "title": "Understanding pedestrian route choice behavior in the continuous space: Diversity and equilibrium",
+    "doi": "10.1016/j.trc.2023.104336",
+    "pdf_pages": "15",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-4c32a7203b84fd3e",
+    "title": "Dense Crowd Dynamics and Pedestrian Trajectories: A Multiscale Field Dataset from the Festival of Lights in Lyon",
+    "doi": "10.1038/s41597-025-04732-3",
+    "pdf_pages": "10",
+    "topics": "experiment_measurement;flow_fundamentals;safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-4d5e06c459e428ae",
+    "title": "Analyzing factors causing deadlock events of bi-directional pedestrian flow when moving on stairs using a personal space model",
+    "doi": "10.1038/s41598-024-61007-4",
+    "pdf_pages": "21",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-4e58ae08e48f6688",
+    "title": "Inclusive crowd evacuation modeling under heterogeneous mobility constraints",
+    "doi": "10.1038/s41598-025-19403-x",
+    "pdf_pages": "16",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-53eaa084325fad7e",
+    "title": "A novel approach to the investigation and quantification of the stop/start process for pedestrian traffic using motion capture devices",
+    "doi": "10.1016/j.tbs.2023.100659",
+    "pdf_pages": "19",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-551c6f4b4febcc8a",
+    "title": "How do age compositions affect pedestrian dynamics on stairways? Findings from controlled experiments",
+    "doi": "10.1016/j.ssci.2024.106623",
+    "pdf_pages": "19",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-572cefbfcda51e51",
+    "title": "Nonlocal macroscopic models of multi-population pedestrian flows for walking facilities optimization",
+    "doi": "10.1016/j.apm.2025.115927",
+    "pdf_pages": "14",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-579f028f9623b157",
+    "title": "Experimental study on the synchronization mechanism and trigger characteristic density of vertical evacuation in crowds",
+    "doi": "10.1038/s41598-024-77726-7",
+    "pdf_pages": "19",
+    "topics": "facility_scenario_flow;experiment_measurement;evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-59f25c300daa2ba2",
+    "title": "Crowd disasters as systemic failures: analysis of the Love Parade disaster",
+    "doi": "10.1140/epjds7",
+    "pdf_pages": "40",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-5bd280c855f70cd4",
+    "title": "Microscopic modeling of attention-based movement behaviors",
+    "doi": "10.1016/j.trc.2024.104583",
+    "pdf_pages": "17",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-5fe5e8ee03c930c7",
+    "title": "A machine learning based study on pedestrian movement dynamics under emergency evacuation",
+    "doi": "10.1016/j.firesaf.2019.04.008",
+    "pdf_pages": "14",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-5fed1a8f6083c86b",
+    "title": "Modeling tagged pedestrian motion: A mean-field type game approach",
+    "doi": "10.1016/j.trb.2019.01.011",
+    "pdf_pages": "16",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-630cddfaf9b1cb6d",
+    "title": "High-statistics pedestrian dynamics on stairways and their probabilistic fundamental diagrams",
+    "doi": "10.1016/j.trc.2023.104468",
+    "pdf_pages": "22",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-6447477bdd8b532e",
+    "title": "Dynamic Simulation of Pedestrian Evacuation under Flood Conditions Using a Swarm Intelligence Approach",
+    "doi": "10.1007/s11269-026-04694-0",
+    "pdf_pages": "17",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-660b3fd7d42107c6",
+    "title": "Modeling interpretable social interactions for pedestrian trajectory",
+    "doi": "10.1016/j.trc.2024.104617",
+    "pdf_pages": "16",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-6953122155fbbf77",
+    "title": "A comparative study on pedestrian flow through bottlenecks between flood evacuation and land evacuation",
+    "doi": "10.1016/j.ijdrr.2023.103822",
+    "pdf_pages": "15",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-69cbf5aaec4292e0",
+    "title": "Macroscopic model of multidirectional pedestrian network flows",
+    "doi": "10.1016/j.trb.2020.12.004",
+    "pdf_pages": "23",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-69dfcb572ce5ee70",
+    "title": "Virtual experimental study on pedestrian evacuation dynamics in view-limited environment",
+    "doi": "10.1016/j.tbs.2025.100988",
+    "pdf_pages": "15",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-6bbceb8663aa0757",
+    "title": "Measurement of congestion and intrinsic risk in pedestrian crowds",
+    "doi": "10.1016/j.trc.2018.03.027",
+    "pdf_pages": "32",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-6d44c24ebbf9c0d0",
+    "title": "Jamming transitions in force-based models for pedestrian dynamics",
+    "doi": "10.1103/physreve.92.042809",
+    "pdf_pages": "14",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-6e4b554094219015",
+    "title": "How behavioural changes in social groups affect evacuation efficiency of crowds",
+    "doi": "10.1016/j.ssci.2024.106679",
+    "pdf_pages": "16",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-72f5997118149dbe",
+    "title": "Modelling social identification and helping in evacuation simulation",
+    "doi": "10.1016/j.ssci.2016.07.001",
+    "pdf_pages": "13",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-73fdbf71b0cef19a",
+    "title": "A geometric cognition pedestrian dynamics model considering heterogeneous collision avoidance behaviors",
+    "doi": "10.1016/j.trb.2025.103309",
+    "pdf_pages": "21",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-770b36f31c854869",
+    "title": "A machine vision-based method for crowd density estimation and evacuation simulation",
+    "doi": "10.1016/j.ssci.2023.106285",
+    "pdf_pages": "18",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-786237ff86268f24",
+    "title": "Herd behavior influence on decision-making during evacuation process: an empirical analysis from building evacuation experiments",
+    "doi": "10.1007/s12144-024-06806-8",
+    "pdf_pages": "16",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-796e20731652c53b",
+    "title": "The principles of pedestrian route choice",
+    "doi": "10.1098/rsif.2022.0061",
+    "pdf_pages": "13",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-7b0aa0b9d28b79b0",
+    "title": "Adaptive cell-based evacuation systems for leader-follower crowd evacuation",
+    "doi": "10.1016/j.trc.2022.103699",
+    "pdf_pages": "23",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-7b986410ee7877cb",
+    "title": "Evacuation behaviors and emergency communications: An analysis of real-world incident videos",
+    "doi": "10.1016/j.ssci.2020.105121",
+    "pdf_pages": "8",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-7bb98df43e00bda3",
+    "title": "Characteristic time in highly motivated movements of children and adults through bottlenecks",
+    "doi": "10.1038/s41598-021-84324-4",
+    "pdf_pages": "18",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-7da007f9ae20dcb9",
+    "title": "Joint optimization for crowd evacuation and vehicle scheduling at multimodal transportation hubs",
+    "doi": "10.1016/j.trc.2025.105117",
+    "pdf_pages": "28",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-7ee7b1fbb9eea381",
+    "title": "A study of pedestrian wayfinding behavior based on desktop VR considering both spatial knowledge and visual information",
+    "doi": "10.1016/j.trc.2024.104651",
+    "pdf_pages": "25",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-80cb8e9188ee9b89",
+    "title": "Bidirectional Evacuation in Subway Fires Considering the Number of Retrograders and Proactive Avoidance Behavior Based on Experiments and Simulations",
+    "doi": "10.1007/s13753-024-00608-z",
+    "pdf_pages": "16",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-8591d6f498fb3405",
+    "title": "How the strength of social relationship affects pedestrian evacuation behavior: A multi-participant fire evacuation experiment in a virtual metro station",
+    "doi": "10.1016/j.trc.2024.104805",
+    "pdf_pages": "16",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-87bd4f373ec7a172",
+    "title": "Augmented reality for pedestrian evacuation research: Promises and limitations",
+    "doi": "10.1016/j.ssci.2020.104750",
+    "pdf_pages": "12",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-8c2167fb33f779d6",
+    "title": "A study of herding behaviour in exit choice during emergencies based on random utility theory",
+    "doi": "10.1016/j.ssci.2015.10.015",
+    "pdf_pages": "11",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-8cce53301f2fbdfa",
+    "title": "Review of Modelling and Simulating Crowds at Mass Gathering Events: Hajj as a Case Study",
+    "doi": "10.18564/jasss.3997",
+    "pdf_pages": "36",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-9104119ce4755ec6",
+    "title": "Beyond ‘stampedes’: Towards a new psychology of crowd crush disasters",
+    "doi": "10.1111/bjso.12666",
+    "pdf_pages": "18",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-96b26d7574a0faec",
+    "title": "Simulation of pedestrian route choice with local view: A potential field approach",
+    "doi": "10.1016/j.apm.2020.11.036",
+    "pdf_pages": "23",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-9a4f2d471b96e89f",
+    "title": "Incorporating human factors in emergency evacuation – An overview of behavioral factors and models",
+    "doi": "10.1016/j.ijdrr.2021.102254",
+    "pdf_pages": "15",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-9e1c873b60f8d08c",
+    "title": "Pedestrian crowd flows in shared spaces: Investigating the impact of geometry based on micro and macro scale measures",
+    "doi": "10.1016/j.trb.2019.01.019",
+    "pdf_pages": "31",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-a1d94e43220548c2",
+    "title": "CellEVAC: An adaptive guidance system for crowd evacuation through behavioral optimization",
+    "doi": "10.1016/j.ssci.2021.105215",
+    "pdf_pages": "22",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-a5d5181945d0dd8a",
+    "title": "Understanding pedestrian crowd dynamics on ramps: An empirical study triggered by Seoul Halloween crowd crush",
+    "doi": "10.1016/j.ijdrr.2024.104601",
+    "pdf_pages": "16",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-aa99c4690a1ccb24",
+    "title": "How people with disabilities influence crowd dynamics of pedestrian movement through bottlenecks",
+    "doi": "10.1038/s41598-022-18142-7",
+    "pdf_pages": "16",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-b13e50e36a0d53e2",
+    "title": "A generalized trajectories-based evaluation approach for pedestrian evacuation models",
+    "doi": "10.1016/j.ssci.2021.105574",
+    "pdf_pages": "8",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-b215383357daae16",
+    "title": "Experimental study of pedestrian behaviors in a corridor based on digital image processing",
+    "doi": "10.1016/j.firesaf.2011.09.005",
+    "pdf_pages": "8",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-b40f5056a160d4e9",
+    "title": "A universal function for capacity of bidirectional pedestrian streams: Filling the gaps in the literature",
+    "doi": "10.1371/journal.pone.0208496",
+    "pdf_pages": "31",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-b4d276c8795ad307",
+    "title": "Evacuation behavior under violent attacks in classrooms based on experiments and interpretable machine learning method",
+    "doi": "10.1016/j.ssci.2023.106243",
+    "pdf_pages": "10",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-b805951c663c1536",
+    "title": "Measuring the steady state of pedestrian flow in bottleneck experiments",
+    "doi": "10.1016/j.physa.2016.05.051",
+    "pdf_pages": "14",
+    "topics": "experiment_measurement;flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-bae14f716cb901cf",
+    "title": "Empirical methods in pedestrian, crowd and evacuation dynamics: Part II. Field methods and controversial topics",
+    "doi": "10.1016/j.ssci.2020.104760",
+    "pdf_pages": "21",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-c484f1e750553afe",
+    "title": "Optimal guidance strategy for crowd evacuation with multiple exits: A hybrid multiscale modeling approach",
+    "doi": "10.1016/j.apm.2020.08.075",
+    "pdf_pages": "17",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-c699aada46c6b10b",
+    "title": "Crowd behaviour and motion: Empirical methods",
+    "doi": "10.1016/j.trb.2017.06.017",
+    "pdf_pages": "42",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-c6e6c8ab843d5dd5",
+    "title": "A Continuum model for pedestrian flow with explicit consideration of crowd force and panic effects",
+    "doi": "10.1016/j.trb.2021.05.006",
+    "pdf_pages": "18",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-c855476d71620c33",
+    "title": "A high-resolution meshfree particle method for numerical investigation of second-order macroscopic pedestrian flow models",
+    "doi": "10.1016/j.apm.2024.03.024",
+    "pdf_pages": "28",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-ca90e9f03ed777a6",
+    "title": "Discovering interaction mechanisms in crowds via deep generative surrogate experiments",
+    "doi": "10.1038/s41598-025-92566-9",
+    "pdf_pages": "11",
+    "topics": "flow_fundamentals;experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-cb8416711b3b22c9",
+    "title": "Social force model for pedestrian dynamics",
+    "doi": "10.1103/physreve.51.4282",
+    "pdf_pages": "5",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-cd4a7a7e9d59260f",
+    "title": "A study of group effects in pedestrian crowd evacuation: Experiments modelling and simulation",
+    "doi": "10.1016/j.ssci.2020.105029",
+    "pdf_pages": "12",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-d28d1df93964d3ec",
+    "title": "Quantitative measurement of social repulsive force in pedestrian movements based on physiological responses",
+    "doi": "10.1016/j.trb.2019.10.008",
+    "pdf_pages": "20",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-d478e1b057bcd403",
+    "title": "The notion of validity in experimental crowd dynamics",
+    "doi": "10.1016/j.ijdrr.2023.103750",
+    "pdf_pages": "21",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-d8ec3618b31ff478",
+    "title": "An investigation of how context affects the response of pedestrians to the movement of others",
+    "doi": "10.1016/j.ssci.2022.105919",
+    "pdf_pages": "12",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-df9bec9b2e281134",
+    "title": "A pure number to assess “congestion” in pedestrian crowds",
+    "doi": "10.1016/j.trc.2023.104041",
+    "pdf_pages": "28",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-e08ea2bf6e32b974",
+    "title": "Experimental study of crowd evacuation dynamics considering small group behavioral patterns",
+    "doi": "10.1016/j.ijdrr.2022.103228",
+    "pdf_pages": "15",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-e283656d05fb33d6",
+    "title": "Extended route choice model based on available evacuation route set and its application in crowd evacuation simulation",
+    "doi": "10.1016/j.simpat.2017.03.010",
+    "pdf_pages": "16",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-e51fb7757831d3bc",
+    "title": "Modeling boundedly rational route choice in crowd evacuation processes",
+    "doi": "10.1016/j.ssci.2021.105590",
+    "pdf_pages": "13",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-e5b2de4b165e3f8b",
+    "title": "ro-PINN: A reduced order physics-informed neural network for solving the macroscopic model of pedestrian flows",
+    "doi": "10.1016/j.trc.2024.104658",
+    "pdf_pages": "21",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-e741c6bfedd59a19",
+    "title": "An experimental study on bidirectional pedestrian flow involving individuals with simulated disabilities in a corridor",
+    "doi": "10.1016/j.ssci.2022.105723",
+    "pdf_pages": "14",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-ea334de2fa3fbbcd",
+    "title": "Path planning for guided passengers during evacuation in subway station based on multi-objective optimization",
+    "doi": "10.1016/j.apm.2022.07.024",
+    "pdf_pages": "25",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-eb2d10e0bd947934",
+    "title": "Data-driven physics-based modeling of pedestrian dynamics",
+    "doi": "10.1103/physreve.110.064102",
+    "pdf_pages": "13",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-f51503974db34bd9",
+    "title": "Crowd risk prediction in a spiritually motivated crowd",
+    "doi": "10.1016/j.ssci.2022.105877",
+    "pdf_pages": "19",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-f5f2ef2b3dab00a0",
+    "title": "A dynamic network loading model for anisotropic and congested pedestrian flows",
+    "doi": "10.1016/j.trb.2016.10.017",
+    "pdf_pages": "20",
+    "topics": "facility_scenario_flow"
+  },
+  {
+    "source_id": "pearl-src-f78adbda9097ba75",
+    "title": "Agent-based simulation of hindering effect of small group behavior on elevated interval evacuation time along urban rail transit",
+    "doi": "10.1016/j.tbs.2020.10.007",
+    "pdf_pages": "12",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-f83334db50f56009",
+    "title": "What do we head for while exiting a room? a novel parametric distance map for pedestrian dynamic simulations",
+    "doi": "10.1016/j.trc.2023.104335",
+    "pdf_pages": "22",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-f8d9c2f4d7bebd89",
+    "title": "Information use by humans during dynamic route choice in virtual crowd evacuations",
+    "doi": "10.1098/rsos.140410",
+    "pdf_pages": "10",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-fbd459300aadae12",
+    "title": "Dynamic traffic assignment using the macroscopic fundamental diagram: A Review of vehicular and pedestrian flow models",
+    "doi": "10.1016/j.trb.2018.10.017",
+    "pdf_pages": "20",
+    "topics": "flow_fundamentals"
+  },
+  {
+    "source_id": "pearl-src-fbd4d14d3056f217",
+    "title": "Bayesian inference methods to calibrate crowd dynamics models for safety applications",
+    "doi": "10.1016/j.ssci.2021.105586",
+    "pdf_pages": "12",
+    "topics": "evacuation_behavior_modeling"
+  },
+  {
+    "source_id": "pearl-src-fc7375ffc5f94a19",
+    "title": "Observational characteristics of pedestrian flows under high-density conditions based on controlled experiments",
+    "doi": "10.1016/j.trc.2019.10.013",
+    "pdf_pages": "18",
+    "topics": "experiment_measurement"
+  },
+  {
+    "source_id": "pearl-src-ff64ceab9d1692d0",
+    "title": "Estimating contact forces and pressure in a dense crowd: Microscopic and macroscopic models",
+    "doi": "10.1016/j.apm.2019.04.062",
+    "pdf_pages": "13",
+    "topics": "safety_risk_intervention"
+  },
+  {
+    "source_id": "pearl-src-ffc3734fcd145140",
+    "title": "Walking behavior of pedestrian social groups on stairs: A field study",
+    "doi": "10.1016/j.ssci.2019.04.048",
+    "pdf_pages": "11",
+    "topics": "facility_scenario_flow"
+  }
+]
