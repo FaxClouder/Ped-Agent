@@ -4,6 +4,14 @@
 
 ## 当前入口
 
+- [Gold 问题设计与质量控制 v1.2](rag/gold-question-standard-v1.2.md)：106 篇语料、50＋200 新题目标、任务分类、证据/行为要求、审核和冻结边界；[相关文档处置清单](rag/gold-document-disposition-2026-10-10.md)列出合并、更新与删除候选（current；规范已修订，题集未冻结；2026-10-10）。
+
+- [新版 40 题云端修订本地接收](../outputs/pearl-question-redesign-pilot-20261008-01/cloud-revision-import-20261010-01/README.md)：用户提供的最新 Excel/JSON 原件、无损分表导出与版本核对；39 ACCEPT、D-004 未决，非盲、非人工、未冻结 Gold；旧本地 v2 保留（current；接收记录；2026-10-10）。
+
+- [知识侧 RAG 文档与研究资产总入口](rag/README.md)：设计、实现、语料、登记题集与新候选、评价和历史资料的统一导航；清单与保全核验已交付，原件保留，正文修订见后续清单（current；2026-10-10）。
+
+- [知识侧 RAG 文档与资产整理计划](superpowers/plans/2026-10-10-rag-asset-organization.md)、[新 Session 交接说明](superpowers/plans/2026-10-10-rag-asset-organization-handoff.md)：排除 Agent/Core/Harness；先完成清单与统一导航，原件不移动，正文调整留待后续（plan；2026-10-10）。
+
 - [RAG 开发主线与讨论记录](rag-development-roadmap.md)：PRISMA 筛选、Adobe 产物组织、父子切块实验规划、BM25／BGE-M3 建库约定及待办；Offline 总体设计已确认，参数与实现验证待完成；不评价历史切块结果（plan；2026-10-08）。
 
 - **[评测问题集与实验规范](../experiments/EVALUATION-STANDARD.md)**、[登记表](../experiments/EVALUATION-REGISTRY.yaml)：问题集身份、规范存放位置（`memPed/knowledge/gold/pearl-adobe106/`）、封存评估集访问规则、实验设置规范与扩充计划；新建或使用问题集、启动评测实验前必读（current；扩充计划为 plan；2026-10-07）。
